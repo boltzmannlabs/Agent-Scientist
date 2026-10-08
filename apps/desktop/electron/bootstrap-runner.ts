@@ -229,10 +229,13 @@ function cachedScriptPath(sciHome, cacheKey) {
 
 function downloadInstallScript(ref, destPath) {
   if (!BOOTSTRAP_SOURCE_BASE) {
-    return Promise.reject(new Error(
-      'SCI packaged installer is not published yet. Use the reviewed SCI source checkout and its README.md. No installer was downloaded.'
-    ))
+    return Promise.reject(
+      new Error(
+        'SCI packaged installer is not published yet. Use the reviewed SCI source checkout and its README.md. No installer was downloaded.'
+      )
+    )
   }
+
   // Fetch from GitHub raw at the install ref: the packaged SHA for a fresh
   // install, the branch for an existing checkout or a non-git fallback stamp
   // (never the all-zero placeholder, which is not a real GitHub commit).

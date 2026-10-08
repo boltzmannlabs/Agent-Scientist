@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 
-import { type ProfileScope, saveSciConfigRecord } from '@/sci'
 import { useI18n } from '@/i18n'
+import { type ProfileScope, saveSciConfigRecord } from '@/sci'
 import { notify, notifyError } from '@/store/notifications'
 
 import { sciConfigCacheWriter, useSciConfigRecord } from '../hooks/use-config-record'

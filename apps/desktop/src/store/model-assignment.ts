@@ -1,5 +1,5 @@
-import { type ProfileScope, setModelAssignment } from '@/sci'
 import { translateNow } from '@/i18n'
+import { type ProfileScope, setModelAssignment } from '@/sci'
 import { dismissNotification, notify } from '@/store/notifications'
 import type { ModelAssignmentRequest, ModelAssignmentResponse } from '@/types/sci'
 

@@ -13,6 +13,12 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { ResponsiveTabs } from '@/components/ui/tab-dropdown'
 import { Tip } from '@/components/ui/tooltip'
+import { type Translations, useI18n } from '@/i18n'
+import { openExternalLink } from '@/lib/external-link'
+import { AlertTriangle, ExternalLink, RefreshCw, Save, Trash2 } from '@/lib/icons'
+import { platformStatusTone } from '@/lib/platform-status'
+import { normalize } from '@/lib/text'
+import { cn } from '@/lib/utils'
 import {
   approvePairing,
   getMessagingPlatforms,
@@ -24,12 +30,6 @@ import {
   type TelegramOnboardingApplyResponse,
   updateMessagingPlatform
 } from '@/sci'
-import { type Translations, useI18n } from '@/i18n'
-import { openExternalLink } from '@/lib/external-link'
-import { AlertTriangle, ExternalLink, RefreshCw, Save, Trash2 } from '@/lib/icons'
-import { platformStatusTone } from '@/lib/platform-status'
-import { normalize } from '@/lib/text'
-import { cn } from '@/lib/utils'
 import { $changeEventsAvailable, $pairingChangeTick, $platformsChangeTick } from '@/store/live-sync'
 import { notify, notifyError } from '@/store/notifications'
 import { $settingsRequestProfile } from '@/store/settings-scope'
@@ -982,8 +982,7 @@ const PLATFORM_INTRO: Record<string, string> = {
   matrix: 'Sign in to your homeserver with the bot account, then copy the access token, user ID, and homeserver URL.',
   signal:
     'Run a signal-cli REST bridge somewhere reachable, then point Sci at the URL and the registered phone number.',
-  whatsapp:
-    'Start the WhatsApp bridge that ships with Sci, scan the QR code on first run, then enable the platform.',
+  whatsapp: 'Start the WhatsApp bridge that ships with Sci, scan the QR code on first run, then enable the platform.',
   bluebubbles:
     'Run BlueBubbles Server on a Mac with iMessage, expose its API, then point Sci at the URL with the server password.',
   homeassistant:

@@ -26,9 +26,7 @@ import { ExternalLink as ExternalLinkAnchor, openExternalLink } from '@/lib/exte
 import { ExternalLink, Loader2Icon, Lock } from '@/lib/icons'
 import { $sendDiagnostics, confirmSendDiagnostics, dismissSendDiagnostics } from '@/store/send-diagnostics'
 
-const SUPPORT_LINKS = [
-  { key: 'github', url: DESKTOP_DOCS_URL }
-] as const
+const SUPPORT_LINKS = [{ key: 'github', url: DESKTOP_DOCS_URL }] as const
 
 export function SendDiagnosticsHost() {
   const { t } = useI18n()

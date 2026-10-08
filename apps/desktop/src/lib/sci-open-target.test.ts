@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
   normalizeSciOpenString,
-  pathFromSciDeepLink,
   pathFromOpenDeepLink,
+  pathFromSciDeepLink,
   resolveSciOpenPath
 } from './sci-open-target'
 
@@ -15,9 +15,7 @@ describe('normalizeSciOpenString', () => {
 
   it('maps plugin-scoped sci:// deep links to the same path', () => {
     expect(normalizeSciOpenString('sci://index-network/intent/1')).toBe('/index-network/intent/1')
-    expect(normalizeSciOpenString('sci://index-network/intent/1?focus=true')).toBe(
-      '/index-network/intent/1?focus=true'
-    )
+    expect(normalizeSciOpenString('sci://index-network/intent/1?focus=true')).toBe('/index-network/intent/1?focus=true')
   })
 
   it('maps sci://open/… deep links by stripping the open host', () => {

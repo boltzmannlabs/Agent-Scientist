@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
+
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 function releasePalette(section: 'colors' | 'light_colors') {
   const source = readFileSync(new URL('../../../assets/skins/neon-theme.yaml', import.meta.url), 'utf8')
@@ -8,10 +9,17 @@ function releasePalette(section: 'colors' | 'light_colors') {
 
   for (const line of source.split('\n')) {
     const heading = /^(colors|light_colors):$/.exec(line)
-    if (heading) current = heading[1]!
-    const entry = /^  (\w+): "(#[0-9A-Fa-f]{6})"$/.exec(line)
-    if (current === section && entry) colors[entry[1]!] = entry[2]!
+
+    if (heading) {
+      current = heading[1]!
+    }
+    const entry = /^ {2}(\w+): "(#[0-9A-Fa-f]{6})"$/.exec(line)
+
+    if (current === section && entry) {
+      colors[entry[1]!] = entry[2]!
+    }
   }
+
   return colors
 }
 
@@ -72,6 +80,7 @@ describe('DEFAULT_THEME aliasing', () => {
 
   it('boots with the packaged release palette before skin discovery', async () => {
     const { DARK_SEEDS, LIGHT_SEEDS } = await importThemeWithCleanEnv()
+
     const roles = {
       accent: 'banner_accent',
       primary: 'banner_title',
@@ -81,6 +90,7 @@ describe('DEFAULT_THEME aliasing', () => {
       activeRow: 'completion_menu_current_bg',
       selection: 'selection_bg'
     } as const
+
     for (const [seeds, palette] of [
       [DARK_SEEDS, releasePalette('colors')],
       [LIGHT_SEEDS, releasePalette('light_colors')]
@@ -95,9 +105,11 @@ describe('DEFAULT_THEME aliasing', () => {
     const { contrastRatio, fromSkin } = await importThemeWithEnv({ SCI_TUI_BACKGROUND: background })
     const colors = { ...releasePalette('colors'), ...(background === '#ffffff' ? releasePalette('light_colors') : {}) }
     const theme = fromSkin(colors, {})
+
     for (const role of ['primary', 'accent', 'text', 'prompt'] as const) {
       expect(contrastRatio(theme.color[role], background)!).toBeGreaterThanOrEqual(3.9)
     }
+
     for (const role of ['border', 'sessionBorder'] as const) {
       expect(contrastRatio(theme.color[role], background)!).toBeGreaterThanOrEqual(2.0)
     }
@@ -423,6 +435,7 @@ const SLATE_COLORS = {
 describe('derived tone ladder', () => {
   it('preserves explicit identity and fill seeds while deriving readable secondary tones', async () => {
     const { DARK_SEEDS, DARK_THEME, LIGHT_SEEDS, LIGHT_THEME, contrastRatio } = await importThemeWithCleanEnv()
+
     for (const [seeds, theme] of [
       [DARK_SEEDS, DARK_THEME],
       [LIGHT_SEEDS, LIGHT_THEME]

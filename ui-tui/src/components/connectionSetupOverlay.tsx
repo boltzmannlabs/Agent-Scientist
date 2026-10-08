@@ -1,3 +1,4 @@
+import { useStore } from '@nanostores/react'
 import { Box, Text, useInput } from '@sci/ink'
 import type {
   ConnectionOperationTarget,
@@ -8,7 +9,6 @@ import type {
   ConnectionTargetState,
   ConnectorsConnectResult
 } from '@sci/shared/gateway-events'
-import { useStore } from '@nanostores/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ConnectionOperationSnapshot } from '../app/connectionOperationStore.js'

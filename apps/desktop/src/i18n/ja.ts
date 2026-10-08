@@ -367,8 +367,9 @@ export const ja = defineLocale({
   },
 
   sendDiagnostics: {
-    title: "SCI 診断を送信",
-    privacyNotice: "ログとシステム情報を設定済みの SCI サポート先に送ります。会話、出力、パスが含まれる可能性があり、完全な秘匿化は保証されません。送信先、アクセス権、保存期間を確認してください。既定の送信先はありません。",
+    title: 'SCI 診断を送信',
+    privacyNotice:
+      'ログとシステム情報を設定済みの SCI サポート先に送ります。会話、出力、パスが含まれる可能性があり、完全な秘匿化は保証されません。送信先、アクセス権、保存期間を確認してください。既定の送信先はありません。',
     upload: 'アップロード',
     uploading: 'アップロード中…',
     cancel: 'キャンセル',
@@ -376,12 +377,12 @@ export const ja = defineLocale({
     copyLink: 'リンクをコピー',
     uploadIdFallback: id => `表示リンクが返されませんでした — サポートにアップロード ID ${id} をお伝えください`,
     doneTitle: '診断情報を送信しました',
-    doneDescription: "設定済みの送信先が診断を受け付けました。リンク共有前にアクセス権を確認してください。",
+    doneDescription: '設定済みの送信先が診断を受け付けました。リンク共有前にアクセス権を確認してください。',
     failedTitle: 'アップロードに失敗しました',
-    failedHint: "sci debug share --local でローカルに保持できます。Boltzmann Labs の担当者にお問い合わせください。",
+    failedHint: 'sci debug share --local でローカルに保持できます。Boltzmann Labs の担当者にお問い合わせください。',
     handoffLead: '続きは次の場所で:',
     links: {
-      github: "SCI マニュアル",
+      github: 'SCI マニュアル',
       portal: 'SCI support',
       discord: 'Discord'
     }
@@ -3205,8 +3206,7 @@ export const ja = defineLocale({
       'セッショントークンまたはブラウザーサインインでリモートバックエンドを使用します。ローカルインストールは開始されません。',
     installLocalTitle: 'Sci をローカルにインストール',
     installLocalDesc: 'Sci をダウンロードし、Python 環境を作成して、このコンピューターでバックエンドを実行します。',
-    localStartUnavailable:
-      'ローカルインストールを開始できません。Sci Desktop を再起動して、もう一度お試しください。',
+    localStartUnavailable: 'ローカルインストールを開始できません。Sci Desktop を再起動して、もう一度お試しください。',
     remoteSetupTitle: '既存の Sci に接続',
     remoteSetupDesc:
       'ゲートウェイ URL を入力してください。Sci Desktop がトークンとブラウザーサインインのどちらが必要かを検出します。',
@@ -3643,8 +3643,7 @@ export const ja = defineLocale({
       address: 'アドレス',
       addressPlaceholder: 'アドレスを入力',
       blankPageBody: '上のアドレス欄に入力するか、Sci にページを開くよう頼んでください。',
-      finishedRestarting: message =>
-        `Sci がプレビューサーバーの再起動を完了しました${message ? `: ${message}` : ''}`,
+      finishedRestarting: message => `Sci がプレビューサーバーの再起動を完了しました${message ? `: ${message}` : ''}`,
       failedRestarting: message => `サーバーの再起動に失敗しました: ${message}`,
       unknownError: '不明なエラー',
       restartedTitle: 'プレビューサーバーが再起動しました',
@@ -3673,8 +3672,7 @@ export const ja = defineLocale({
       'シンプルモードで設定されています。ここでの変更はこのセッション中のみ有効です。自分の設定にするには詳細モードに切り替えてください。',
     simple: {
       label: 'シンプル',
-      description:
-        'Sci と話すための表示。サイドバーとチャットのみ。ターミナル、ファイル、差分のペインは表示しません。'
+      description: 'Sci と話すための表示。サイドバーとチャットのみ。ターミナル、ファイル、差分のペインは表示しません。'
     },
     advanced: {
       label: '詳細',

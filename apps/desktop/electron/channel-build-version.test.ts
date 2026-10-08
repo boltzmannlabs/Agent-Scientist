@@ -61,12 +61,7 @@ function load(build: ChannelBuildRequest): PackagingFacts {
 }
 
 afterEach((): void => {
-  for (const key of [
-    '_SCI_CHANNEL_REQUEST_JSON',
-    'SCI_DESKTOP_VARIANT',
-    'SCI_BUILD_COMMIT',
-    'SCI_PAYLOAD_TAG'
-  ]) {
+  for (const key of ['_SCI_CHANNEL_REQUEST_JSON', 'SCI_DESKTOP_VARIANT', 'SCI_BUILD_COMMIT', 'SCI_PAYLOAD_TAG']) {
     delete process.env[key]
   }
 

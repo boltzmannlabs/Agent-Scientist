@@ -63,9 +63,7 @@ export function VersionDetails({ version }: { version: DesktopVersionInfo }) {
         <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">{u.versionDetailsCommit}</dt>
           <dd className="break-all text-right">
-            <span className="break-all font-mono text-xs">
-              {version.commit.slice(0, 14)}
-            </span>
+            <span className="break-all font-mono text-xs">{version.commit.slice(0, 14)}</span>
             {version.dirty && <span className="text-warning"> {u.versionDetailsUncommittedChanges}</span>}
           </dd>
         </div>

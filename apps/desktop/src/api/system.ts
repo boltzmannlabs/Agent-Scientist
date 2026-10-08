@@ -14,7 +14,7 @@ import type {
   MemoryStatusResponse
 } from '@/types/sci'
 
-import { capabilityScoped, sciApi, type OwnerScope, ownerScoped, type ProfileScope, profileScoped } from './client'
+import { capabilityScoped, type OwnerScope, ownerScoped, type ProfileScope, profileScoped, sciApi } from './client'
 
 export const AUDIO_SPEAK_MIN_REQUEST_TIMEOUT_MS = 180_000
 export const AUDIO_SPEAK_MAX_REQUEST_TIMEOUT_MS = 600_000

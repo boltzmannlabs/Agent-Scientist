@@ -1,6 +1,9 @@
 import type { ModelOptionProvider } from '@sci/shared'
 import { atom } from 'nanostores'
 
+import { translateNow } from '@/i18n'
+import { isProviderSetupErrorMessage } from '@/lib/provider-setup-errors'
+import { evaluateRuntimeReadiness, type RuntimeReadinessResult } from '@/lib/runtime-readiness'
 import {
   cancelOAuthSession,
   getGlobalModelOptions,
@@ -13,9 +16,6 @@ import {
   submitOAuthCode,
   validateProviderCredential
 } from '@/sci'
-import { translateNow } from '@/i18n'
-import { isProviderSetupErrorMessage } from '@/lib/provider-setup-errors'
-import { evaluateRuntimeReadiness, type RuntimeReadinessResult } from '@/lib/runtime-readiness'
 import { ackFreeTierNotice, freeTierReadyPending, refreshFreeTierStatus, setFreeTierRoute } from '@/store/free-tier'
 import { $gatewayBootGeneration } from '@/store/live-sync'
 import { setMainModelAssignment } from '@/store/model-assignment'
@@ -290,8 +290,13 @@ function shouldPreserveConfiguredOnBootRace(runtime: RuntimeReadinessResult, sta
   // every update restart of a fully configured install (#124939). The state
   // must already be configured (verified earlier or the durable cache) so a
   // genuinely unconfigured install still enters onboarding on boot.
-  return runtime.source === 'runtime_check' && !runtime.ready &&
-    state.configured === true && !state.requested && isInsideBootRaceWindow()
+  return (
+    runtime.source === 'runtime_check' &&
+    !runtime.ready &&
+    state.configured === true &&
+    !state.requested &&
+    isInsideBootRaceWindow()
+  )
 }
 
 function notifyReady(provider: string) {

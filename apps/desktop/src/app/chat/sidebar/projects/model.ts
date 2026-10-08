@@ -2,9 +2,9 @@ import { useStore } from '@nanostores/react'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { SciGitWorktree } from '@/global'
-import type { SessionInfo } from '@/sci'
 import { desktopGit } from '@/lib/desktop-git'
 import { mapPool } from '@/lib/pool'
+import type { SessionInfo } from '@/sci'
 import { $sidebarWorkspaceNodeOpen, toggleWorkspaceNodeCollapsed } from '@/store/layout'
 import { $worktreeRefreshToken } from '@/store/projects'
 
@@ -149,10 +149,7 @@ export function orderProjectsByIds(projects: SidebarProjectTree[], orderIds: str
 // Project drill-in lanes are git-driven: source them from `git worktree list` so
 // linked worktrees still appear even when their sessions aren't in the recents
 // payload currently loaded in memory.
-export function useRepoWorktreeMap(
-  repoPaths: string[],
-  enabled: boolean
-): [Record<string, SciGitWorktree[]>, boolean] {
+export function useRepoWorktreeMap(repoPaths: string[], enabled: boolean): [Record<string, SciGitWorktree[]>, boolean] {
   const [map, setMap] = useState<Record<string, SciGitWorktree[]>>({})
   const [loading, setLoading] = useState(false)
   const key = useMemo(() => pathListKey(repoPaths), [repoPaths])

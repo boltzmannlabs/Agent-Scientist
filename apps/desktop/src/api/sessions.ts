@@ -16,9 +16,9 @@ import {
   connectionScoped,
   getApiRequestConnection,
   getApiRequestProfile,
-  sciApi,
   type ProfileScope,
   profileScoped,
+  sciApi,
   sessionReadOwnerPin
 } from './client'
 

@@ -15,9 +15,9 @@ import type {
   DesktopVersionInfo,
   SciConnection
 } from '@/global'
-import { checkSciUpdate, getActionStatus, updateSci } from '@/sci'
 import { translateNow } from '@/i18n'
 import { persistString, storedString } from '@/lib/storage'
+import { checkSciUpdate, getActionStatus, updateSci } from '@/sci'
 import { $connectionsRegistry, refreshConnectionsRegistry } from '@/store/connections'
 import { reconnectGateway } from '@/store/gateway-reconnect'
 import { dismissNotification, notify } from '@/store/notifications'

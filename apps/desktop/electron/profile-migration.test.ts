@@ -269,10 +269,7 @@ test('findRunningGatewayProfiles preserves order of allProfiles', () => {
   })
 
   const deps = { ...fs, isSciProcess: () => true }
-  assert.deepEqual(findRunningGatewayProfiles('/home/u/.sci/profiles', ['coder', 'writer'], deps), [
-    'coder',
-    'writer'
-  ])
+  assert.deepEqual(findRunningGatewayProfiles('/home/u/.sci/profiles', ['coder', 'writer'], deps), ['coder', 'writer'])
 })
 
 // ---------------------------------------------------------------------------
@@ -536,10 +533,7 @@ test('profileStateDbPath puts default at sciHome, named under profilesRoot', () 
 })
 
 test('profileGatewayPidPath puts default at sciHome', () => {
-  assert.equal(
-    profileGatewayPidPath('default', '/home/u/.sci', '/home/u/.sci/profiles'),
-    '/home/u/.sci/gateway.pid'
-  )
+  assert.equal(profileGatewayPidPath('default', '/home/u/.sci', '/home/u/.sci/profiles'), '/home/u/.sci/gateway.pid')
   assert.equal(
     profileGatewayPidPath('coder', '/home/u/.sci', '/home/u/.sci/profiles'),
     '/home/u/.sci/profiles/coder/gateway.pid'

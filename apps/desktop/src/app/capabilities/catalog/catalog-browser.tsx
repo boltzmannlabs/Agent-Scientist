@@ -1,9 +1,9 @@
-import { compactNumber, groupCatalogPlugins, PLUGIN_CATEGORIES } from '@sci/shared'
 import { useStore } from '@nanostores/react'
+import { compactNumber, groupCatalogPlugins, PLUGIN_CATEGORIES } from '@sci/shared'
 import { memo, type ReactNode, useDeferredValue, useEffect, useRef, useState } from 'react'
 
-import { PageLoader } from '@/components/page-loader'
 import type { ProfileScope } from '@/api/client'
+import { PageLoader } from '@/components/page-loader'
 import { Button } from '@/components/ui/button'
 import { Codicon } from '@/components/ui/codicon'
 import { ErrorState } from '@/components/ui/error-state'

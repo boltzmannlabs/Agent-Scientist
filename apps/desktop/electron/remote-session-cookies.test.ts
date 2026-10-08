@@ -94,9 +94,7 @@ describe('RemoteSessionCookieStore', () => {
     store.record(LEGACY, 'https://gw.example.com/gw-a/', 'sci_session=scoped; Path=/gw-a')
     store.record(LEGACY, 'https://gw.example.com/', 'shared=1; Path=/')
 
-    expect(store.cookieHeaderFor(LEGACY, 'https://gw.example.com/gw-a/api/status')).toBe(
-      'sci_session=scoped; shared=1'
-    )
+    expect(store.cookieHeaderFor(LEGACY, 'https://gw.example.com/gw-a/api/status')).toBe('sci_session=scoped; shared=1')
     expect(store.cookieHeaderFor(LEGACY, 'https://gw.example.com/gw-b/api/status')).toBe('shared=1')
   })
 

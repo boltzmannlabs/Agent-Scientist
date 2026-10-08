@@ -1,5 +1,5 @@
-import { skillCatalogInstallIdentifier } from '@sci/shared'
 import { useStore } from '@nanostores/react'
+import { skillCatalogInstallIdentifier } from '@sci/shared'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
 import { $apiRequestScope, capabilityScoped, type ProfileScope, sciApi } from '@/api/client'
@@ -97,7 +97,7 @@ export function parseCatalog(kind: CatalogKind, data: unknown): CatalogEntry[] {
     const middleware = strings(caps.providesMiddleware ?? caps.provides_middleware)
     const commands = strings(row.commands)
     const platforms = strings(row.platforms)
-    const requirements = strings(kind === 'plugins' ? caps.requiresEnv ?? caps.requires_env : row.envVars)
+    const requirements = strings(kind === 'plugins' ? (caps.requiresEnv ?? caps.requires_env) : row.envVars)
     const author = text(row.maintainer ?? row.author)
     const description = text(row.description)
 
@@ -183,8 +183,13 @@ async function fetchScopedCatalog(kind: CatalogKind, scope: CatalogScope): Promi
     path: kind === 'skills' ? '/api/skills/hub/official' : '/api/dashboard/plugins/catalog',
     timeoutMs: 60_000
   })
+
   const rows = kind === 'skills' ? response.skills : response.entries
-  if (!Array.isArray(rows)) throw new Error('Invalid catalog response')
+
+  if (!Array.isArray(rows)) {
+    throw new Error('Invalid catalog response')
+  }
+
   return parseCatalog(kind, kind === 'skills' ? rows.map(row => ({ ...row, source: 'official' })) : rows)
 }
 
@@ -194,6 +199,7 @@ export function fetchCatalog(kind: CatalogKind, scope?: ProfileScope): Promise<C
 
 export const catalogQuery = (kind: CatalogKind, scope?: ProfileScope) => {
   const request = capabilityScoped(scope)
+
   return queryOptions({
     queryKey: ['backend-catalog', kind, request.connectionId ?? '', request.profile ?? ''],
     queryFn: () => fetchScopedCatalog(kind, request),
@@ -209,6 +215,7 @@ export const catalogQuery = (kind: CatalogKind, scope?: ProfileScope) => {
 
 export function useCatalog(kind: CatalogKind, scope?: ProfileScope) {
   useStore($apiRequestScope)
+
   return useQuery({
     ...catalogQuery(kind, scope),
     enabled: query => query.state.status !== 'error'
@@ -219,5 +226,6 @@ export function useCatalog(kind: CatalogKind, scope?: ProfileScope) {
 export function prefetchCatalogWhenIdle(kind: CatalogKind, scope?: ProfileScope) {
   const query = catalogQuery(kind, scope)
   const id = requestIdleCallback(() => void queryClient.prefetchQuery(query), { timeout: 5_000 })
+
   return () => cancelIdleCallback(id)
 }

@@ -1,6 +1,7 @@
 import { useStore } from '@nanostores/react'
 import { replaceEqualDeep, useQuery } from '@tanstack/react-query'
 
+import { queryClient } from '@/lib/query-client'
 import {
   getSciConfigRecord,
   peekConfigReadOrigin,
@@ -8,7 +9,6 @@ import {
   profileScopeKey,
   retainConfigReadOrigin
 } from '@/sci'
-import { queryClient } from '@/lib/query-client'
 import { $activeConnectionId } from '@/store/connections'
 import type { SciConfigRecord } from '@/types/sci'
 
@@ -131,10 +131,7 @@ export const useSciConfigRecord = (profile?: ProfileScope) => {
 // gateway is active when the save happens — the same row its query reads.
 const writeSciConfigCache =
   (keyFor: () => ReturnType<typeof sciConfigKey>) =>
-  (
-    next:
-      SciConfigRecord | undefined | ((previous: SciConfigRecord | undefined) => SciConfigRecord | undefined)
-  ) =>
+  (next: SciConfigRecord | undefined | ((previous: SciConfigRecord | undefined) => SciConfigRecord | undefined)) =>
     void queryClient.setQueryData<SciConfigRecord>(keyFor(), previous => {
       const record = typeof next === 'function' ? next(previous) : next
 
@@ -147,8 +144,7 @@ const writeSciConfigCache =
     })
 
 export const setSciConfigCache = writeSciConfigCache(() => sciConfigKey())
-export const sciConfigCacheWriter = (profile?: ProfileScope) =>
-  writeSciConfigCache(() => sciConfigKey(profile))
+export const sciConfigCacheWriter = (profile?: ProfileScope) => writeSciConfigCache(() => sciConfigKey(profile))
 
 export const invalidateSciConfig = (profile?: ProfileScope) =>
   queryClient.invalidateQueries({ queryKey: sciConfigKey(profile) })

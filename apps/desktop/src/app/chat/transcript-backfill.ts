@@ -15,8 +15,8 @@
  * drift on the next page.
  */
 
-import { getOlderSessionMessages, type ProfileScope } from '@/sci'
 import { type ChatMessage, chatMessageText, toChatMessages } from '@/lib/chat-messages'
+import { getOlderSessionMessages, type ProfileScope } from '@/sci'
 import {
   recordTranscriptBackfillPage,
   tailStateFromPage,

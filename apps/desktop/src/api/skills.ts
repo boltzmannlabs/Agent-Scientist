@@ -9,7 +9,7 @@ import type {
 } from '@/types/sci'
 import type { ActionResponse } from '@/types/sci'
 
-import { capabilityScoped, sciApi, type ProfileScope, profileScoped } from './client'
+import { capabilityScoped, type ProfileScope, profileScoped, sciApi } from './client'
 
 export function getSkills(profile?: ProfileScope): Promise<SkillInfo[]> {
   return window.sciDesktop.api<SkillInfo[]>({

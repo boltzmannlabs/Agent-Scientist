@@ -1,10 +1,5 @@
 import { sciApi } from '@/api/client'
-import type {
-  SciConnection,
-  SciReadDirResult,
-  SciReadFileTextResult,
-  SciSelectPathsOptions
-} from '@/global'
+import type { SciConnection, SciReadDirResult, SciReadFileTextResult, SciSelectPathsOptions } from '@/global'
 import { translateNow } from '@/i18n'
 import { $connection } from '@/store/session'
 

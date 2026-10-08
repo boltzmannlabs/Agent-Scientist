@@ -353,8 +353,9 @@ export const zhHant = defineLocale({
   },
 
   sendDiagnostics: {
-    title: "傳送 SCI 診斷",
-    privacyNotice: "將日誌和系統資訊上傳至已設定的 SCI 支援端點。日誌可能包含對話、輸出與路徑。遮蔽不保證完整。請確認目的地、存取權限及保留政策。預設沒有上傳目的地。",
+    title: '傳送 SCI 診斷',
+    privacyNotice:
+      '將日誌和系統資訊上傳至已設定的 SCI 支援端點。日誌可能包含對話、輸出與路徑。遮蔽不保證完整。請確認目的地、存取權限及保留政策。預設沒有上傳目的地。',
     upload: '上傳',
     uploading: '上傳中…',
     cancel: '取消',
@@ -362,12 +363,12 @@ export const zhHant = defineLocale({
     copyLink: '複製連結',
     uploadIdFallback: id => `未回傳檢視連結 — 請向支援人員提供上傳 ID ${id}`,
     doneTitle: '診斷資訊已傳送',
-    doneDescription: "已設定的端點接受了診斷套件。分享連結前請確認存取權限。",
+    doneDescription: '已設定的端點接受了診斷套件。分享連結前請確認存取權限。',
     failedTitle: '上傳失敗',
-    failedHint: "使用 sci debug share --local 將報告保留在本機。請聯絡 Boltzmann Labs 維護者。",
+    failedHint: '使用 sci debug share --local 將報告保留在本機。請聯絡 Boltzmann Labs 維護者。',
     handoffLead: '在以下位置繼續討論:',
     links: {
-      github: "SCI 手冊",
+      github: 'SCI 手冊',
       portal: 'SCI support',
       discord: 'Discord'
     }
@@ -454,8 +455,7 @@ export const zhHant = defineLocale({
     plugins: {
       openFolder: '開啟桌面外掛資料夾',
       installModal: {
-        installUncertain:
-          'Sci 已停止等待安裝結果，但外掛可能仍在安裝中。請關閉此視窗，重新掃描外掛清單後再嘗試安裝。',
+        installUncertain: 'Sci 已停止等待安裝結果，但外掛可能仍在安裝中。請關閉此視窗，重新掃描外掛清單後再嘗試安裝。',
         installFromGit: '從 Git 安裝',
         reviewRepository: '檢查儲存庫',
         repoPlaceholder: 'https://github.com/owner/repo',
@@ -1240,8 +1240,7 @@ export const zhHant = defineLocale({
       localTitle: '本機閘道',
       localDesc: '在 localhost 啟動私有 Sci 後端。這是預設方式，可離線使用。',
       remoteTitle: '遠端閘道',
-      remoteDesc:
-        '將此桌面殼層連線至遠端 Sci 後端。託管閘道使用 OAuth 或帳號密碼；自託管閘道也可使用工作階段 Token。',
+      remoteDesc: '將此桌面殼層連線至遠端 Sci 後端。託管閘道使用 OAuth 或帳號密碼；自託管閘道也可使用工作階段 Token。',
       remoteUrlTitle: '遠端 URL',
       remoteUrlDesc: '遠端儀表板後端的基礎 URL。支援路徑前綴，例如 /sci。',
       probing: '正在檢查此閘道的驗證方式…',
@@ -1326,8 +1325,7 @@ export const zhHant = defineLocale({
       sshErrAuth:
         'SSH 驗證失敗。請將金鑰載入 ssh-agent（ssh-add），或在 ~/.ssh/config 中設定 IdentityFile——Sci 以非互動方式執行 ssh。',
       sshErrHostKey: '自上次連線以來主機金鑰已變更。請確認這是預期的，然後執行 ssh-keygen -R <host> 並重新連線。',
-      sshErrNotInstalled:
-        '遠端主機上未安裝 Sci。請在遠端安裝（README.md: source ./activate）或設定 Sci 路徑。',
+      sshErrNotInstalled: '遠端主機上未安裝 Sci。請在遠端安裝（README.md: source ./activate）或設定 Sci 路徑。',
       sshErrPlatform: '不支援的遠端平台。Sci Desktop 的 SSH 模式支援 Linux、macOS 和 Windows 遠端主機。',
       sshErrTimeout: 'SSH 連線逾時。主機可能無法存取或處於睡眠狀態。',
       sshErrUpdateRequired: '使用 Desktop SSH 連線前，請更新遠端主機上的 Sci。',
@@ -3258,8 +3256,7 @@ export const zhHant = defineLocale({
     discontinuedBody: '此版本的 Sci 已停止支援，可能無法正常運作——請解除安裝。您的資料仍保留在磁碟上。',
     channels: { stable: '穩定版', canary: '預覽版' },
     bundleSwapPending: '重新啟動以完成更新',
-    bundleSwapPendingDesc:
-      '更新後的應用程式已安裝完成，只需重新啟動 Sci 即可載入新版本。聊天記錄和設定不會受到影響。',
+    bundleSwapPendingDesc: '更新後的應用程式已安裝完成，只需重新啟動 Sci 即可載入新版本。聊天記錄和設定不會受到影響。',
     bundleSwapPendingAction: '重新啟動 Sci',
     stages: {
       idle: '準備中…',
@@ -3307,8 +3304,7 @@ export const zhHant = defineLocale({
     copy: '複製',
     copied: '已複製',
     done: '完成',
-    applyingBody:
-      'Sci 更新程式會在自己的視窗中接管，並在完成後自動重新開啟 Sci。更新期間請勿自行重新開啟 Sci。',
+    applyingBody: 'Sci 更新程式會在自己的視窗中接管，並在完成後自動重新開啟 Sci。更新期間請勿自行重新開啟 Sci。',
     applyingBodyBackend: '遠端後端正在套用更新並將重新啟動。恢復後 Sci 會自動重新連線。',
     applyingClose: '此視窗會在更新期間關閉，隨後 Sci 會自動重新開啟。',
     errorTitle: '更新未完成',

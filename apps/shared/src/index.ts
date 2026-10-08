@@ -181,9 +181,9 @@ export {
   GatewayReauthRequiredError,
   type GatewayWsConnection,
   type GatewayWsUrlResult,
-  type SciWebSocketUrlOptions,
   isGatewayReauthRequired,
   resolveGatewayWsUrl,
   type ResolveGatewayWsUrlDeps,
+  type SciWebSocketUrlOptions,
   type WebSocketAuthParam
 } from './websocket-url'
