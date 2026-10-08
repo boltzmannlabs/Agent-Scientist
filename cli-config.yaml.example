@@ -1320,7 +1320,7 @@ agent:
   # Enable verbose logging
   verbose: false
   
-  # Reasoning effort level (OpenRouter and Nous Portal)
+  # Reasoning effort level (providers that support reasoning controls).
   # Controls how much "thinking" the model does before responding.
   # Options: "xhigh" (max), "high", "medium", "low", "minimal", "none" (disable)
   # Providers with bespoke thinking tiers (a relay serving fast/thinking): use the
@@ -1328,7 +1328,8 @@ agent:
   #   reasoning_effort:
   #     enabled: true
   #     effort: thinking
-  reasoning_effort: "medium"
+  # Disabled by default; select another effort explicitly when needed.
+  reasoning_effort: "none"
   
   # Per-model reasoning effort overrides (optional dict)
   # Key: any sensible model spelling works (exact, dots↔dashes interchangeable,

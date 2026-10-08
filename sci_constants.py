@@ -1124,7 +1124,7 @@ def resolve_reasoning_config(cfg: dict | None, model: str = "") -> dict | None:
         return per_model
 
     # Keep the raw value: ``or ""`` would turn a YAML False into "" and silently re-enable thinking.
-    effort = agent_cfg.get("reasoning_effort", "")
+    effort = agent_cfg.get("reasoning_effort", "none")
     result = parse_reasoning_effort(effort)
     if effort and str(effort).strip() and result is None:
         import logging

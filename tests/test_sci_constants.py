@@ -322,9 +322,9 @@ class TestResolveReasoningConfig:
     def test_malformed_sections_tolerated(self):
         """Non-dict agent/model sections must not raise."""
         from sci_constants import resolve_reasoning_config
-        assert resolve_reasoning_config({"agent": "oops", "model": 42}) is None
-        assert resolve_reasoning_config({"agent": None, "model": None}) is None
-        assert resolve_reasoning_config({"agent": {"reasoning_overrides": "bad"}}) is None
+        assert resolve_reasoning_config({"agent": "oops", "model": 42}) == {"enabled": False}
+        assert resolve_reasoning_config({"agent": None, "model": None}) == {"enabled": False}
+        assert resolve_reasoning_config({"agent": {"reasoning_overrides": "bad"}}) == {"enabled": False}
 
     def test_invalid_override_value_falls_back_to_global(self):
         """A junk override value for the matching model falls through to global."""
