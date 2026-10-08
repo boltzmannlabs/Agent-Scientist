@@ -13,7 +13,7 @@ required_credential_files:
 metadata:
   sci:
     tags: [Google, Gmail, Calendar, Drive, Sheets, Docs, Contacts, Email, OAuth]
-    homepage: https://github.com/NousResearch/hermes-agent
+    homepage: https://github.com/boltzmannlabs/Agent-Scientist
     related_skills: [himalaya]
 ---
 

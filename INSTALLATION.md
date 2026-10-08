@@ -73,6 +73,8 @@ agent-sci
 The Bash installer does not target native Windows. Native installers and desktop
 packaging are separate build products; source support is not a claim that signed
 Windows/macOS release packages have been produced or tested on this Linux host.
+From CMD in a complete checkout, `scripts\install.cmd` runs the same local
+`setup-sci.ps1` script. It does not download another application's installer.
 
 ## Check the installation
 

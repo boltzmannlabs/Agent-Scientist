@@ -202,7 +202,7 @@ stdenv.mkDerivation {
 
   meta = with lib; {
     description = "Native Electron desktop shell for Sci Agent";
-    homepage = "https://github.com/NousResearch/hermes-agent";
+    homepage = "https://github.com/boltzmannlabs/Agent-Scientist";
     license = licenses.mit;
     platforms = platforms.unix;
     mainProgram = "sci-desktop";

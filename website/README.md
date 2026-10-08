@@ -2,10 +2,14 @@
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
-> **Reading the docs on GitHub?** The Markdown under `docs/` is authored for the rendered site at
-> <https://hermes-agent.nousresearch.com/docs/>. Cross-page links are relative Markdown paths, so they
+> **Reading the docs on GitHub?** The Markdown under `docs/` supports a local SCI documentation
+> preview; a public SCI documentation host has not been configured. Cross-page links are relative Markdown paths, so they
 > follow through on GitHub's file viewer too. Every page on the site has an **Edit this page** link
 > that opens the source file here.
+
+For application installation and usage, use [INSTALLATION.md](../INSTALLATION.md)
+in this repository. Do not use another application's documentation host as the
+SCI installer or setup authority.
 
 ## Authoring links in `docs/`
 

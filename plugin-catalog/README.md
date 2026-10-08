@@ -100,7 +100,7 @@ so the Desktop catalog and the docs site never fetch from third-party hosts;
 pin the raw URL to the entry's commit and the picture is as immutable as the
 code.
 
-Every entry gets a page at `https://hermes-agent.nousresearch.com/docs/plugins/<name>`
+Every entry gets a page at `/docs/plugins/<name>` on a deployed SCI documentation site
 and every maintainer a page at `/docs/plugins/by/<maintainer>`, both generated
 from these files at docs build time. `screenshots:` fills the page's gallery;
 the build fetches the README (from `subdir` if set, else the repo root) **at the

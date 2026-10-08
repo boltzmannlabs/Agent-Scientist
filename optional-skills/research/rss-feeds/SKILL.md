@@ -91,6 +91,6 @@ truncated or the first paragraph only.
 
 ## Verification
 
-`python3 scripts/feed.py read https://github.com/NousResearch/hermes-agent/releases.atom
+`python3 scripts/feed.py read https://github.com/python/cpython/releases.atom
 --limit 1` prints one entry with a `releases/tag/` link and a `[atom]` format tag;
 `discover https://simonwillison.net/` prints an `/atom/` URL.

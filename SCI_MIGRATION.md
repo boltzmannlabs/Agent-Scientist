@@ -607,3 +607,44 @@ approved GitHub repository still needs its initial push before source delivery
 can operate for users. No production pull, live profile mutation, service restart,
 push or release publishing was performed. Desktop/native signing, promoted feeds
 and publication configuration remain separate release work.
+
+## Authorized initial source publication review
+
+The owner authorized checking and pushing the SCI source on 2026-10-08. The
+approved destination was confirmed empty and public, with write access; the
+normal `main` push dry run succeeded. Only the fresh SCI branch is selected,
+without tags, inherited refs, the private history backup or runtime state.
+`SECURITY_SCAN_REVIEW.md` records the all-object, credential-pattern and
+private-path checks and their limits. Original licenses remain intact.
+
+The final endpoint review found a missed Windows CMD wrapper that still
+downloaded another application's remote installer. It now runs only the
+checked-out SCI `setup-sci.ps1`, reports an incomplete checkout and preserves
+the local setup's exit code. Runtime User-Agent identification, Nix homepages,
+SCI skill/catalog metadata and setup/support documentation pointers now identify
+this repository. RSS verification uses an established public CPython release
+feed rather than implying this new repository already has published releases.
+The static model catalog's docs pointer matches its existing local generator.
+Genuine optional provider URLs, third-party identities, licenses and immutable
+historical security/evidence references were not falsified or removed.
+
+The installation/distribution/profile/update group passed 78 tests with two
+Windows cases skipped. The metadata/relay/Discord/feed/model-catalog/docs group
+passed 77 tests with three new Windows-wrapper cases skipped. All used
+`scripts/run_tests.sh` with retries disabled and serial temporary-directory
+isolation. These are 155 passes across 15 files in this final review, not a
+full-suite count or additional distinct coverage over all earlier receipts.
+Changed Python Ruff checks, installer Bash syntax, hand-authored documentation
+link-style lint and `git diff --check` passed. Native Windows CMD execution and
+Nix builds were not qualified on this Linux host.
+
+Desktop and documentation icon raster files were inspected: application icons
+are neutral blank tiles, and the large inherited website logo images are fully
+transparent. No new artwork or inherited mascot was added. `INSTALLATION.md`
+now includes server installation, provider setup, first conversation, project
+activation, service credentials, optional surfaces and deliberate updates.
+
+This handoff publishes source, not signed native installers or promoted release
+feeds. Their guards remain in place. Model/provider authentication, production
+research-service execution, a designated private security contact and remaining
+native/platform qualification are separate acceptance work.

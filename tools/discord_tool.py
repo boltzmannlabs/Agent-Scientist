@@ -63,7 +63,7 @@ def _discord_request(
         url, data=None if body is None else json.dumps(body).encode("utf-8"), method=method,
         headers={
             "Authorization": f"Bot {token}", "Content-Type": "application/json",
-            "User-Agent": "Sci-Agent (https://github.com/NousResearch/hermes-agent)"})
+            "User-Agent": "Sci-Agent (https://github.com/boltzmannlabs/Agent-Scientist)"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             if resp.status == 204:

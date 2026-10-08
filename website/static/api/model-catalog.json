@@ -3,7 +3,7 @@
   "updated_at": "2026-09-29T19:47:11Z",
   "metadata": {
     "source": "sci-agent repo",
-    "docs": "https://hermes-agent.nousresearch.com/docs/reference/model-catalog"
+    "docs": "/docs/reference/model-catalog"
   },
   "providers": {
     "openrouter": {

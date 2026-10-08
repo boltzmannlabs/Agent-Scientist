@@ -1,28 +1,21 @@
 @echo off
 REM ============================================================================
-REM Sci Agent Installer for Windows (CMD wrapper)
+REM Agent Scientist setup for a complete Windows source checkout
 REM ============================================================================
-REM This batch file launches the PowerShell installer for users running CMD.
-REM
-REM Usage:
-REM   curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.cmd -o install.cmd && install.cmd && del install.cmd
-REM
-REM Or if you're already in PowerShell, use the direct command instead:
-REM   iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+REM From the repository root: scripts\install.cmd
+REM This runs the checked-out SCI setup script, never a remote installer.
+REM PowerShell users can run .\setup-sci.ps1 directly. See INSTALLATION.md.
 REM ============================================================================
 
 echo.
-echo  Sci Agent Installer
+echo  Agent Scientist Setup
 echo  Launching PowerShell installer...
 echo.
 
-powershell -ExecutionPolicy ByPass -NoProfile -Command "iex (irm https://hermes-agent.nousresearch.com/install.ps1)"
-
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo  Installation failed. Please try running PowerShell directly:
-    echo    powershell -ExecutionPolicy ByPass -c "iex (irm https://hermes-agent.nousresearch.com/install.ps1)"
-    echo.
-    pause
-    exit /b 1
+if not exist "%~dp0..\setup-sci.ps1" (
+    echo Incomplete SCI checkout: setup-sci.ps1 is missing. See INSTALLATION.md.
+    exit /b 2
 )
+
+powershell -ExecutionPolicy ByPass -NoProfile -File "%~dp0..\setup-sci.ps1" %*
+exit /b %ERRORLEVEL%
