@@ -200,7 +200,7 @@ def _cli_config_defaults():
         "compression": {"enabled": True, "threshold": 0.50, "min_tail_user_messages": 1},
         "agent": {
             "max_turns": 500, "verbose": False, "system_prompt": "", "prefill_messages_file": "",  # max_turns shared with subagents
-            "reasoning_effort": "none", "service_tier": "",
+            "reasoning_effort": "medium", "service_tier": "",
             "personalities": {},  # user overrides merged by name over sci_cli.personality builtins
         },
         "display": {
@@ -208,7 +208,7 @@ def _cli_config_defaults():
             # /resume recap tuning and show_reasoning: keep in sync with sci_cli/config.py DEFAULT_CONFIG
             "resume_display": "full", "resume_exchanges": 10, "resume_max_user_chars": 300,
             "resume_max_assistant_chars": 200, "resume_max_assistant_lines": 3, "resume_skip_tool_only": True,
-            "show_reasoning": True, "reasoning_full": False, "streaming": True, "busy_input_mode": "interrupt",
+            "show_reasoning": False, "reasoning_full": False, "streaming": True, "busy_input_mode": "interrupt",
             "persistent_output": True, "persistent_output_max_lines": 200,
             # Also clear scrollback on redraw/resize recovery; off because users prefer history.
             "cli_rebuild_scrollback_on_redraw": False,

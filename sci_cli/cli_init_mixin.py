@@ -47,7 +47,7 @@ class CLIInitMixin:
         self.resume_display = display.get("resume_display", "full")  # "full" | "minimal"
         self.bell_on_complete = display.get("bell_on_complete", False)
         self.bell_on_prompt = display.get("bell_on_prompt", False)  # bell when a blocking modal opens
-        self.show_reasoning = display.get("show_reasoning", True)
+        self.show_reasoning = display.get("show_reasoning", False)
         self.reasoning_full = display.get("reasoning_full", False)
         _configure_output_history(
             enabled=display.get("persistent_output", True),

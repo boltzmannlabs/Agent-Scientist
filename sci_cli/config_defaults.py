@@ -280,7 +280,7 @@ DEFAULT_CONFIG = {
         # vision_analyze and prepend the description. vision_analyze stays a tool regardless.
         "image_input_mode": "auto",
         "disabled_toolsets": [],
-        "reasoning_effort": "none",
+        "reasoning_effort": "medium",
         # Model name (any reasonable spelling) -> effort level; overrides agent.reasoning_effort
         # when the current model matches. Edit in config.yaml (no CLI support: dots in keys).
         "reasoning_overrides": {},
@@ -857,7 +857,7 @@ DEFAULT_CONFIG = {
         "bell_on_prompt": False,   # bell when a blocking prompt opens (clarify/approval/sudo)
         # Stream reasoning live before the response; otherwise thinking models show only a spinner
         # for tens of seconds.
-        "show_reasoning": True,
+        "show_reasoning": False,
         # Post-response "Reasoning" recap collapses to 10 lines; true prints it all (live streaming
         # is always full).
         "reasoning_full": False,

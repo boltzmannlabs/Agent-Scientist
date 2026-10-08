@@ -36,7 +36,8 @@ or theme command is needed. The classic gold default has been removed; older
 and user-authored skin files are preserved. The multicolor title and white
 context-occupancy indicator are unchanged.
 
-Optional model reasoning defaults to `none`. You can explicitly select another
+Optional model reasoning defaults to `medium`, with thinking text hidden
+(`display.show_reasoning: false`). You can explicitly select another
 effort with `/reasoning low`, `/reasoning medium`, or a level supported by your
 model. Updates preserve existing saved effort choices and per-model overrides.
 
