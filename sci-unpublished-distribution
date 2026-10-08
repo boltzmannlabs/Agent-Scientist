@@ -1,0 +1,4 @@
+This fork has no published update channel yet.
+Keep this marker until SCI-compatible source releases, installers, and updater
+endpoints have been configured and tested. Upstream releases are not compatible
+with this fork's Python namespaces or saved-data location.
