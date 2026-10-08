@@ -202,8 +202,8 @@ def _collect_resume_entries(display_history, disp: dict, clean_assistant):
 
 # (skin key, fallback) for recap panel colors: body text, session label, border, assistant label.
 _RESUME_SKIN_COLORS = (
-    ("banner_text", "#FFF8DC"), ("session_label", "#DAA520"), ("session_border", "#8B8682"),
-    ("ui_ok", "#8FBC8F"))
+    ("banner_text", "#FFE3ED"), ("session_label", "#FF8FB6"), ("session_border", "#853053"),
+    ("ui_ok", "#D1F2CD"))
 
 
 def _resume_panel_colors() -> tuple:

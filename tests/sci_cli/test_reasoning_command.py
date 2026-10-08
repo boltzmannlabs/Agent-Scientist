@@ -259,12 +259,10 @@ class TestReasoningDisplayModeSelection(unittest.TestCase):
         self.assertIsNotNone(callback)
         self.assertEqual(callback("x"), ("stream", "x"))
 
-    def test_verbose_without_show_reasoning_uses_preview_callback(self):
-        cli = self._make_cli(show_reasoning=False, streaming_enabled=False, verbose=True)
-
-        callback = cli._current_reasoning_callback()
-        self.assertIsNotNone(callback)
-        self.assertEqual(callback("x"), ("preview", "x"))
+    def test_verbose_cannot_override_hidden_reasoning(self):
+        for streaming in (False, True):
+            cli = self._make_cli(show_reasoning=False, streaming_enabled=streaming, verbose=True)
+            self.assertIsNone(cli._current_reasoning_callback())
 
 
 # ---------------------------------------------------------------------------

@@ -115,8 +115,6 @@ class CLIStreamMixin:
         """Return the active reasoning display callback for the current mode."""
         if self.show_reasoning and self.streaming_enabled:
             return self._stream_reasoning_delta
-        if self.verbose and not self.show_reasoning:
-            return self._on_reasoning
         return None
 
     def _emit_reasoning_preview(self, reasoning_text: str) -> None:
@@ -440,10 +438,10 @@ class CLIStreamMixin:
                 from sci_cli.skin_engine import get_active_skin
                 _skin = get_active_skin()
                 label = _skin.get_branding("response_label", "☤ Sci")
-                _text_hex = _skin.get_color("banner_text", "#FFF8DC")
+                _text_hex = _skin.get_color("banner_text", "#FFE3ED")
             except Exception:
                 label = "☤ Sci"
-                _text_hex = "#FFF8DC"
+                _text_hex = "#FFE3ED"
             try:  # true-color escape so streamed text matches the Rich Panel appearance
                 _r, _g, _b = (int(_text_hex[i:i + 2], 16) for i in (1, 3, 5))
                 self._stream_text_ansi = f"\033[38;2;{_r};{_g};{_b}m"

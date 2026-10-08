@@ -118,7 +118,8 @@ set/get/unset <NAME>` route any bare name registered in `OPTIONAL_ENV_VARS` / `_
 Skins are **pure data** (`SkinConfig`); no code change to add one. `init_skin_from_config()` reads
 `display.skin` at startup; `get_active_skin()` (cached), `set_active_skin(name)` (`/skin`),
 `load_skin(name)` (user `~/.sci/skins/*.yaml` → built-ins → default; missing values inherit
-from `default`). Built-ins in `_BUILTIN_SKINS`: `default`, `ares`, `mono`, `slate`. Keys: `colors.*`
+from `neon-theme`). The packaged default is `neon-theme`; persisted `default` choices resolve
+to it without overwriting custom skin files. Built-ins also include `ares`, `mono`, `slate`. Keys: `colors.*`
 (banner border/title/accent/dim/text, response_border), `spinner.*` (waiting/thinking faces,
 thinking_verbs, wings), `tool_prefix`, `tool_emojis`, `branding.*` (agent_name, welcome,
 response_label, prompt_symbol). Consumers: `banner.py`, `display.py`, `cli.py`. Key-by-key table

@@ -9,8 +9,11 @@ from sci_cli.skill_add_sources import validate_bundle
 
 def existing_skill(name: str) -> bool:
     from tools.skills_hub import HubLockFile
+    from tools.skill_manager_tool import _find_skill
     from tools.skills_tool import _find_all_skills
     return (HubLockFile().get_installed(name) is not None
+            # Match native skill creation even when offer-time filters/cache hide it.
+            or _find_skill(name) is not None
             or any(s.get("name") == name for s in _find_all_skills(skip_disabled=True)))
 
 

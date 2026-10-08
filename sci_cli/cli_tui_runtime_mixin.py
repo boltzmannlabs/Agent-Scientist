@@ -269,7 +269,7 @@ class CLITuiRuntimeMixin:
 
         _welcome_skin = None  # stays None when the skin engine failed
         _welcome_text = t("cli.tui.welcome")
-        _welcome_color = "#FFF8DC"
+        _welcome_color = "#FFE3ED"
         try:
             from sci_cli.skin_engine import get_active_skin
             _welcome_skin = get_active_skin()
@@ -330,9 +330,9 @@ class CLITuiRuntimeMixin:
             )
             if not is_seen(self.config, OPENCLAW_RESIDUE_FLAG) and detect_openclaw_residue():
                 try:
-                    _resid_color = _welcome_skin.get_color("banner_dim", "#B8860B")
+                    _resid_color = _welcome_skin.get_color("banner_dim", "#AF426B")
                 except Exception:
-                    _resid_color = "#B8860B"
+                    _resid_color = "#AF426B"
                 self._console_print(f"[{_resid_color}]{openclaw_residue_hint_cli()}[/]")
                 try:
                     from sci_cli.config import get_config_path as _get_cfg_path_resid

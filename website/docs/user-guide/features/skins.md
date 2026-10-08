@@ -25,14 +25,14 @@ Or set the default skin in `~/.sci/config.yaml`:
 
 ```yaml
 display:
-  skin: default
+  skin: neon-theme
 ```
 
 ## Built-in skins
 
 | Skin | Description | Agent branding | Visual character |
 |------|-------------|----------------|------------------|
-| `default` | Classic Sci — gold and kawaii | `Sci Agent` | Warm gold borders, cornsilk text, kawaii faces in spinners. The familiar caduceus banner. Clean and inviting. |
+| `neon-theme` | Default SCI pink/magenta palette | `Sci Agent` | Pink headings, magenta response borders, pale-pink text and velvet-black status surfaces. Automatically available on fresh installations. |
 | `ares` | War-god theme — crimson and bronze | `Ares Agent` | Deep crimson borders with bronze accents. Aggressive spinner verbs ("forging", "marching", "tempering steel"). Custom sword-and-shield ASCII art banner. |
 | `mono` | Monochrome — clean grayscale | `Sci Agent` | All grays — no color. Borders are `#555555`, text is `#c9d1d9`. Ideal for minimal terminal setups or screen recordings. |
 | `slate` | Cool blue — developer-focused | `Sci Agent` | Royal blue borders (`#4169e1`), soft blue text. Calm and professional. No custom spinner — uses default faces. |
@@ -44,34 +44,38 @@ display:
 
 ## Complete list of configurable keys
 
+The classic gold default is no longer shipped. Older `display.skin: default`
+settings resolve to `neon-theme`; existing custom skin files and explicit choices
+are not overwritten. No local skin file is needed for the release theme.
+
 ### Colors (`colors:`)
 
 Controls all color values throughout the CLI. Values are hex color strings.
 
-| Key | Description | Default (`default` skin) |
+| Key | Description | Default (`neon-theme` skin) |
 |-----|-------------|--------------------------|
-| `banner_border` | Panel border around the startup banner | `#CD7F32` (bronze) |
-| `banner_title` | Title text color in the banner | `#FFD700` (gold) |
-| `banner_accent` | Section headers in the banner (Available Tools, etc.) | `#FFBF00` (amber) |
-| `banner_dim` | Muted text in the banner (separators, secondary labels) | `#B8860B` (dark goldenrod) |
-| `banner_text` | Body text in the banner (tool names, skill names) | `#FFF8DC` (cornsilk) |
-| `ui_accent` | General UI accent color (highlights, active elements) | `#FFBF00` |
-| `ui_label` | UI labels and tags | `#DAA520` (goldenrod) |
-| `ui_ok` | Success indicators (checkmarks, completion) | `#4caf50` (green) |
-| `ui_error` | Error indicators (failures, blocked) | `#ef5350` (red) |
-| `ui_warn` | Warning indicators (caution, approval prompts) | `#ffa726` (orange) |
-| `prompt` | Interactive prompt text color | `#FFF8DC` |
-| `input_rule` | Horizontal rule above the input area | `#CD7F32` |
-| `response_border` | Border around the agent's response box (ANSI escape) | `#FFD700` |
-| `session_label` | Session label color | `#DAA520` |
-| `session_border` | Session ID dim border color | `#8B8682` |
-| `status_bar_bg` | Background color for the TUI status / usage bar | `#1a1a2e` |
-| `voice_status_bg` | Background color for the voice-mode status badge | `#1a1a2e` |
-| `selection_bg` | Background color for the TUI mouse-selection highlighter. Falls back to `completion_menu_current_bg` when unset. | `#3a3a55` |
-| `completion_menu_bg` | Background color for the completion menu list | `#1a1a2e` |
-| `completion_menu_current_bg` | Background color for the active completion row | `#333355` |
-| `completion_menu_meta_bg` | Background color for the completion meta column | `#1a1a2e` |
-| `completion_menu_meta_current_bg` | Background color for the active completion meta column | `#333355` |
+| `banner_border` | Panel border around the startup banner | `#8D123B` |
+| `banner_title` | Title text color in the banner | `#FF7AA7` |
+| `banner_accent` | Section headers in the banner (Available Tools, etc.) | `#FF356F` |
+| `banner_dim` | Muted text in the banner (separators, secondary labels) | `#AF426B` |
+| `banner_text` | Body text in the banner (tool names, skill names) | `#FFE3ED` |
+| `ui_accent` | General UI accent color (highlights, active elements) | `#FF3F79` |
+| `ui_label` | UI labels and tags | `#E965AF` |
+| `ui_ok` | Success indicators (checkmarks, completion) | `#D1F2CD` |
+| `ui_error` | Error indicators (failures, blocked) | `#FF385A` |
+| `ui_warn` | Warning indicators (caution, approval prompts) | `#FFB17D` |
+| `prompt` | Interactive prompt symbol color (typed text inherits terminal foreground) | `#FFE8F0` |
+| `input_rule` | Horizontal rule above the input area | `#F52566` |
+| `response_border` | Border around the agent's response box (ANSI escape) | `#B93586` |
+| `session_label` | Session label color | `#FF8FB6` |
+| `session_border` | Session ID dim border color | `#853053` |
+| `status_bar_bg` | Background color for the TUI status / usage bar | `#160811` |
+| `voice_status_bg` | Background color for the voice-mode status badge | `#250D20` |
+| `selection_bg` | Background color for the TUI mouse-selection highlighter. Falls back to `completion_menu_current_bg` when unset. | `#753052` |
+| `completion_menu_bg` | Background color for the completion menu list | `#170914` |
+| `completion_menu_current_bg` | Background color for the active completion row | `#5E173C` |
+| `completion_menu_meta_bg` | Background color for the completion meta column | `#250D20` |
+| `completion_menu_meta_current_bg` | Background color for the active completion meta column | `#782049` |
 
 ### Spinner (`spinner:`)
 
@@ -84,7 +88,7 @@ Controls the animated spinner shown while waiting for API responses.
 | `thinking_verbs` | list of strings | Verbs shown in spinner messages | `["forging", "plotting", "hammering plans"]` |
 | `wings` | list of [left, right] pairs | Decorative brackets around the spinner | `[["⟪⚔", "⚔⟫"], ["⟪▲", "▲⟫"]]` |
 
-When spinner values are empty (like in `default` and `mono`), hardcoded defaults from `display.py` are used.
+When spinner values are empty (like in `neon-theme` and `mono`), hardcoded defaults from `display.py` are used.
 
 ### Branding (`branding:`)
 
@@ -111,41 +115,41 @@ Text strings used throughout the CLI interface.
 
 ## Custom skins
 
-Create YAML files under `~/.sci/skins/`. User skins inherit missing values from the built-in `default` skin, so you only need to specify the keys you want to change.
+Create YAML files under `~/.sci/skins/`. User skins inherit missing values from the built-in `neon-theme` skin, so you only need to specify the keys you want to change.
 
 ### Full custom skin YAML template
 
 ```yaml
 # ~/.sci/skins/mytheme.yaml
 # Complete skin template — all keys shown. Delete any you don't need;
-# missing values automatically inherit from the 'default' skin.
+# missing values automatically inherit from the 'neon-theme' skin.
 
 name: mytheme
 description: My custom theme
 
 colors:
-  banner_border: "#CD7F32"
-  banner_title: "#FFD700"
-  banner_accent: "#FFBF00"
-  banner_dim: "#B8860B"
-  banner_text: "#FFF8DC"
-  ui_accent: "#FFBF00"
-  ui_label: "#4dd0e1"
-  ui_ok: "#4caf50"
-  ui_error: "#ef5350"
-  ui_warn: "#ffa726"
-  prompt: "#FFF8DC"
-  input_rule: "#CD7F32"
-  response_border: "#FFD700"
-  session_label: "#DAA520"
-  session_border: "#8B8682"
-  status_bar_bg: "#1a1a2e"
-  voice_status_bg: "#1a1a2e"
-  selection_bg: "#333355"
-  completion_menu_bg: "#1a1a2e"
-  completion_menu_current_bg: "#333355"
-  completion_menu_meta_bg: "#1a1a2e"
-  completion_menu_meta_current_bg: "#333355"
+  banner_border: "#8D123B"
+  banner_title: "#FF7AA7"
+  banner_accent: "#FF356F"
+  banner_dim: "#AF426B"
+  banner_text: "#FFE3ED"
+  ui_accent: "#FF3F79"
+  ui_label: "#E965AF"
+  ui_ok: "#D1F2CD"
+  ui_error: "#FF385A"
+  ui_warn: "#FFB17D"
+  prompt: "#FFE8F0"
+  input_rule: "#F52566"
+  response_border: "#B93586"
+  session_label: "#FF8FB6"
+  session_border: "#853053"
+  status_bar_bg: "#160811"
+  voice_status_bg: "#250D20"
+  selection_bg: "#753052"
+  completion_menu_bg: "#170914"
+  completion_menu_current_bg: "#5E173C"
+  completion_menu_meta_bg: "#250D20"
+  completion_menu_meta_current_bg: "#782049"
 
 spinner:
   waiting_faces:
@@ -190,7 +194,7 @@ tool_emojis:
 
 ### Minimal custom skin example
 
-Since everything inherits from `default`, a minimal skin only needs to change what's different:
+Since everything inherits from `neon-theme`, a minimal skin only needs to change what's different:
 
 ```yaml
 name: cyberpunk
@@ -283,7 +287,7 @@ Sci Mod respects the `SCI_HOME` environment variable, so it works with [profiles
 ## Operational notes
 
 - Built-in skins load from `sci_cli/skin_engine.py`.
-- Unknown skins automatically fall back to `default`.
+- Unknown skins automatically fall back to `neon-theme`.
 - `/skin` updates the active CLI theme immediately for the current session.
 - User skins in `~/.sci/skins/` take precedence over built-in skins with the same name.
 - Skin changes via `/skin` are session-only. To make a skin your permanent default, set it in `config.yaml`.

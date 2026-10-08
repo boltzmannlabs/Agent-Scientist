@@ -84,7 +84,7 @@ def _assistant_copy_text(content: Any) -> str:
     return _strip_reasoning_tags(_assistant_content_as_text(content))
 
 
-_ACCENT_ANSI_DEFAULT = "\033[1;38;2;255;215;0m"  # #FFD700 bold fallback
+_ACCENT_ANSI_DEFAULT = "\033[1;38;2;185;53;134m"  # neon response-border fallback
 
 
 _BOLD = "\033[1m"
@@ -313,7 +313,7 @@ def _install_skin_light_mode_hook() -> None:
 class _SkinAwareAnsi:
     """Lazy ANSI escape resolved from the skin on first use; ``.reset()`` after a ``/skin`` switch."""
 
-    def __init__(self, skin_key: str, fallback_hex: str = "#FFD700", *, bold: bool = False):
+    def __init__(self, skin_key: str, fallback_hex: str = "#FF7AA7", *, bold: bool = False):
         self._skin_key = skin_key
         self._fallback_hex = fallback_hex
         self._bold = bold
@@ -343,7 +343,7 @@ class _SkinAwareAnsi:
         self._cached = None
 
 
-_ACCENT = _SkinAwareAnsi("response_border", "#FFD700", bold=True)
+_ACCENT = _SkinAwareAnsi("response_border", "#B93586", bold=True)
 
 
 # dim+italic attributes (not a hex) so dim text inherits the terminal foreground in both modes.
@@ -368,9 +368,9 @@ def _accent_hex() -> str:
     """Return the active skin accent color for legacy CLI output lines."""
     try:
         from sci_cli.skin_engine import get_active_skin
-        return get_active_skin().get_color("ui_accent", "#FFBF00")
+        return get_active_skin().get_color("ui_accent", "#FF3F79")
     except Exception:
-        return "#FFBF00"
+        return "#FF3F79"
 
 
 def _rich_text_from_ansi(text: str) -> _RichText:
@@ -912,14 +912,11 @@ def _build_compact_banner() -> str:
     def _color(key, default):
         return _skin.get_color(key, default) if _skin else default
 
-    border_color = _color("banner_border", "#FFD700")
-    title_color = _color("banner_title", "#FFBF00")
-    dim_color = _color("banner_dim", "#B8860B")
+    border_color = _color("banner_border", "#8D123B")
+    title_color = _color("banner_title", "#FF7AA7")
+    dim_color = _color("banner_dim", "#AF426B")
 
-    if (getattr(_skin, "name", "default") if _skin else "default") == "default":
-        tiny_line = "☤ NOUS SCI"
-    else:
-        tiny_line = _skin.get_branding("agent_name", "Sci Agent") if _skin else "Sci Agent"
+    tiny_line = _skin.get_branding("agent_name", "Sci Agent") if _skin else "Sci Agent"
     line1 = t("cli.render.banner_tagline", name=tiny_line)
 
     if os.environ.get("SCI_FAST_STARTUP_BANNER") == "1":

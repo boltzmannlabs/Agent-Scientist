@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from sci_constants import get_sci_home
+from sci_cli.skin_defaults import DEFAULT_COLORS, DEFAULT_LIGHT_COLORS, DEFAULT_SKIN_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -61,36 +62,10 @@ _SCI_BRANDING: Dict[str, str] = _branding(
     "Sci", "☤", "Goodbye! ☤", prompt="❯", help_header="(^_^)? Available Commands")
 
 _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
-    "default": {
-        "name": "default", "description": "Classic Sci — gold and kawaii",
-        # Dark-authored; values match the TUI's DARK_THEME so both render the same gold.
-        "colors": {
-            "banner_border": "#CD7F32", "banner_title": "#FFD700", "banner_accent": "#FFBF00",
-            "banner_dim": "#B8860B", "banner_text": "#FFF8DC", "ui_accent": "#FFBF00",
-            "ui_label": "#DAA520", "ui_ok": "#4caf50", "ui_error": "#ef5350", "ui_warn": "#ffa726",
-            "prompt": "#FFF8DC", "input_rule": "#CD7F32", "response_border": "#FFD700",
-            "status_bar_bg": "#1a1a2e", "status_bar_text": "#C0C0C0",
-            "status_bar_strong": "#FFD700", "status_bar_dim": "#8A7A4A",
-            "status_bar_good": "#8FBC8F", "status_bar_warn": "#FFD700", "status_bar_bad": "#FF8C00",
-            "status_bar_critical": "#FF6B6B", "session_label": "#DAA520",
-            "session_border": "#8B8682", "completion_menu_bg": "#1a1a2e",
-            "completion_menu_current_bg": "#333355", "selection_bg": "#3a3a55",
-            "shell_dollar": "#4dabf7", "voice_status_bg": "#1a1a2e"},
-        # Light overlay (merged onto `colors`). Goldenrod ladder: on white the vivid
-        # #FFD700/#FFBF00 read as glare and WCAG-darkened mustard (#867000) as mud; the
-        # statusbar's goldenrod family (#B8860B/#DAA520) keeps the hue, tames saturation.
-        # Hierarchy on white: ink body 8.9:1 > fade 5.2 > label 3.7 > muted 3.3 > title 2.7 >
-        # headers 2.4. Fills (*_bg) flip the dark navy surfaces to light polarity.
-        "light_colors": {
-            "banner_title": "#C8961E", "banner_accent": "#D89B04", "banner_dim": "#B8860B",
-            "banner_text": "#5C4718", "ui_accent": "#D89B04", "ui_label": "#A97E10",
-            "ui_ok": "#2E7D32", "ui_error": "#C62828", "ui_warn": "#D97706", "prompt": "#5C4718",
-            "response_border": "#C8961E", "session_label": "#A97E10", "status_bar_text": "#6F6F6F",
-            "status_bar_strong": "#C8961E", "status_bar_dim": "#9A8A5A",
-            "status_bar_good": "#2E7D32", "status_bar_warn": "#C8961E", "status_bar_bad": "#C2410C",
-            "status_bar_critical": "#B91C1C", "shell_dollar": "#1E6FC0",
-            "completion_menu_bg": "#F5F5F5", "completion_menu_current_bg": "#E0D1BF",
-            "selection_bg": "#D4E4F7", "status_bar_bg": "#F5F5F5", "voice_status_bg": "#F5F5F5"},
+    DEFAULT_SKIN_NAME: {
+        "name": DEFAULT_SKIN_NAME, "description": "Pink and magenta neon palette on velvet black",
+        "colors": DEFAULT_COLORS,
+        "light_colors": DEFAULT_LIGHT_COLORS,
         "spinner": {},  # empty = hardcoded defaults in display.py
         "branding": _SCI_BRANDING,
         "tool_prefix": "┊"},
@@ -342,7 +317,7 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
     }}
 
 _active_skin: Optional[SkinConfig] = None
-_active_skin_name: str = "default"
+_active_skin_name: str = DEFAULT_SKIN_NAME
 # Routed multiplex profiles: (name, skin) per home key. ``display.skin`` and ``<home>/skins/*.yaml``
 # are per profile, and the relay display name / TUI skin payload are read under each profile's
 # override — one module slot would be last-writer-wins across profiles. Unscoped keeps the module slot.
@@ -381,7 +356,7 @@ def _load_skin_from_yaml(path: Path) -> Optional[Dict[str, Any]]:
 
 def _build_skin_config(data: Dict[str, Any]) -> SkinConfig:
     """Build a SkinConfig from a raw dict (built-in or loaded from YAML)."""
-    default = _BUILTIN_SKINS["default"]
+    default = _BUILTIN_SKINS[DEFAULT_SKIN_NAME]
     skin_name = str(data.get("name", "unknown"))
 
     def section(key: str) -> Dict[str, Any]:
@@ -397,7 +372,7 @@ def _build_skin_config(data: Dict[str, Any]) -> SkinConfig:
         return {**default.get(key, {}), **section(key)}
     # Paired palettes are NOT merged over the default skin's blocks: an empty block means
     # "no hand-tuned variant for that polarity" and consumers (the TUI) fall back to `colors`
-    # + automatic adaptation, which beats the default's gold light palette under a crimson skin.
+    # + automatic adaptation, rather than inheriting the default's pink under a crimson skin.
     return SkinConfig(
         name=skin_name, description=data.get("description", ""), colors=merged("colors"),
         light_colors=section("light_colors"), dark_colors=section("dark_colors"),
@@ -425,9 +400,12 @@ def load_skin(name: str) -> SkinConfig:
     """Load a skin by name: user skins first, then built-in, then default."""
     user_file = _skins_dir() / f"{name}.yaml"
     data = _load_skin_from_yaml(user_file) if user_file.is_file() else None
+    # Persisted "default" choices now resolve to neon; leave user-authored default.yaml alone.
+    if not data and name == "default":
+        name = DEFAULT_SKIN_NAME
     if not data and name not in _BUILTIN_SKINS:
         logger.warning("Skin '%s' not found, using default", name)
-    return _build_skin_config(data or _BUILTIN_SKINS.get(name) or _BUILTIN_SKINS["default"])
+    return _build_skin_config(data or _BUILTIN_SKINS.get(name) or _BUILTIN_SKINS[DEFAULT_SKIN_NAME])
 
 
 def get_active_skin() -> SkinConfig:
@@ -450,6 +428,8 @@ def set_active_skin(name: str) -> SkinConfig:
     """Switch the active skin. Returns the new SkinConfig."""
     global _active_skin, _active_skin_name
     skin = load_skin(name)
+    if name == "default" and skin.name == DEFAULT_SKIN_NAME:
+        name = DEFAULT_SKIN_NAME
     home_key = _routed_home_key()
     if home_key is not None:
         _active_skin_by_home[home_key] = (name, skin)
@@ -463,15 +443,15 @@ def get_active_skin_name() -> str:
     home_key = _routed_home_key()
     if home_key is not None:
         entry = _active_skin_by_home.get(home_key)
-        return entry[0] if entry else "default"
+        return entry[0] if entry else DEFAULT_SKIN_NAME
     return _active_skin_name
 
 
 def init_skin_from_config(config: dict) -> None:
     """Initialize the active skin from CLI config at startup."""
     display = config.get("display") or {}
-    skin_name = display.get("skin", "default") if isinstance(display, dict) else "default"
-    set_active_skin(skin_name.strip() if isinstance(skin_name, str) and skin_name.strip() else "default")
+    skin_name = display.get("skin", DEFAULT_SKIN_NAME) if isinstance(display, dict) else DEFAULT_SKIN_NAME
+    set_active_skin(skin_name.strip() if isinstance(skin_name, str) and skin_name.strip() else DEFAULT_SKIN_NAME)
 
 
 def _active_branding(key: str, fallback: str) -> str:
@@ -498,16 +478,18 @@ def get_active_goodbye(fallback: str = "Goodbye! ☤") -> str:
 # Palette resolution order for prompt_toolkit styles: (name, skin color key, fallback). A
 # fallback starting with "@" names an earlier entry (so a missing key inherits its remapped value).
 _STYLE_PALETTE = (
-    ("prompt", "prompt", ""), ("input_rule", "input_rule", "#CD7F32"),
-    ("title", "banner_title", "#FFD700"), ("text", "banner_text", "#FFF8DC"),
-    ("dim", "banner_dim", "#555555"), ("label", "ui_label", "@title"), ("warn", "ui_warn", "#FF8C00"),
-    ("error", "ui_error", "#FF6B6B"), ("status_bg", "status_bar_bg", "#1a1a2e"),
+    ("prompt", "prompt", DEFAULT_COLORS["prompt"]), ("input_rule", "input_rule", DEFAULT_COLORS["input_rule"]),
+    ("title", "banner_title", DEFAULT_COLORS["banner_title"]), ("text", "banner_text", DEFAULT_COLORS["banner_text"]),
+    ("dim", "banner_dim", DEFAULT_COLORS["banner_dim"]), ("label", "ui_label", "@title"),
+    ("warn", "ui_warn", DEFAULT_COLORS["ui_warn"]),
+    ("error", "ui_error", DEFAULT_COLORS["ui_error"]), ("status_bg", "status_bar_bg", DEFAULT_COLORS["status_bar_bg"]),
     ("status_text", "status_bar_text", "@text"), ("status_strong", "status_bar_strong", "@title"),
-    ("status_dim", "status_bar_dim", "@dim"), ("ok", "ui_ok", "#8FBC8F"),
+    ("status_dim", "status_bar_dim", "@dim"), ("ok", "ui_ok", DEFAULT_COLORS["ui_ok"]),
     ("status_good", "status_bar_good", "@ok"), ("status_warn", "status_bar_warn", "@warn"),
     ("accent", "banner_accent", "@warn"), ("status_bad", "status_bar_bad", "@accent"),
     ("status_critical", "status_bar_critical", "@error"), ("voice_bg", "voice_status_bg", "@status_bg"),
-    ("menu_bg", "completion_menu_bg", "#1a1a2e"), ("menu_current_bg", "completion_menu_current_bg", "#333355"),
+    ("menu_bg", "completion_menu_bg", DEFAULT_COLORS["completion_menu_bg"]),
+    ("menu_current_bg", "completion_menu_current_bg", DEFAULT_COLORS["completion_menu_current_bg"]),
     ("menu_meta_bg", "completion_menu_meta_bg", "@menu_bg"),
     ("menu_meta_current_bg", "completion_menu_meta_current_bg", "@menu_current_bg"))
 
@@ -545,14 +527,13 @@ def get_prompt_toolkit_style_overrides() -> Dict[str, str]:
         skin = get_active_skin()
     except Exception:
         return {}
-    # `prompt` is unset by default so typed text inherits the terminal's foreground (readable
-    # on light and dark schemes); skins opt into a colored prompt symbol via `prompt` in YAML.
+    # Only the prompt symbol uses `prompt`; typed text inherits the terminal foreground.
     # Every read goes through skin.get_color (cli.py wraps it for light-mode remapping).
     palette: Dict[str, str] = {}
     for name, key, fallback in _STYLE_PALETTE:
         palette[name] = skin.get_color(key, palette[fallback[1:]] if fallback.startswith("@") else fallback)
     # This badge paints both sides; foreground-only light remapping destroys its contrast.
     palette["badge_bg"] = skin.colors.get(
-        "status_bar_strong", skin.colors.get("banner_title", "#FFD700"))
-    palette["badge_fg"] = skin.colors.get("status_bar_bg", "#1a1a2e")
+        "status_bar_strong", skin.colors.get("banner_title", DEFAULT_COLORS["banner_title"]))
+    palette["badge_fg"] = skin.colors.get("status_bar_bg", DEFAULT_COLORS["status_bar_bg"])
     return {cls: tpl.format(**palette) for cls, tpl in _STYLE_TEMPLATES.items()}

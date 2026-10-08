@@ -1,4 +1,19 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+
+function releasePalette(section: 'colors' | 'light_colors') {
+  const source = readFileSync(new URL('../../../assets/skins/neon-theme.yaml', import.meta.url), 'utf8')
+  let current = ''
+  const colors: Record<string, string> = {}
+
+  for (const line of source.split('\n')) {
+    const heading = /^(colors|light_colors):$/.exec(line)
+    if (heading) current = heading[1]!
+    const entry = /^  (\w+): "(#[0-9A-Fa-f]{6})"$/.exec(line)
+    if (current === section && entry) colors[entry[1]!] = entry[2]!
+  }
+  return colors
+}
 
 // `theme.js` reads `process.env` at module-load to compute DEFAULT_THEME,
 // and `fromSkin` closes over DEFAULT_THEME.  A developer shell with
@@ -53,6 +68,39 @@ describe('DEFAULT_THEME aliasing', () => {
     const { DEFAULT_THEME, DARK_THEME: DARK } = await importThemeWithCleanEnv()
 
     expect(DEFAULT_THEME).toBe(DARK)
+  })
+
+  it('boots with the packaged release palette before skin discovery', async () => {
+    const { DARK_SEEDS, LIGHT_SEEDS } = await importThemeWithCleanEnv()
+    const roles = {
+      accent: 'banner_accent',
+      primary: 'banner_title',
+      text: 'banner_text',
+      prompt: 'prompt',
+      surface: 'status_bar_bg',
+      activeRow: 'completion_menu_current_bg',
+      selection: 'selection_bg'
+    } as const
+    for (const [seeds, palette] of [
+      [DARK_SEEDS, releasePalette('colors')],
+      [LIGHT_SEEDS, releasePalette('light_colors')]
+    ] as const) {
+      for (const [seed, role] of Object.entries(roles)) {
+        expect(seeds[seed as keyof typeof roles]).toBe(palette[role])
+      }
+    }
+  })
+
+  it.each(['#000000', '#ffffff'])('keeps the released skin readable on host background %s', async background => {
+    const { contrastRatio, fromSkin } = await importThemeWithEnv({ SCI_TUI_BACKGROUND: background })
+    const colors = { ...releasePalette('colors'), ...(background === '#ffffff' ? releasePalette('light_colors') : {}) }
+    const theme = fromSkin(colors, {})
+    for (const role of ['primary', 'accent', 'text', 'prompt'] as const) {
+      expect(contrastRatio(theme.color[role], background)!).toBeGreaterThanOrEqual(3.9)
+    }
+    for (const role of ['border', 'sessionBorder'] as const) {
+      expect(contrastRatio(theme.color[role], background)!).toBeGreaterThanOrEqual(2.0)
+    }
   })
 })
 
@@ -372,45 +420,20 @@ const SLATE_COLORS = {
   ui_warn: '#e6a855'
 }
 
-// Max per-channel deviation between two hexes.
-const channelDelta = (a: string, b: string) => {
-  const pa = parseInt(a.replace('#', ''), 16)
-  const pb = parseInt(b.replace('#', ''), 16)
-
-  return Math.max(
-    Math.abs(((pa >> 16) & 0xff) - ((pb >> 16) & 0xff)),
-    Math.abs(((pa >> 8) & 0xff) - ((pb >> 8) & 0xff)),
-    Math.abs((pa & 0xff) - (pb & 0xff))
-  )
-}
-
 describe('derived tone ladder', () => {
-  it('reproduces the original hand-tuned tones from seeds (reverse-engineered knobs)', async () => {
-    // The ladder's knobs were grid-search fitted so the MATH lands on the
-    // pre-refactor hand-tuned literals. Contract: every derived tone stays
-    // within a-few-RGB-units of the original (imperceptible), so knob edits
-    // that drift the classic look fail here instead of shipping as vibes.
-    const dark = await importThemeWithCleanEnv()
-    const light = await importThemeWithEnv({ SCI_TUI_BACKGROUND: '#ffffff' })
-
-    const cases: Array<[string, string, string]> = [
-      [dark.DARK_THEME.color.muted, '#CC9B1F', 'dark muted'],
-      [dark.DARK_THEME.color.label, '#DAA520', 'dark label'],
-      [dark.DARK_THEME.color.statusFg, '#C0C0C0', 'dark statusFg'],
-      [dark.DARK_THEME.color.completionBg, '#1a1a2e', 'dark surface'],
-      [dark.DARK_THEME.color.completionCurrentBg, '#333355', 'dark chip'],
-      [dark.DARK_THEME.color.selectionBg, '#3a3a55', 'dark selection'],
-      // Light canon = liftForContrast(dark literal, white, 4.5): the exact
-      // colors xterm's minimumContrastRatio rendered on light hosts.
-      [light.LIGHT_THEME.color.muted, '#946C08', 'light muted'],
-      [light.LIGHT_THEME.color.statusFg, '#6F6F6F', 'light statusFg'],
-      [light.LIGHT_THEME.color.completionBg, '#F5F5F5', 'light surface'],
-      [light.LIGHT_THEME.color.completionCurrentBg, '#e0d1bf', 'light chip'],
-      [light.LIGHT_THEME.color.selectionBg, '#D4E4F7', 'light selection']
-    ]
-
-    for (const [got, original, label] of cases) {
-      expect(channelDelta(got, original), `${label}: ${got} vs original ${original}`).toBeLessThanOrEqual(8)
+  it('preserves explicit identity and fill seeds while deriving readable secondary tones', async () => {
+    const { DARK_SEEDS, DARK_THEME, LIGHT_SEEDS, LIGHT_THEME, contrastRatio } = await importThemeWithCleanEnv()
+    for (const [seeds, theme] of [
+      [DARK_SEEDS, DARK_THEME],
+      [LIGHT_SEEDS, LIGHT_THEME]
+    ] as const) {
+      expect(theme.color.primary).toBe(seeds.primary)
+      expect(theme.color.accent).toBe(seeds.accent)
+      expect(theme.color.completionBg).toBe(seeds.surface)
+      expect(theme.color.completionCurrentBg).toBe(seeds.activeRow)
+      expect(theme.color.selectionBg).toBe(seeds.selection)
+      expect(contrastRatio(theme.color.muted, seeds.bg)!).toBeGreaterThanOrEqual(2.8)
+      expect(contrastRatio(theme.color.label, seeds.bg)!).toBeGreaterThanOrEqual(3.0)
     }
   })
 

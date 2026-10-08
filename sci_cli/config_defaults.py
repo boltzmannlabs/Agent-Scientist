@@ -4,6 +4,7 @@ Pure-data leaf module — must not import from sci_cli.config. Comments are the 
 docs of config.yaml.
 """
 
+from sci_cli.skin_defaults import DEFAULT_SKIN_NAME
 
 #: Image every container terminal backend (docker/modal/daytona/singularity) uses unless the
 #: user pins one. LEGACY_SANDBOX_IMAGES are the plain defaults that preceded the desktop stack
@@ -899,7 +900,7 @@ DEFAULT_CONFIG = {
         # /focus off restores. Never affects what the model sees (focus_view.py).
         "focus_view": False,
         "focus_saved_tool_progress": "all",
-        "skin": "default",
+        "skin": DEFAULT_SKIN_NAME,
         # UI language for static messages (approval prompts, some gateway slash replies); not agent
         # responses/logs/tool outputs. en, zh, ja, de, es, fr, tr, uk; unknown → en.
         "language": "en",

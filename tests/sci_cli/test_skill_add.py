@@ -11,7 +11,7 @@ from unittest.mock import Mock
 import pytest
 from cli import SciCLI
 from sci_cli import skill_add as wizard
-from sci_cli.skill_add_sources import Source, bundle_from_files
+from sci_cli.skill_add_sources import Source, bundle_from_files, load_source
 from sci_cli.skill_add_draft import DraftRoute
 
 
@@ -133,7 +133,8 @@ def test_real_import_enablement_and_profile_isolation(tmp_path, monkeypatch, mul
             build_skills_system_prompt()
             cached = dict(_SKILLS_PROMPT_CACHE)
             ui = ScriptUI(["Save", "Save and enable for the next session"])
-            wizard.run_add_skill(cli, f'/Add_skill "{folder}"', ui=ui)
+            source = load_source(str(folder))
+            wizard.review(cli, ui, source.bundle, source, "")
             installed = home / "skills" / "lab-summary"
             assert (installed / "SKILL.md").read_bytes() == (folder / "SKILL.md").read_bytes(), ui.output
             assert (installed / "references/guide.md").read_text() == "Check missing values.\n"
@@ -161,7 +162,9 @@ def test_real_import_enablement_and_profile_isolation(tmp_path, monkeypatch, mul
     try:
         assert HubLockFile().get_installed("lab-summary")
         ui = ScriptUI(["Save", "Cancel"])
-        wizard.run_add_skill(cli, f'/Add_skill "{folder}"', ui=ui)
+        source = load_source(str(folder))
+        with pytest.raises(wizard.Cancelled):
+            wizard.review(cli, ui, source.bundle, source, "")
         assert any("already exists" in line for line in ui.output)
         assert (homes[0] / "skills/lab-summary/SKILL.md").read_text() == SKILL
     finally:
@@ -174,7 +177,9 @@ def test_cancel_never_installs(tmp_path, answers):
     from sci_constants import get_skills_dir
     folder = source_folder(tmp_path)
     ui = ScriptUI(answers)
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{folder}"', ui=ui)
+    source = load_source(str(folder))
+    with pytest.raises(wizard.Cancelled):
+        wizard.review(cli_fixture(), ui, source.bundle, source, "")
     assert not (get_skills_dir() / "lab-summary").exists()
 
 
@@ -188,16 +193,14 @@ def test_draft_consent_revision_and_tool_free_provider_call(tmp_path, monkeypatc
         routes.append("prepared")
         return DraftRoute(client, "fixture", "fixture-model", "local fixture", 131072)
     monkeypatch.setattr(wizard, "prepare_route", prepare)
-    source = tmp_path / "notes.txt"
-    source.write_text("Compare laboratory result summaries without making clinical claims.")
-    cancelled = ScriptUI(["Summarize", "CSV", "Report", "Research only", "Cancel"])
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{source}"', ui=cancelled)
+    cancelled = ScriptUI(["Describe a workflow", "Summarize", "CSV", "Report", "Research only", "Cancel"])
+    wizard.run_add_skill(cli_fixture(), '/Add_skill', ui=cancelled)
     client.chat.completions.create.assert_not_called()
-    ui = ScriptUI(["Summarize", "CSV", "Report", "Research only", "Approve this draft",
+    ui = ScriptUI(["Describe a workflow", "Summarize", "CSV", "Report", "Research only", "Approve this draft",
                    "Revise with model", "Mention missing data", "Approve this draft",
                    "Edit", "SKILL.md", "Replace text", "Review inputs", "Review input completeness",
                    "Save", "Save and enable for the next session"])
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{source}"', ui=ui)
+    wizard.run_add_skill(cli_fixture(), '/Add_skill', ui=ui)
     calls = client.chat.completions.create.call_args_list
     assert len(calls) == 2, ui.output
     assert sum("Send this material" in q for q in ui.questions) == 2
@@ -219,12 +222,14 @@ def test_unsafe_scan_and_enablement_failure_reported(tmp_path, monkeypatch):
         return result
     monkeypatch.setattr(guard, "scan_skill", dangerous)
     ui = ScriptUI(["Save", "Cancel"])
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{folder}"', ui=ui)
+    source = load_source(str(folder))
+    with pytest.raises(wizard.Cancelled):
+        wizard.review(cli_fixture(), ui, source.bundle, source, "")
     assert not (get_skills_dir() / "lab-summary").exists()
     monkeypatch.setattr(guard, "scan_skill", real_scan)
     monkeypatch.setattr(skill_add_store, "enable_next_session", Mock(side_effect=OSError("fixture")))
     ui = ScriptUI(["Save", "Save and enable for the next session"])
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{folder}"', ui=ui)
+    wizard.review(cli_fixture(), ui, source.bundle, source, "")
     assert (get_skills_dir() / "lab-summary").exists()
     assert any("enablement failed" in s for s in ui.output)
     assert not any("Enabled. Available" in s for s in ui.output)
@@ -235,14 +240,16 @@ def test_duplicate_rename_and_failed_install_rollback(tmp_path, monkeypatch):
     from sci_constants import get_skills_dir
     folder = source_folder(tmp_path)
     first = ScriptUI(["Save", "Save and enable for the next session"])
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{folder}"', ui=first)
+    source = load_source(str(folder))
+    wizard.review(cli_fixture(), first, source.bundle, source, "")
     renamed = ScriptUI(["Save", "Rename", "lab-summary-new", "Save", "Save and enable for the next session"])
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{folder}"', ui=renamed)
+    wizard.review(cli_fixture(), renamed, source.bundle, source, "")
     assert (get_skills_dir() / "lab-summary/SKILL.md").read_text() == SKILL
     assert "name: lab-summary-new" in (get_skills_dir() / "lab-summary-new/SKILL.md").read_text()
     monkeypatch.setattr(HubLockFile, "record_install", Mock(side_effect=OSError("fixture disk failure")))
     failed = ScriptUI(["Rename", "lab-summary-failed", "Save", "Save and enable for the next session"])
-    wizard.run_add_skill(cli_fixture(), f'/Add_skill "{folder}"', ui=failed)
+    with pytest.raises(OSError, match="fixture disk failure"):
+        wizard.review(cli_fixture(), failed, source.bundle, source, "")
     assert not (get_skills_dir() / "lab-summary-failed").exists()
     assert not HubLockFile().get_installed("lab-summary-failed")
     assert not any("Enabled. Available" in s for s in failed.output)
@@ -255,8 +262,6 @@ def test_timeout_receipt_preserves_inputs_requires_fresh_consent_and_isolates_pr
 
     cli = cli_fixture()
     before = copy.deepcopy(vars(cli))
-    notes = tmp_path / "notes.txt"
-    notes.write_text("Synthetic laboratory data only.")
     bundle = bundle_from_files({"SKILL.md": SKILL}, "fixture")
     model_calls = Mock(side_effect=[TimeoutError("credential-must-not-appear"), bundle])
     monkeypatch.setattr(wizard, "generate", model_calls)
@@ -268,8 +273,8 @@ def test_timeout_receipt_preserves_inputs_requires_fresh_consent_and_isolates_pr
         return DraftRoute(client, shell.provider, shell.model, "fixture endpoint", 131072)
 
     monkeypatch.setattr(wizard, "prepare_route", prepare)
-    failed = ScriptUI(["Summarize", "CSV", "Report", "Research only", "Approve this draft", "Return to prompt"])
-    wizard.run_add_skill(cli, f'/Add_skill "{notes}"', ui=failed)
+    failed = ScriptUI(["Describe a workflow", "Summarize", "CSV", "Report", "Research only", "Approve this draft", "Return to prompt"])
+    wizard.run_add_skill(cli, '/Add_skill', ui=failed)
     assert status_for(cli).phase == "FAILED"
     assert "credential-must-not-appear" not in "\n".join(failed.output)
     assert any("attempt has stopped" in line for line in failed.output)
@@ -337,11 +342,9 @@ def test_progress_stops_before_failure_and_retry_has_no_overlapping_call(tmp_pat
         return bundle_from_files({"SKILL.md": SKILL}, "fixture")
 
     monkeypatch.setattr(wizard, "generate", provider)
-    source = tmp_path / "notes.txt"
-    source.write_text("Research only")
-    ui = ProgressUI(["Summarize", "CSV", "Report", "Research only", "Approve this draft",
+    ui = ProgressUI(["Describe a workflow", "Summarize", "CSV", "Report", "Research only", "Approve this draft",
                      "Retry draft", "Approve this draft", "Cancel"])
-    wizard.run_add_skill(cli, f'/Add_skill "{source}"', ui=ui)
+    wizard.run_add_skill(cli, '/Add_skill', ui=ui)
     assert call_count == 2 and client.close.call_count == 2
     assert not any(t.name == "skill-add-progress" for t in threading.enumerate())
     failure = next(i for i, line in enumerate(ui.output) if "[Add_skill] FAILED" in line)

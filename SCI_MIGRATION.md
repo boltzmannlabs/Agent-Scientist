@@ -648,3 +648,43 @@ This handoff publishes source, not signed native installers or promoted release
 feeds. Their guards remain in place. Model/provider authentication, production
 research-service execution, a designated private security contact and remaining
 native/platform qualification are separate acceptance work.
+
+## Theme, skill handoff, and Qwen reasoning display — 2026-10-08
+
+- Fresh installations use the packaged `neon-theme`, matching the approved
+  local pink/magenta palette. The classic gold default is no longer offered;
+  legacy `default` settings resolve to neon, while user-authored skins and
+  other explicit theme choices remain supported. CLI fallbacks, TUI startup,
+  dashboard choices, and installation/theme documentation agree. The title
+  gradient and white context-occupancy indicator are unchanged.
+- `/Add_skill` links, local paths, and free-form source requests now hand off
+  to a normal agent turn, preserving the supplied text. Described workflows
+  retain guided drafting and review. Duplicate checks consult real installed
+  files, including skills hidden by availability filters. Profile isolation,
+  unrelated configuration, and deferred prompt-cache activation are preserved.
+  A handoff is reported as queued, not as an installation success; the agent's
+  subsequent response is the installation outcome.
+- Custom Qwen3.8-27B servers can omit the opening `<think>` tag because it was
+  prefilled by their chat template. SCI now restores that boundary before
+  streaming or rendering newly received answers. The ambiguous prefix stays
+  buffered until it can be classified; truncated reasoning is not displayed
+  as a partial answer. Native reasoning fields and disabled-effort answers
+  retain their existing streaming path. This does not alter the requested
+  effort, provider, model, prior messages, tools, or system prompt.
+- `display.show_reasoning: false` now also wins over verbose-mode previews.
+  Effort and visibility remain independent; enabling low/medium/xhigh does
+  not itself enable the reasoning display. Existing local display settings
+  and model selection were not changed.
+
+Verification: the theme group passed 222 Python checks and 46 TypeScript
+checks (three Windows-only Python cases skipped). The skill/reasoning groups
+passed 201 distinct Python cases, including local HTTP streaming and
+non-streaming fixtures across all four Qwen effort settings, chunk-boundary
+checks, and A→B→A skill/profile isolation. An initial fixture assertion counted
+model-metadata probes as generation requests; it was corrected before the
+passing rerun. Eight small live requests against the configured Qwen endpoint
+also returned only the expected `OK` answer after filtering: disabled, low,
+medium, and xhigh, each streaming and non-streaming. No research inputs or
+business tools were used. Python tests used `scripts/run_tests.sh` and isolated
+homes; Ruff and diff-whitespace checks passed. These are targeted receipts,
+not full-suite, all-provider, or native-installer qualification.

@@ -64,7 +64,7 @@ The main state directory defaults to `~/.sci`; an active profile or explicit
 - `sci doctor`: diagnose the installation.
 - `/help`: inspect commands available on this surface.
 - `/Add_boltz`: authorize the included Boltzmann connector using masked key entry.
-- `/Add_skill`: import or draft a skill for review and explicit saving.
+- `/Add_skill`: pass a link/path to the ordinary agent, or describe a workflow for guided drafting.
 - `/Add_tool <request or URL>`: pass a tool-addition request to the ordinary agent.
 - `/Add_mcp <request or URL>`: pass an MCP-connection request to the ordinary agent.
 - `/Create_profile`: create a scientific project profile.
@@ -73,9 +73,12 @@ The main state directory defaults to `~/.sci`; an active profile or explicit
 - `/skills`, `sci tools`, `sci mcp --help`: inspect existing capabilities.
 - `/new`: start a fresh conversation after deferred configuration changes.
 
-Add-tool and add-MCP requests are agent tasks, not guarantees of automatic
-installation. Review software execution, dependencies, permissions, and secrets.
-A normal website or arbitrary repository is not automatically an MCP server.
+Add-tool, add-MCP, and add-skill link/path requests are agent tasks, not guarantees
+of automatic installation. Only Add-skill's **Describe a workflow** option asks
+guided scientific questions. Review software execution, dependencies, permissions,
+and secrets. Do not overwrite or rename-duplicate an existing skill without an
+explicit request. A skill collection needs a selection, and a normal website or
+arbitrary repository is not automatically an MCP server.
 
 ## Procedure
 

@@ -83,8 +83,9 @@ See the local `plugins/boltzmann/README.md` for the authorization implementation
 
 ## Add skills, tools and services
 
-- `/Add_skill`: import a link or local file/folder, or describe a workflow;
-  review the draft and scan result before saving.
+- `/Add_skill`: links and local file/folder paths go to the ordinary agent for
+  skill addition. Only **Describe a workflow** asks the guided scientific
+  questions and presents a draft for review before saving.
 - `/Add_tool <request or URL>`: send a tool-addition request to the ordinary
   agent. Inspect requirements and approve external actions before installation
   or execution. A repository is not automatically an agent tool.

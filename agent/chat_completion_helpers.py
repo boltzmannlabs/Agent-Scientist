@@ -791,7 +791,11 @@ def _dispatch_nonstreaming_api_request(agent, api_kwargs: dict, *, make_client):
     # request transform. No-op unless this really is the OpenAI SDK, so the
     # MoA facade above and the suite's stand-in clients are unaffected.
     api_kwargs = bypass_chat_sdk_request_transform(api_kwargs, request_client)
-    return request_client.chat.completions.create(**api_kwargs)
+    from agent.qwen_think_prefill import restore_qwen_think_prefill
+
+    return restore_qwen_think_prefill(
+        request_client.chat.completions.create(**api_kwargs), api_kwargs.get("model", ""),
+        api_kwargs.get("reasoning_effort"))
 
 
 def should_use_direct_api_call(agent) -> bool:
@@ -3170,6 +3174,9 @@ class _StreamingCall(StreamingWaitMonitor):
         self._writer_token = self._attempt_request_client = self._attempt_stream_response = None
         from agent.chat_completion_helpers_relay import RelayChatAccumulator
         relay_response = RelayChatAccumulator()
+        from agent.qwen_think_prefill import QwenThinkPrefill
+        think_prefill = QwenThinkPrefill(
+            self.api_kwargs.get("model", ""), self.api_kwargs.get("reasoning_effort"))
 
         def _open_stream(next_api_kwargs: dict[str, Any]):
             timeout = _httpx.Timeout(connect=conn_cap, read=read_timeout, write=base_timeout, pool=conn_cap)
@@ -3278,6 +3285,7 @@ class _StreamingCall(StreamingWaitMonitor):
             # Text (list-of-blocks deltas flattened once); possible echoed SSE is
             # buffered until it can be judged.
             delta_content = flatten_message_text(getattr(delta, "content", None), sep="")
+            delta_content = think_prefill.feed(delta_content, native_reasoning=bool(display_reasoning))
             if delta_content:
                 content_parts.append(delta_content)
                 if tool_calls_acc:
@@ -3305,6 +3313,10 @@ class _StreamingCall(StreamingWaitMonitor):
                         # complete instead of silently discarding the action.
                         self.result["partial_tool_names"].append(name)
 
+        held_content = think_prefill.finish(finish_reason)
+        if held_content:
+            content_parts.append(held_content)
+            pending_text_parts.append(held_content)
         tool_calls.materialize()
         self._close_managed_stream()
         if self._stream_attempt_was_cancelled(stream_attempt_id):
@@ -3327,6 +3339,9 @@ class _StreamingCall(StreamingWaitMonitor):
 
     def _replay_final_response(self, final_response):
         """Replay a completed chat-completions response's reasoning/content as deltas."""
+        from agent.qwen_think_prefill import restore_qwen_think_prefill
+        final_response = restore_qwen_think_prefill(
+            final_response, self.api_kwargs.get("model", ""), self.api_kwargs.get("reasoning_effort"))
         choices = final_response.choices
         message = getattr(choices[0] if isinstance(choices, (list, tuple)) and choices else None, "message", None)
         if message is not None:

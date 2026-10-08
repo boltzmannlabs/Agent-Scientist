@@ -394,10 +394,10 @@ def _print_side_result_panel(cli, *, header_lines, body, title_suffix, empty_not
         from sci_cli.skin_engine import get_active_skin
         _skin = get_active_skin()
         label = _skin.get_branding("response_label", "☤ Sci")
-        _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#CD7F32"))
-        _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#FFF8DC"))
+        _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#B93586"))
+        _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#FFE3ED"))
     except Exception:
-        label, _resp_color, _resp_text = "☤ Sci", "#CD7F32", "#FFF8DC"
+        label, _resp_color, _resp_text = "☤ Sci", "#B93586", "#FFE3ED"
     rich_console.print(Panel(
         _render_final_assistant_content(body, mode=cli.final_response_markdown),
         title=f"[{_resp_color} bold]{label} {title_suffix}[/]", title_align="left",

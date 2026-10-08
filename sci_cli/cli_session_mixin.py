@@ -226,11 +226,11 @@ class CLISessionMixin:
         try:
             from sci_cli.skin_engine import get_active_skin
             skin = get_active_skin()
-            separator_color = skin.get_color("banner_dim", "#B8860B")
-            accent_color = skin.get_color("ui_accent", "#FFBF00")
+            separator_color = skin.get_color("banner_dim", "#AF426B")
+            accent_color = skin.get_color("ui_accent", "#FF3F79")
             label_color = skin.get_color("ui_label", "#DAA520")
         except Exception:
-            separator_color, accent_color, label_color = "#B8860B", "#FFBF00", "cyan"
+            separator_color, accent_color, label_color = "#AF426B", "#FF3F79", "#E965AF"
         sep = f" [dim {separator_color}]·[/] "
         toolsets_info = ""
         if self.enabled_toolsets and "all" not in self.enabled_toolsets:

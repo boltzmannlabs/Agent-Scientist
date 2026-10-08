@@ -72,3 +72,71 @@ def test_bare_command_prefills_only_empty_composer_and_waits_for_normal_submissi
     message = f"add this {kind}:https://github.com/author/project"
     instance._tui_process_one_input(message)
     instance.chat.assert_called_once_with(message, images=None, voice_input=False)
+
+
+@pytest.mark.parametrize("entry,source_kind", [
+    ("inline", "url"), ("inline", "file"), ("inline", "folder"),
+    ("inline", "request"), ("inline", "windows"),
+    ("link", "url"), ("file", "file"), ("file", "folder"),
+    ("file", "zip"), ("other", "url"), ("other", "identifier"),
+    ("cancel", "url"), ("handoff_cancel", "url"),
+])
+@pytest.mark.parametrize("spelling", ["/Add_skill", "/add_skill", "/ADD_SKILL"])
+def test_skill_sources_reach_normal_chat_without_reading_or_drafting(tmp_path, monkeypatch, entry, source_kind, spelling):
+    from sci_cli import skill_add, skill_add_sources
+
+    folder = tmp_path / "Research Skill Collection"
+    folder.mkdir()
+    source = folder / "notes.md"
+    source.write_text("Scientific source material.\n" * 6000)
+    values = {
+        "url": "https://github.com/BioTender-max/awesome-bio-agent-skills",
+        "file": f'"{source}"', "folder": f'"{folder}"', "zip": f'"{folder / "skill.zip"}"',
+        "identifier": "owner/repository/path/to/skill",
+        "request": "Install this skill from https://example.org/SKILL.md; don't replace existing skills.",
+        "windows": r'"C:\Research Folder\sample skill"',
+    }
+    value = values[source_kind]
+    instance = make_cli()
+    before = deepcopy((vars(instance.agent), instance.conversation_history))
+    draft = Mock(side_effect=AssertionError("Only Describe a workflow may draft"))
+    download = Mock(side_effect=AssertionError("Slash dispatch must not fetch source material"))
+    monkeypatch.setattr(skill_add, "prepare_route", draft)
+    monkeypatch.setattr(skill_add_sources, "remote_source", download)
+    choices = {"link": "Paste a link", "file": "Provide a file/folder", "other": value, "cancel": "Cancel"}
+    answers = [choices[entry], value] if entry in {"link", "file"} else [choices.get(entry, value)]
+    if entry != "inline":
+        instance._clarify_callback = Mock(side_effect=[
+            {"outcome": "submitted", "answers": {"skill_add": answer}} for answer in answers])
+    if entry == "handoff_cancel":
+        import cli as cli_module
+        render = cli_module._cprint
+
+        def cancel_handoff(text):
+            if "HANDED TO AGENT" in text:
+                raise KeyboardInterrupt()
+            render(text)
+
+        monkeypatch.setattr(cli_module, "_cprint", cancel_handoff)
+    instance._tui_process_one_input(spelling + (" " + value if entry == "inline" else ""))
+    if entry in {"cancel", "handoff_cancel"}:
+        instance.chat.assert_not_called()
+        assert instance._pending_agent_seed is None
+        assert (vars(instance.agent), instance.conversation_history) == before
+        draft.assert_not_called()
+        download.assert_not_called()
+        return
+    instance.chat.assert_called_once()
+    request = instance.chat.call_args.args[0]
+    assert request.startswith("add this skill:") and value in request
+    assert "already exists" in request and "do not overwrite" in request.lower()
+    assert "next session" in request and "collection" in request.lower()
+    assert instance._pending_agent_seed is None
+    assert (vars(instance.agent), instance.conversation_history) == before
+    draft.assert_not_called()
+    download.assert_not_called()
+    if entry == "inline":
+        instance._clarify_callback.assert_not_called()
+    else:
+        assert instance._clarify_callback.call_count == (2 if entry in {"link", "file"} else 1)
+    assert not list(folder.glob("**/SKILL.md"))

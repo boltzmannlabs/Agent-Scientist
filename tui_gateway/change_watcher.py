@@ -5,6 +5,7 @@ rebound onto server.py's globals at install time (method_ctx.bind_module)."""
 from __future__ import annotations
 
 from pathlib import Path
+from sci_cli.skin_defaults import DEFAULT_SKIN_NAME
 
 from .method_ctx import HandlerRegistry, bind_module
 
@@ -60,7 +61,7 @@ def _newest_mtime_ns(paths) -> int | None:
 def _skin_sig() -> tuple[str, float | None]:
     """(active skin name, its user-file mtime). Built-ins have no file, so only
     their name moves; a user skin's mtime lets an in-place color edit repaint too."""
-    name = str((_load_cfg().get("display") or {}).get("skin") or "default")
+    name = str((_load_cfg().get("display") or {}).get("skin") or DEFAULT_SKIN_NAME)
     try:
         return name, (_watcher_home() / "skins" / f"{name}.yaml").stat().st_mtime
     except OSError:

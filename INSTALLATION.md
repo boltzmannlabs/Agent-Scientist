@@ -29,6 +29,13 @@ then opens the existing provider setup wizard. Authenticate your chosen model
 provider; SCI does not require a separate account with its original upstream.
 Model charges and service usage remain subject to your providers' policies.
 
+Fresh installations automatically use SCI's pink/magenta `neon-theme`, matching
+the release palette in `assets/skins/neon-theme.yaml`. No manual skin-file copy
+or theme command is needed. The classic gold default has been removed; older
+`display.skin: default` settings resolve to neon. Existing custom theme choices
+and user-authored skin files are preserved. The multicolor title and white
+context-occupancy indicator are unchanged.
+
 Keep the checkout in its installed location: the launchers refer to it. On
 completion, open a new terminal, or update this terminal's PATH:
 

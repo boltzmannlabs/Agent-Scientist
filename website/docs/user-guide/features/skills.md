@@ -17,7 +17,7 @@ See also:
 - [Bundled Skills Catalog](../../reference/skills-catalog.md)
 - [Official Optional Skills Catalog](../../reference/optional-skills-catalog.md)
 
-## Guided skill addition in the CLI
+## Skill addition in the CLI
 
 Use `/Add_skill` to choose **Paste a link**, **Provide a file/folder**, or
 **Describe a workflow**. You can also supply a source directly:
@@ -27,19 +27,42 @@ Use `/Add_skill` to choose **Paste a link**, **Provide a file/folder**, or
 /Add_skill "./my-skill.zip"
 /Add_skill https://example.org/research/SKILL.md
 /Add_skill owner/repository/path/to/skill
+/Add_skill Install this skill from https://example.org/SKILL.md
 ```
 
-The opening menu's **Other** option accepts a URL, skill identifier, or local path
-directly. Approval/review menus use listed choices only; free text cannot authorize
-a model request or saving. An expired input prompt is reported as a timeout, not
-as a user cancellation.
+### Links and file/folder paths: normal agent requests
 
-Prepared skills retain their contents and supporting files. Text/Markdown,
-public webpages, text-based PDFs, and descriptions can become reviewed drafts.
-The wizard asks about purpose, inputs, outputs, and limitations. Before **each**
-model draft or revision, it shows the selected provider/model, sources, and exact
-outbound messages and requires approval. It does not send your conversation
-history, execute tools, or silently fall back to a different provider.
+**Paste a link**, **Provide a file/folder**, the opening menu's **Other** option,
+and inline sources/requests hand your request to the ordinary agent, just like
+`/Add_tool` and `/Add_mcp`. The slash command itself does not read the source,
+download a repository, install a skill, or run the purpose/input/output/limitations
+questionnaire. It queues one normal conversation turn using the current model,
+conversation, available tools, and normal permissions. Do not put secrets in
+the request.
+
+The handoff asks the agent to inspect actual installed skills, including disabled
+ones, and source/provenance before writing. If the skill already exists, it should
+report its name/location instead of overwriting it or creating a renamed duplicate.
+A repository or an awesome-list may contain multiple skills or only links: the
+agent must identify an installable skill and clarify your selection, not assume
+the whole collection should be installed. Normal permission questions and genuine
+source ambiguities may still require your answer.
+
+Normal agent/Skills Hub installation constraints still apply. This path does not
+feed an entire repository webpage into the guided draft's 100,000-character input
+limit, nor does it guarantee that every URL is an installable skill. Check the
+agent's response for the actual installation result. New skills should take effect
+in the next session, without rebuilding the current conversation's cached prompt.
+
+### Describe a workflow: guided drafting
+
+Only **Describe a workflow** asks about purpose, inputs, outputs, and limitations.
+Before **each** model draft or revision, it shows the selected provider/model,
+sources, and exact outbound messages and requires approval. This separate draft
+does not send your conversation history, execute tools, or silently fall back to
+a different provider. Approval/review menus use listed choices only; free text
+cannot authorize a draft or saving. An expired input prompt is reported as a
+timeout, not as a user cancellation.
 
 Review, edit, rename, or cancel before choosing **Save and enable for the next
 session**. Saved skills are enabled in the active profile automatically; the
@@ -47,13 +70,11 @@ current conversation's cached prompt is not rebuilt. Existing names cannot be
 overwritten. Security scanning does **not** establish scientific correctness;
 review scientific assumptions and remove credentials or private sample data.
 
-Packages are limited to 50 MiB (both ZIP input and expanded contents) and 1,000
-files. Draft input is limited to 100,000 characters and the selected model's
-context budget; oversized input is rejected, not truncated. Generated files are
-Markdown only. Symlinks, unsafe ZIP paths, encrypted ZIPs, and multi-skill packages
-are rejected. Word documents, authenticated webpages, and scanned PDFs/OCR are
-not supported. If local PDF extraction is unavailable, paste text instead; the
-wizard does not install dependencies.
+Guided draft input is limited to 100,000 characters and the selected model's
+context budget; oversized answers are rejected, not truncated. Generated files
+are Markdown only. Reviewed bundles remain bounded to 50 MiB and 1,000 files,
+with unsafe paths/symlinks and multi-skill bundles rejected. The guided workflow
+does not install software dependencies or generate executable scripts.
 
 ### Draft progress, failures, and retry
 
@@ -73,8 +94,11 @@ request again, or **Return to prompt** to decide later:
 /Add_skill retry
 ```
 
-Status is the wizard's own receipt, not an inference from running Sci or
-polling processes. Inputs for a failed draft are retained **only in this CLI
+Status/retry track **guided drafts only**. For a link/path request, status explicitly
+says **HANDED TO AGENT** and does not claim it was installed; use the normal
+conversation response for that outcome, or submit another normal request to retry.
+Draft status is not an inference from running Sci or polling processes.
+Inputs for a failed draft are retained **only in this CLI
 process and active profile**, not written to disk or conversation history.
 Restarting, cancelling, or starting another skill discards retained inputs.
 Retrying uses the currently selected provider/model and always asks for renewed

@@ -2003,7 +2003,7 @@ display:
   # response box label, and branding text. Change at runtime with /skin <name>.
   #
   # Built-in skins:
-  #   default        — Classic Sci gold/kawaii
+  #   neon-theme     — Pink/magenta on velvet black (installed by default)
   #   ares           — Crimson/bronze war-god theme with spinner wings
   #   mono           — Clean grayscale monochrome
   #   slate          — Cool blue developer-focused
@@ -2014,7 +2014,7 @@ display:
   #   charizard      — Fiery orange dragon theme
   #
   # Custom skins: drop a YAML file in ~/.sci/skins/<name>.yaml
-  # Schema (all fields optional, missing values inherit from default):
+  # Schema (all fields optional, missing values inherit from neon-theme):
   #
   #   name: my-theme
   #   description: Short description
@@ -2040,7 +2040,7 @@ display:
   #     prompt_symbol: "⚔"                  # Prompt symbol (bare token; renderers add trailing space)
   #   tool_prefix: "╎"                       # Tool output line prefix (default: ┊)
   #
-  skin: default
+  skin: neon-theme
 
 # =============================================================================
 # Model Aliases — short names for /model command

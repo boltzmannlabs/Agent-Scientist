@@ -930,9 +930,9 @@ def build_welcome_banner(
         availability = compute_toolset_availability(enabled_toolsets)
     _enabled_ts = {str(t) for t in enabled_toolsets}
     # Resolve skin colors once for the entire banner
-    accent = _skin_color("banner_accent", "#FFBF00")
-    dim = _skin_color("banner_dim", "#B8860B")
-    text = _skin_color("banner_text", "#FFF8DC")
+    accent = _skin_color("banner_accent", "#FF356F")
+    dim = _skin_color("banner_dim", "#AF426B")
+    text = _skin_color("banner_text", "#FFE3ED")
     # Use skin's custom caduceus art if provided
     _bskin = _quiet(_active_skin)
     left_lines = ["", getattr(_bskin, "banner_hero", None) or SCI_B_LOGO, ""]
@@ -993,8 +993,8 @@ def build_welcome_banner(
     if release_info:
         version_label = f"[link={release_info[1]}]{version_label}[/link]"
     outer_panel = Panel(
-        layout_table, title=f"[bold {_skin_color('banner_title', '#FFD700')}]{version_label}[/]",
-        border_style=_skin_color("banner_border", "#CD7F32"), padding=(0, 2))
+        layout_table, title=f"[bold {_skin_color('banner_title', '#FF7AA7')}]{version_label}[/]",
+        border_style=_skin_color("banner_border", "#8D123B"), padding=(0, 2))
     console.print()
     banner_width = min(console.width, shutil.get_terminal_size().columns)
     if banner_width >= 95:

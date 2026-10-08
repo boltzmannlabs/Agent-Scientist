@@ -1,11 +1,11 @@
 """Built-in skin palette audit: completeness + WCAG contrast, per polarity.
 
 Every built-in skin must be a complete, coherent palette with no accidental
-fallbacks (a partial skin inherits the default skin's gold, which is how
+fallbacks (a partial skin inherits the default palette, which is how
 "slate feels all over the place" happened), and every palette must be a
-fixed point of the TUI's runtime readability adaptation — hand-tuned values
-that already pass the same contrast floors the TUI enforces (strong >= 3.9,
-soft >= 2.8, fills matching the background polarity). Mirrors the desktop
+hand-tuned foreground values passing the palette-audit floors (strong >= 3.9,
+soft >= 2.8), with quieter frames and metadata >= 2.0. The TUI may additionally
+lift these quiet roles for the actual host background. Mirrors the desktop
 app's paired colors/darkColors contract.
 """
 
@@ -68,15 +68,16 @@ STRONG_FG = (
 )
 SOFT_FG = (
     "banner_dim",
-    "banner_border",
     "ui_warn",
     "input_rule",
     "response_border",
     "status_bar_dim",
     "status_bar_warn",
     "session_label",
-    "session_border",
 )
+# Frames and secondary session metadata intentionally sit below body-text contrast.
+# Preserve the approved local palette rather than brighten its quiet outlines.
+QUIET_FG = ("banner_border", "session_border")
 # status_bar_text renders on status_bar_bg, not the terminal background.
 ON_STATUS_BAR = ("status_bar_text", "status_bar_strong", "status_bar_dim")
 
@@ -90,6 +91,7 @@ FILLS = (
 
 STRONG_MIN = 3.9
 SOFT_MIN = 2.8
+QUIET_MIN = 2.0
 # Assumed terminal poles, matching ui-tui/src/theme.ts referenceBackground().
 DARK_POLE = "#101014"
 LIGHT_POLE = "#ffffff"
@@ -178,6 +180,11 @@ def test_base_palette_contrast_and_polarity(skin, palette, is_light):
             if ratio < SOFT_MIN:
                 problems.append(f"{key}={palette[key]} contrast {ratio:.2f} < {SOFT_MIN} vs {pole}")
 
+        for key in QUIET_FG:
+            ratio = contrast(palette[key], pole)
+            if ratio < QUIET_MIN:
+                problems.append(f"{key}={palette[key]} contrast {ratio:.2f} < {QUIET_MIN} vs {pole}")
+
     status_bg = palette["status_bar_bg"]
     for key in ON_STATUS_BAR:
         floor = STRONG_MIN if key == "status_bar_strong" else SOFT_MIN
@@ -193,7 +200,7 @@ def test_base_palette_contrast_and_polarity(skin, palette, is_light):
 
 @pytest.mark.parametrize(("skin", "block", "palette", "is_light"), OVERLAYS, ids=OVERLAY_IDS)
 def test_overlay_keys_and_fill_polarity(skin, block, palette, is_light):
-    unknown = palette.keys() - REQUIRED_KEYS
+    unknown = palette.keys() - (REQUIRED_KEYS | {"completion_menu_meta_bg", "completion_menu_meta_current_bg"})
     assert not unknown, f"{skin}.{block} has unknown keys: {sorted(unknown)}"
 
     problems = []

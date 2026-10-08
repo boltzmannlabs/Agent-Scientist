@@ -10,6 +10,7 @@ from .method_ctx import HandlerRegistry, bind_module
 from ._env import env_int
 
 from sci_constants import DEFAULT_INDICATOR_STYLE, INDICATOR_STYLES
+from sci_cli.skin_defaults import DEFAULT_SKIN_NAME
 from sci_constants import display_sci_home as _display_sci_home
 
 _registry = HandlerRegistry()
@@ -261,7 +262,7 @@ _CONFIG_GETTERS = {
     "project": _cfg_get_project,
     "full": lambda params: {"config": _load_cfg()},
     "prompt": lambda params: {"prompt": _load_cfg().get("custom_prompt", "")},
-    "skin": lambda params: {"value": _display_raw().get("skin", "default")},
+    "skin": lambda params: {"value": _display_raw().get("skin", DEFAULT_SKIN_NAME)},
     # Normalised like the TUI renders it (frontend falls back to the default for the same inputs).
     "indicator": lambda params: {
         "value": _display_word("tui_status_indicator", DEFAULT_INDICATOR_STYLE, INDICATOR_STYLES)},

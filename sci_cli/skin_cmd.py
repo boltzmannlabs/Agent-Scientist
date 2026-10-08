@@ -24,7 +24,8 @@ def _skins_dir() -> Path:
 def _active_skin() -> str:
     from sci_cli.config import load_config
     display = (load_config() or {}).get("display") or {}
-    return str(display.get("skin") or "default")
+    from sci_cli.skin_defaults import DEFAULT_SKIN_NAME
+    return str(display.get("skin") or DEFAULT_SKIN_NAME)
 
 
 def _use(name: str) -> None:
@@ -71,8 +72,8 @@ def _skin_set(key: str, value: str, skin: str | None) -> int:
 
 
 def _skin_list() -> int:
-    from sci_cli.skin_engine import list_skins
-    active = _active_skin()
+    from sci_cli.skin_engine import list_skins, load_skin
+    active = load_skin(_active_skin()).name
     for s in list_skins():
         mark = "*" if s["name"] == active else " "
         print(f"{mark} {s['name']:<16} {s.get('source', ''):<8} {s.get('description', '')}")

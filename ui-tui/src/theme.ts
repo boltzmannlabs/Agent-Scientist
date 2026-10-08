@@ -370,51 +370,45 @@ export function buildPalette(seeds: ThemeSeeds, isLight: boolean): ThemeColors {
 }
 
 export const DARK_SEEDS: ThemeSeeds = {
-  accent: '#FFBF00',
-  // The classic Sci navy surfaces are IDENTITY, not derivation drift —
-  // keep them as explicit fill seeds (the ladder derives them for skins
-  // that don't care).
-  activeRow: '#333355',
+  // Match the packaged neon-theme before the gateway sends its skin payload.
+  accent: '#FF356F',
+  activeRow: '#5E173C',
   bg: '#101014',
-  border: '#CD7F32',
-  error: '#ef5350',
-  ok: '#4caf50',
-  primary: '#FFD700',
-  prompt: '#FFF8DC',
-  selection: '#3a3a55',
-  shellDollar: '#4dabf7',
-  statusBad: '#FF8C00',
-  statusCritical: '#FF6B6B',
-  statusGood: '#8FBC8F',
-  statusWarn: '#FFD700',
-  surface: '#1a1a2e',
-  text: '#FFF8DC',
-  warn: '#ffa726'
+  border: '#8D123B',
+  error: '#FF385A',
+  ok: '#D1F2CD',
+  primary: '#FF7AA7',
+  prompt: '#FFE8F0',
+  selection: '#753052',
+  shellDollar: '#FF81B3',
+  statusBad: '#FF6A77',
+  statusCritical: '#FF385A',
+  statusGood: '#D1F2CD',
+  statusWarn: '#FFB17D',
+  surface: '#160811',
+  text: '#FFE3ED',
+  warn: '#FFB17D'
 }
 
-// Light-terminal seeds: darker golds/ambers that stay legible on white.
-// The classic light-mode Sci look was never hand-authored: for years the
-// TUI emitted the DARK golds and hosts with xterm's minimumContrastRatio
-// (Cursor defaults to 4.5) lifted them against white — hue and saturation
-// kept, luminance clamped. These seeds are those exact lifts
-// (liftForContrast(dark, '#ffffff', 4.5)), so hosts WITHOUT a contrast pass
-// render the same thing Cursor always showed. Text/prompt stay ink — body
-// copy historically rendered in the terminal's default near-black fg.
+// Same hue family on light hosts; runtime adaptation retains readability.
 export const LIGHT_SEEDS: ThemeSeeds = {
-  accent: '#956E00',
+  accent: '#B71A55',
+  activeRow: '#F7CBDD',
   bg: '#ffffff',
-  border: '#A56628',
-  error: '#C14240',
+  border: '#B71A55',
+  error: '#C52549',
   ok: '#367E39',
-  primary: '#867000',
-  prompt: '#2B2014',
-  shellDollar: '#377BB3',
-  statusBad: '#A65A00',
-  statusCritical: '#B94D4D',
-  statusGood: '#5C7A5C',
-  statusWarn: '#867000',
-  text: '#3D2F13',
-  warn: '#956115'
+  primary: '#9C174C',
+  prompt: '#351627',
+  selection: '#F0B6D0',
+  shellDollar: '#9C174C',
+  statusBad: '#C52549',
+  statusCritical: '#C52549',
+  statusGood: '#367E39',
+  statusWarn: '#B71A55',
+  surface: '#FFF0F5',
+  text: '#351627',
+  warn: '#B71A55'
 }
 
 export const DARK_THEME: Theme = {
@@ -859,8 +853,8 @@ export function fromSkin(
   const hasSkinColors = Object.keys(colors).length > 0
 
   // 1. Seeds: the skin's identity. Anything it doesn't define comes from the
-  //    base seeds for this polarity. The base's IDENTITY FILLS (Sci navy
-  //    surfaces, gold muted) only carry over for the skinless default — a
+  //    base seeds for this polarity. The base's IDENTITY FILLS (velvet-black
+  //    surfaces, pink muted) only carry over for the skinless default — a
   //    skin with its own identity derives its fills from its own seeds.
   const identityFills: Partial<ThemeSeeds> = hasSkinColors
     ? {}
