@@ -97,10 +97,12 @@ def fetch_compare_branch(git_cmd: list[str], root: Path, branch: str, depth_args
     """Fetch only ``branch`` and return ``(fetch_result, compare_ref)``.
 
     A bare ``git fetch <remote>`` pulls every ref, and this repo has thousands of auto-generated
-    branches. ``main`` prefers upstream as the canonical reference; other branches go straight
-    to origin, because a fork's branch usually has no upstream counterpart.
+    branches. Official SCI checkouts always use origin, even if an inherited
+    upstream remote remains. Other forks retain their explicit upstream policy.
     """
-    if branch == "main":
+    from sci_cli.source_releases import is_official_source_checkout
+
+    if branch == "main" and not is_official_source_checkout(root, git_cmd):
         # A local probe (~6 ms) spares non-fork installs a failed network fetch (~0.3-1 s).
         if _git(git_cmd, root, ["remote", "get-url", "upstream"]).returncode == 0:
             fetch_result = _fetch(git_cmd, root, depth_args, "upstream", branch)
@@ -149,7 +151,9 @@ def report_shallow_verdict(git_cmd: list[str], root: Path, compare_branch: str) 
     from sci_cli.config import recommended_update_command
     from sci_cli.source_check import _github_compare_behind
 
-    counted = _github_compare_behind(head_sha, target_sha)
+    from sci_cli.source_releases import source_repository
+
+    counted = _github_compare_behind(head_sha, target_sha, source_repository(git_cmd, root))
     if counted == 0:
         # Local commits on top of the remote tip — not behind.
         print("✓ Already up to date.")

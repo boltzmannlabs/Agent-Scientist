@@ -142,7 +142,9 @@ class TestUpdateAdmission:
         refusal = evaluate_update_admission(root)
         assert refusal is not None
         assert refusal.code == "docker"
-        assert "docker pull" in refusal.update_command
+        from sci_cli.config import recommended_update_command_for_method
+
+        assert refusal.update_command == recommended_update_command_for_method("docker")
 
     def test_git_checkout_is_admitted(self, tmp_path, monkeypatch):
         from sci_cli.update_contract import evaluate_update_admission

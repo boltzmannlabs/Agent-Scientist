@@ -1483,6 +1483,16 @@ def _cmd_update_impl(args, gateway_mode: bool):
     release_sha = None
     target_repository = None
     selected_channel = _source_update_channel(args)
+    if getattr(args, "branch", None):
+        from sci_cli.source_releases import source_repository
+
+        try:
+            target_repository = source_repository(
+                None if use_zip_update else git_cmd, _m().PROJECT_ROOT)
+        except (OSError, ValueError, subprocess.SubprocessError) as exc:
+            print(f"✗ Could not select the source repository: {exc}. No update was applied.")
+            _m()._resume_windows_gateways_after_update(_windows_gateway_resume)
+            sys.exit(1)
     if not getattr(args, "branch", None):
         from sci_cli.release_channels import retrying_reads
         from sci_cli.source_releases import resolve_source_target

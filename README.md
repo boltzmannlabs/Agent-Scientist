@@ -35,7 +35,8 @@ verification, dashboard/desktop builds, and troubleshooting.
 
 On Windows, run `.\setup-sci.ps1`, then `sci setup` and `agent-sci`.
 Native Windows/macOS packaging is not yet verified for this customized build.
-Self-update remains blocked until this project has compatible release endpoints.
+CLI source-update notifications and `sci update` follow this repository's `main`
+branch; promoted/native release feeds are not published yet.
 The bootstrap scripts deliberately have no default repository. Maintainers using
 them must provide `SCI_REPO_URL` for their approved SCI source; normal users with
 a checkout can use `bash ./install-sci.sh` above. No Termux package is advertised.
@@ -161,12 +162,39 @@ corresponding installed skills directory. Local implementation and CLI help
 take precedence if inherited technical references disagree with this fork.
 Do not fetch upstream documentation or installers as SCI instructions.
 
+## Updates
+
+Git source installations from this repository receive CLI update recommendations
+when new commits are pushed to `main`. Startup checks are read-only and normally
+cached for 24 hours. SCI does not install an update merely because a notification
+appears. To check immediately or install deliberately:
+
+```bash
+sci update --check
+sci update
+```
+
+Inside the interactive CLI, `/update` exits the session and starts the updater.
+The normal updater snapshots profile state before applying changes and prepares
+the updated runtime afterward. Keep backups; local edits can require conflict
+resolution. `sci config set updates.check false` disables passive notifications,
+not explicit update commands. No conversations, research files or model/service
+credentials are sent as part of a version check; a configured GitHub credential
+may authenticate the repository request.
+
+This is a source-branch channel, not a promised stable version feed: every new
+commit on `main` can be recommended, so maintainers should push only tested work.
+The initial push is required before anyone can download/check this source.
+`stable`, `canary`, native installers and desktop update feeds require separately
+configured and verified release infrastructure. An inherited upstream remote
+cannot replace this official source checkout during a CLI update.
+
 ## Development and release status
 
 The approved source repository is `boltzmannlabs/Agent-Scientist`. The initial
 SCI commit uses fresh history; the inherited history is retained in a private
-backup outside this repository. Automatic release lookup has no upstream
-fallback, and release publishing remains blocked by
+backup outside this repository. Source updates use the approved repository,
+without another publisher's fallback. Native release publishing remains blocked by
 `sci-unpublished-distribution` until SCI-owned destinations are approved.
 GitHub automation requires the approved `SCI_REPOSITORY` and the explicit
 `SCI_RELEASES_ENABLED` opt-in; container and skills-index destinations must also
@@ -178,12 +206,13 @@ is in `AGENTS.md` and its area-specific files. See `SCI_MIGRATION.md` for
 migration verification and outstanding platform checks.
 
 Before public release, configure SCI documentation, installers, support channels,
-and update endpoints, then test them. A source push alone does not publish
-native installers or activate CLI self-update. The source clone above becomes
-available only after the initial push.
+and promoted update endpoints, then test them. A source push enables delivery
+of source updates but does not publish native installers. The source clone
+above becomes available only after the initial push.
 
-The `sci-unpublished-distribution` marker blocks source replacement and the release
-entrypoint's publishing actions. Canary, stable, desktop release and website
+The `sci-unpublished-distribution` marker blocks unapproved source origins and the
+release entrypoint's publishing actions; verified SCI Git source checkouts are
+admitted for CLI updates. Canary, stable, desktop release and website
 deployment entry jobs additionally require the repository variable
 `SCI_RELEASES_ENABLED=true`. Do not enable publication or remove the marker until
 the release destinations, credentials, signing, and clean-install tests are reviewed.

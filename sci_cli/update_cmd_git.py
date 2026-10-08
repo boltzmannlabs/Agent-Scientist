@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Optional
 
 from sci_cli._subprocess_compat import windows_hide_flags
+from sci_cli.source_releases import OFFICIAL_REPOSITORY
 
 logger = logging.getLogger("sci_cli.update_cmd")  # log-record parity with the origin module
 
@@ -26,7 +27,7 @@ _ORPHAN_RESCUE_REF_MAX_AGE_DAYS = 30
 _GIT_TEXT_KW = dict(capture_output=True, text=True, encoding="utf-8", errors="replace",
                    creationflags=windows_hide_flags())
 _BAR = "=" * 68
-_UPSTREAM_ADD_CMD = "git remote add upstream <approved-SCI-repository-URL>"
+_UPSTREAM_ADD_CMD = f"git remote add upstream https://github.com/{OFFICIAL_REPOSITORY}.git"
 
 
 def _git_ok(git_cmd, args, cwd, **kw) -> bool:
@@ -237,8 +238,12 @@ def _print_parked_branch_kept_notice(current_branch: str, target_branch: str, un
     )
 
 
-OFFICIAL_REPO_URLS: set[str] = set()
-OFFICIAL_REPO_URL = ""
+OFFICIAL_REPO_URL = f"https://github.com/{OFFICIAL_REPOSITORY}.git"
+OFFICIAL_REPO_URLS = {
+    OFFICIAL_REPO_URL,
+    f"git@github.com:{OFFICIAL_REPOSITORY}.git",
+    f"ssh://git@github.com/{OFFICIAL_REPOSITORY}.git",
+}
 SKIP_UPSTREAM_PROMPT_FILE = ".skip_upstream_prompt"
 
 
@@ -253,7 +258,7 @@ def _is_fork(origin_url: Optional[str]) -> bool:
         return False
 
     def _norm(url: str) -> str:
-        url = url.rstrip("/")
+        url = url.rstrip("/").lower()
         return url[:-4] if url.endswith(".git") else url
 
     return _norm(origin_url) not in {_norm(official) for official in OFFICIAL_REPO_URLS}

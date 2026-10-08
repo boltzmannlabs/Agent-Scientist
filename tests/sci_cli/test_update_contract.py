@@ -15,6 +15,7 @@ from pathlib import Path
 import pytest
 
 from sci_cli.image_provenance import read_image_provenance
+from sci_cli.config import recommended_update_command_for_method
 from sci_cli.update_contract import (
     UpdateRefusal,
     evaluate_update_admission,
@@ -99,7 +100,7 @@ def test_admission_marker_refuses_even_on_git_checkout(tmp_path, monkeypatch):
     refusal = evaluate_update_admission(tmp_path)
     assert refusal is not None
     assert refusal.code == "image-marker"
-    assert "docker pull" in refusal.update_command
+    assert refusal.update_command == recommended_update_command_for_method("docker")
 
 
 def test_admission_invalid_marker_fails_closed(tmp_path, monkeypatch):
@@ -111,7 +112,7 @@ def test_admission_invalid_marker_fails_closed(tmp_path, monkeypatch):
     refusal = evaluate_update_admission(tmp_path)
     assert refusal is not None
     assert refusal.code == "image-marker-invalid"
-    assert "docker pull" in refusal.update_command
+    assert refusal.update_command == recommended_update_command_for_method("docker")
 
 
 def test_admission_no_marker_falls_back_to_heuristics(tmp_path, monkeypatch):

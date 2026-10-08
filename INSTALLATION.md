@@ -161,9 +161,15 @@ neutral pending an approved SCI logo.
   sandbox image built/configured. See `docker/sandbox-desktop.Dockerfile`.
 - Moving the source checkout: reinstall from its new location so launchers are
   republished. Back up your state before maintenance.
-- Self-update/public release downloads stay blocked until SCI release feeds
-  are configured and verified. The approved source repository is not itself
-  a complete update feed. Check release status before using `/update`.
+- Source updates are enabled for Git installations from the approved SCI
+  repository. Use `sci update --check`, then `sci update` (or `/update` inside
+  the CLI). Startup recommendations normally cache checks for 24 hours; they
+  do not automatically install software. Every new commit on `main` can be
+  recommended, so maintainers should publish only tested source changes.
+  The initial repository push must happen before this channel has content.
+- Promoted stable/canary releases and native installer/desktop feeds still
+  require separate publication, signing and qualification. These paths remain
+  guarded. Source updates do not create those releases or change their settings.
 
 For developer setup and tests, use `CONTRIBUTING.md` and `source ./activate`;
 these deliberately include tools that ordinary end users do not need.

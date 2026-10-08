@@ -329,7 +329,7 @@ def is_nix_install_method(method: str) -> bool:
 
 
 _UPDATE_COMMAND_BY_METHOD = {
-    "docker": "docker pull nousresearch/hermes-agent:latest",
+    "docker": "Rebuild and redeploy your approved SCI image; see INSTALLATION.md",
     "apt": "pkg upgrade sci-agent",  # "apt" == Termux APT by contract; uses Termux's `pkg`.
 }
 
@@ -355,31 +355,19 @@ def recommended_update_command() -> str:
 _DOCKER_UPDATE_MESSAGE = """\
 ✗ ``sci update`` doesn't apply inside the Docker container.
 
-Sci Agent runs as a published image (nousresearch/hermes-agent), not a
-git checkout — the container has no working tree to pull into.  Update by
-pulling a fresh image and restarting your container instead:
+This installation is owned by its container image, not the CLI source updater.
+Rebuild and redeploy your approved SCI image using this repository's Dockerfile
+and your deployment's existing build/run recipe. See INSTALLATION.md.
 
-  docker pull nousresearch/hermes-agent:latest
-  # then restart whatever started the container, e.g.:
-  docker compose up -d --force-recreate sci-agent
-  # or, for ad-hoc runs, exit the current container and `docker run` again
+SCI does not currently advertise a published container registry. Do not pull
+another application's image as an update. If your team publishes SCI images,
+use its explicitly approved image/tag and deployment instructions.
 
-Verify the new version after restart:
-  docker run --rm nousresearch/hermes-agent:latest --version
-
-Notes:
-  • If you pinned a specific tag (e.g. ``:v0.14.0``) the ``:latest`` tag
-    won't move your container — pull the newer tag you actually want, or
-    switch to ``:latest`` / ``:main`` for rolling updates.  See available
-    tags at https://hub.docker.com/r/nousresearch/hermes-agent/tags
-  • On a ``-desktop`` tag (the one carrying Bot Screen)?  Keep the suffix:
-    the unsuffixed image has no Xvnc/Xfce and no sudo to add them, so
-    pulling it stops the bots' screens from starting.
-  • Your config and session history live under ``$SCI_HOME`` (``/opt/data``
-    in the container, typically bind-mounted from the host) and persist
-    across image upgrades — re-pulling doesn't lose any state.
-  • Running a fork?  Build your own image with this repo's ``Dockerfile``
-    and replace the ``docker pull`` step with your build/push pipeline."""
+Back up your state before redeployment, preserve the existing SCI_HOME volume
+and required environment settings, and verify `sci --version` in the new
+container. Replacing a container without preserving its state volume can lose
+conversations and credentials. Native/desktop image variants must preserve
+their required desktop services as well."""
 
 
 def format_docker_update_message() -> str:

@@ -85,13 +85,16 @@ def evaluate_update_admission(project_root: Path) -> Optional[UpdateRefusal]:
     ``None`` means the install is eligible for in-place update (git checkout or unknown-but-
     mutable). Never raises; on any internal error it falls back to the heuristic layer only.
     """
-    if (project_root / "sci-unpublished-distribution").exists():
+    from sci_cli.source_releases import is_official_source_checkout
+
+    if ((project_root / "sci-unpublished-distribution").exists()
+            and not is_official_source_checkout(project_root)):
         return UpdateRefusal(
             "unpublished-distribution",
-            "Agent Scientist updates are not published yet. Automatic source replacement "
-            "is disabled so an upstream release cannot undo this installation. "
-            "Use a reviewed release from your project's repository when available.",
-            "Contact the Agent Scientist maintainer for the release repository.",
+            "Agent Scientist native releases are not published yet. Source updates require "
+            "a Git checkout whose origin is the approved SCI repository. No source "
+            "replacement was performed.",
+            "Check `git remote -v` against the repository in SCI's README.",
         )
     if is_commit_build(project_root):
         return UpdateRefusal("commit-build", COMMIT_BUILD_UPDATE_MESSAGE, "")

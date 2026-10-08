@@ -61,10 +61,12 @@ findings and scan limits in
 
 - Supply the private security-reporting contact; the SCI repository is approved.
 - Configure and verify SCI-owned release/update/install/support destinations.
-  Keep unpublished-distribution and publication guards until then.
-- Resolve and rerun the source-updater regressions: the latest two-file check
-  had 32 passes and 10 failures, including old-publisher fixture assumptions.
-  A source push does not make SCI's update delivery production-ready.
+  Keep native/publication guards until then. CLI Git updates now use the
+  approved SCI origin and `main`, without a promoted release service.
+- Push the reviewed source-update implementation before recommending it to
+  users. The former passive-check failures included unset repository identity
+  and tests assuming the old publisher; see the latest migration receipt for
+  the rerun. Source delivery is not signed native release qualification.
 - If needed, publish and validate an approved MCP CIMD identity document.
 - Run full Docker image/backends and optional speech acceptance.
 - Run real Windows/macOS native installers, signing, upgrade and recovery tests.

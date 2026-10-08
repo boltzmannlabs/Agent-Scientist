@@ -393,6 +393,13 @@ def check_for_updates(*, install_root: Path | None = None, home: Path | None = N
                                       explicit_root=install_root is not None, embedded=embedded)
     if unsupported:
         return {**result, **unsupported}
+    from sci_cli.source_releases import is_official_source_checkout
+
+    if ((root / "sci-unpublished-distribution").exists()
+            and not is_official_source_checkout(root, [git])):
+        return {**result, "reason": "unpublished-distribution",
+                "message": "Source updates require the approved SCI repository as origin; "
+                           "native releases are not published yet."}
     config = require_readable_config_before_write(home / "config.yaml")
     if passive and (config.get("updates") or {}).get("check") is False:
         return {**result, "reason": "disabled"}
@@ -407,7 +414,7 @@ def check_for_updates(*, install_root: Path | None = None, home: Path | None = N
     else:
         result["branch"] = selected_branch
     identity = {"root": str(root), "home": str(home), "head": co.head, "origin": co.origin, "branch": selected_branch,
-                "channel": channel, "embedded": embedded, "branchOverride": branch is not None, "channelProtocol": 1}
+                "channel": channel, "embedded": embedded, "branchOverride": branch is not None, "channelProtocol": 2}
     cache_file = Path(cache_path) if cache_path is not None else home / "source-checks" / f"{install_id(root)}.json"
     now = time.time()
     cached = None if force else _cached_status(cache_file, identity, now)

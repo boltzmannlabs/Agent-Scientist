@@ -13,6 +13,7 @@ import pytest
 from sci_cli import main, update_cmd, update_cmd_fleet as fleet, update_cmd_maint as maint
 from sci_cli import update_cmd_zip, update_receipt
 from sci_cli.config_defaults import DEFAULT_CONFIG
+from sci_cli.source_releases import OFFICIAL_REPOSITORY
 from sci_cli.update_inventory import RuntimeRecord, UpdatePlan
 import sci_yaml
 
@@ -170,10 +171,12 @@ def test_zip_helper_propagates_completion_status_after_real_verification(zip_upd
     request = update_cmd._source_completion_request(
         update_cmd._resolve_update_options(args, True), plan, snapshot, state.token, False, True)
     if verdict == "healthy":
-        assert update_cmd_zip._update_via_zip(args, completion_request=request) is True
+        assert update_cmd_zip._update_via_zip(
+            args, target_repository=OFFICIAL_REPOSITORY, completion_request=request) is True
     else:
         with pytest.raises(SystemExit) as error:
-            update_cmd_zip._update_via_zip(args, completion_request=request)
+            update_cmd_zip._update_via_zip(
+                args, target_repository=OFFICIAL_REPOSITORY, completion_request=request)
         assert error.value.code == 1
     assert state.events == ["prepare", ("marker", verdict != "unsafe-sqlite"),
                             "restart", "resume", "finalize"]

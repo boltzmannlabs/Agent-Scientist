@@ -568,3 +568,42 @@ The initial whole-tree whitespace check reports inherited formatting and test
 strings containing deliberate conflict markers; it is not a green full-tree
 whitespace receipt. Those fixture strings were inspected, not deleted.
 Installer shell syntax and the new ignore-policy test's Ruff check passed.
+
+## CLI source updates enabled for the approved SCI repository
+
+The owner requested enabling update recommendations and installation. Verified
+Git source checkouts whose origin is `boltzmannlabs/Agent-Scientist` can now use
+the existing `main` source-branch channel without a promoted release service.
+The publication marker is retained: it still refuses unrelated source origins
+and keeps native/promoted publication paths guarded. Official SCI checkouts
+fetch from origin rather than an inherited upstream remote. The ZIP fallback
+also receives the explicitly selected source repository for branch overrides.
+
+Startup recommendations are read-only, normally cached for 24 hours and respect
+`updates.check: false`. They never install software automatically. An immediate
+check uses `sci update --check`; deliberate installation uses `sci update` or
+`/update` in the CLI. Uncounted updates still show the correct update command.
+Each tested commit subsequently pushed to `main` may be recommended; this does
+not claim a signed stable release channel. Docker installations receive their
+own approved-image rebuild guidance, not another publisher's registry command.
+
+All targeted Python checks used `scripts/run_tests.sh`, with file retries
+disabled: 291 distinct tests passed across 21 files; five native-platform tests
+were skipped on this Linux host. The groups cover passive checks, release
+channel validation, source admission, explicit checks, shallow/fork handling,
+ZIP/Git completion, process routing, snapshots and publication boundaries.
+The real local Git walkthrough advances a fixture origin, checks notifications
+under temporary profiles A→B→A, then checks and pulls the selected revision
+without contacting GitHub. Profile config, credentials, sessions and skill bytes
+remain unchanged. Dependency/build/service completion is exercised separately
+by the existing controlled completion tests, not installed into the live home.
+The ten passive-check regressions noted above are resolved. Initial broader
+fixture runs hit temporary root-disk limits; after fixing the ZIP repository
+handoff, those tests passed serially on the larger storage drive. No full-suite,
+signed-native or production research-service qualification is claimed.
+
+A read-only `git ls-remote --heads origin` succeeded with no branch refs: the
+approved GitHub repository still needs its initial push before source delivery
+can operate for users. No production pull, live profile mutation, service restart,
+push or release publishing was performed. Desktop/native signing, promoted feeds
+and publication configuration remain separate release work.

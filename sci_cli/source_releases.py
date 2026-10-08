@@ -13,9 +13,10 @@ import urllib.request
 from sci_cli.update_channel import STABLE_TAG_RE, is_canary_tag
 
 logger = logging.getLogger(__name__)
-# Intentionally unset until this distribution has an approved release publisher.
+# Native/promoted channels still require an approved release publisher. Source
+# checkouts can follow the owner's approved main branch without that service.
 _PUBLIC_BASE = ""
-OFFICIAL_REPOSITORY = ""
+OFFICIAL_REPOSITORY = "boltzmannlabs/Agent-Scientist"
 _GITHUB_ORIGIN = re.compile(
     r"^(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)"
     r"([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?/?$", re.IGNORECASE,
@@ -23,7 +24,7 @@ _GITHUB_ORIGIN = re.compile(
 _SHA = re.compile(r"[0-9a-f]{40}")
 
 
-def source_repository(git_cmd=None, cwd=None) -> str:
+def source_repository(git_cmd=None, cwd=None, *, require_origin: bool = False) -> str:
     """Use this checkout's GitHub origin; never substitute another project's releases."""
     if git_cmd is not None:
         from sci_cli.source_check import source_git_env
@@ -36,9 +37,22 @@ def source_repository(git_cmd=None, cwd=None) -> str:
         match = _GITHUB_ORIGIN.fullmatch(result.stdout.strip())
         if result.returncode == 0 and match:
             return match[1]
-    if OFFICIAL_REPOSITORY:
+    if OFFICIAL_REPOSITORY and not require_origin:
         return OFFICIAL_REPOSITORY
     raise ValueError("No SCI release repository configured; configure the approved origin first")
+
+
+def is_official_source_checkout(root, git_cmd=None) -> bool:
+    """Admit source updates without also unlocking unpublished native releases."""
+    from pathlib import Path
+
+    if not (Path(root) / ".git").exists():
+        return False
+    try:
+        repository = source_repository(git_cmd or ["git"], root, require_origin=True)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return False
+    return bool(OFFICIAL_REPOSITORY and repository.lower() == OFFICIAL_REPOSITORY.lower())
 
 
 @dataclass(frozen=True)
@@ -73,7 +87,14 @@ def _resolve_channel(name: str, repository: str):
     from sci_cli.release_channels import ChannelReader
 
     if not _PUBLIC_BASE:
-        raise ValueError("SCI release channel endpoint is not configured")
+        from sci_cli.release_channels import ChannelNotFound
+
+        if name == "main":
+            raise ChannelNotFound("SCI main follows the source repository directly")
+        raise ValueError(
+            "SCI promoted release channels are not published yet; "
+            "use `sci update --channel main` for source updates"
+        )
     return ChannelReader(_PUBLIC_BASE, repository=repository).resolve(name)
 
 
@@ -82,7 +103,8 @@ def resolve_source_target(channel: str, git_cmd=None, cwd=None, *, repository=No
     from pathlib import Path
     from sci_cli.release_channels import ChannelNotFound, validate_name
 
-    if cwd is not None and (Path(cwd) / "sci-unpublished-distribution").exists():
+    if (cwd is not None and (Path(cwd) / "sci-unpublished-distribution").exists()
+            and not is_official_source_checkout(cwd, git_cmd)):
         raise ValueError("Agent Scientist update channel is not published; upstream replacement is disabled")
     validate_name(channel)
     repository = repository or source_repository(git_cmd, cwd)

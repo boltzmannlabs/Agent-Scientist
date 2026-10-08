@@ -544,15 +544,15 @@ def get_update_result(timeout: float = 0.5) -> Optional[int]:
 
 def _format_update_notice(behind: int) -> str:
     """Render the update warning line for a non-zero ``behind`` result."""
-    from sci_cli.config import get_managed_update_command, recommended_update_command
+    from sci_cli.config import recommended_update_command
     if behind > 0:
         return (
             f"[bold yellow]⚠ {behind} {_plural(behind, 'commit')} behind[/]"
             f"[dim yellow] — run [bold]{recommended_update_command()}[/bold] to update[/]")
-    # UPDATE_AVAILABLE_NO_COUNT (nix): an update exists but we don't know by how much, nor how
-    # the user installed (nix run, profile, system flake, home-manager).
-    managed_cmd = get_managed_update_command()
-    suffix = f"[dim yellow] — run [bold]{managed_cmd}[/bold][/]" if managed_cmd else ""
+    # Shallow/source checkouts can lack the count too; still show their actual
+    # update action rather than making a generic notice a dead end.
+    command = recommended_update_command()
+    suffix = f"[dim yellow] — run [bold]{command}[/bold][/]" if command else ""
     return f"[bold yellow]⚠ update available[/]{suffix}"
 
 
