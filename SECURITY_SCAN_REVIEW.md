@@ -61,3 +61,40 @@ the newly initialized object database. Only the outside private backup retains
 them. Recheck staged files and public-history contents if anything changes
 before pushing. Never copy `.sci` state, credentials, research samples or local
 profiles into the public source.
+
+## Final initial-push recheck
+
+At the initial recheck, before the documentation-only handoff commit and the
+authorized push, the local repository contained only the two fresh SCI commits.
+A read-only scan examined all 17,254 stored blob objects,
+including unreferenced objects: 17,199 text blobs and 55 binary blobs. The scan
+covered approximately 195.6 MB of blob contents and used additional provider,
+GitHub, Google, AWS, Slack and private-key patterns. It found 261 pattern matches
+across historical versions of 96 paths: 91 test-fixture paths and five
+documentation-example paths. The non-fixture matches were reviewed as explicit
+key placeholders and a Slack token example, not runtime credentials. No values
+were reproduced, authenticated or submitted for verification. This is still a
+limited pattern scan, not proof that no possible secret exists; binary objects
+were not text-scanned.
+
+All commit trees were checked for private state/dependency/research-output paths,
+symlinks, case collisions, oversized files and old product-named filenames.
+No such distributable paths were found. The desktop's `src/app/artifacts/` is
+application source, not the ignored root research-output directory. The two
+flagged inherited credential blobs are absent from this repository's object
+database. `git fsck --full` found no corruption; three unreferenced intermediate
+source blobs are not reachable from the proposed public branch.
+
+The destination was verified as the empty public repository
+`boltzmannlabs/Agent-Scientist`, with write access. Only `main` is intended for
+the push; no old-history backup, other refs or tags are included. Required
+licenses and contributor notices remain. Runtime credentials, existing profiles
+and conversations stay outside the committed source.
+
+The final installation/distribution/profile/update group passed 78 tests across
+eight files using `scripts/run_tests.sh`; two Windows-only cases were skipped on
+Linux. An initial parallel run sharing an explicit temporary directory failed
+with missing fixture files; the serial rerun avoided that directory collision
+and passed. Installer shell syntax and the documentation diff whitespace check
+passed. Prior update-specific receipts are in `SCI_MIGRATION.md`. No full-suite,
+live model/science-service or signed-native acceptance is claimed.

@@ -2,13 +2,12 @@
 
 These instructions install this customized application, not another product.
 Use a complete checkout from https://github.com/boltzmannlabs/Agent-Scientist.
-The following clone commands work after the initial commit has been pushed.
 No upstream repository is used as a fallback. Do not copy anyone else's `.sci`
 directory or credentials.
 
 ## One-command installation: Linux / macOS
 
-Run as your normal user, not with `sudo`. You need Bash, `curl`, `tar`, `awk`, a
+Run as your normal user, not with `sudo`. You need Git, Bash, `curl`, `tar`, `awk`, a
 SHA256 verifier (`sha256sum` or `shasum`), internet access, and sufficient free
 disk space for the managed runtime and dependencies. Full scientific models,
 datasets, and optional container images need additional space and are not part
@@ -55,7 +54,7 @@ sci setup
 agent-sci
 ```
 
-The first command installs software only. It does not configure model access,
+The `--non-interactive` installation installs software only. It does not configure model access,
 invent credentials, approve scientific jobs, or open a public network port.
 Run `sci setup` later in an interactive terminal before chatting.
 
@@ -87,6 +86,43 @@ Inside SCI, use `/help`, then send a simple greeting. A model response requires
 your own working provider authentication; software installation alone does not
 provide free model credits. Exit and restart with `agent-sci` to test a fresh
 session after saving new tools or skills.
+
+## First-time use
+
+1. Complete `sci setup`: select your model provider and authenticate using its
+   supported login or your own API key. The installer does not include anyone
+   else's account, service access or credits. Use `sci model` later to review
+   or change the selected provider/model.
+2. Start `agent-sci`. Enter `/help` to see the commands and `/skills` to review
+   the installed skill instructions.
+3. Try a simple conversation first, for example: `Explain the difference
+   between antibody affinity and specificity.` A successful response confirms
+   model access, not scientific-service readiness.
+4. Add the services and material your research needs using the commands below.
+   Review requested permissions and installation/execution actions. Restart
+   `agent-sci` after saving capabilities that take effect next session.
+
+For a research project, enter these commands inside the running CLI, not in
+your operating-system shell:
+
+```text
+/Create_profile
+/activate "antibody-project"
+/activate main
+```
+
+During creation, name the project `antibody-project` (or use your own name),
+choose suitable science skills/service tools, and optionally provide downloaded
+source-file paths or reference URLs. `/activate` selects its separate project
+conversation; `/activate main` returns to the main conversation. Source paths
+and URLs are references until explicitly read or processed. Project creation
+does not automatically install scientific software or grant service permissions.
+
+Type `/exit` to leave the CLI. To start it again in a later terminal:
+
+```bash
+agent-sci
+```
 
 ## Data, credentials, and scientific services
 
@@ -149,6 +185,18 @@ neutral pending an approved SCI logo.
 
 ## Maintenance and troubleshooting
 
+For an installed Git checkout, check and apply source updates deliberately:
+
+```bash
+sci update --check
+sci update
+```
+
+Alternatively, enter `/update` inside the CLI. Startup update recommendations
+normally use a 24-hour cache and do not install anything automatically. Only
+reviewed source pushed to this repository's `main` branch is delivered. Back up
+your `~/.sci` state before maintenance; keep local code edits on a separate branch.
+
 - Command not found: open a new terminal or export the PATH shown above. The
   checkout-local launcher is also available at `.sci/bin/agent-sci`.
 - Interrupted download/dependency build: rerun `bash ./install-sci.sh`; read
@@ -166,7 +214,6 @@ neutral pending an approved SCI logo.
   the CLI). Startup recommendations normally cache checks for 24 hours; they
   do not automatically install software. Every new commit on `main` can be
   recommended, so maintainers should publish only tested source changes.
-  The initial repository push must happen before this channel has content.
 - Promoted stable/canary releases and native installer/desktop feeds still
   require separate publication, signing and qualification. These paths remain
   guarded. Source updates do not create those releases or change their settings.
