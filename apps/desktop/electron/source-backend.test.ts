@@ -44,10 +44,14 @@ async function ping(port: number, token: string): Promise<unknown> {
         reject(new Error('RPC timed out'))
       }, 15_000)
 
-      socket.addEventListener('error', (): void => {
-        clearTimeout(timer)
-        reject(new Error('WebSocket connection failed'))
-      }, { once: true })
+      socket.addEventListener(
+        'error',
+        (): void => {
+          clearTimeout(timer)
+          reject(new Error('WebSocket connection failed'))
+        },
+        { once: true }
+      )
       socket.addEventListener('open', (): void => {
         socket.send(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'ping', params: {} }))
       })

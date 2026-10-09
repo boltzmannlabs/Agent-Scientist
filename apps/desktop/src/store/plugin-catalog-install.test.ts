@@ -60,9 +60,7 @@ describe('requestPluginCatalogInstallFromDeepLink', () => {
   })
 
   it('resolves against the live catalog feed by default and rejects unknown names', async () => {
-    const entries = [
-      { name: 'weather', repo: 'https://github.com/x/weather', sha: 'a'.repeat(40), subdir: '' }
-    ]
+    const entries = [{ name: 'weather', repo: 'https://github.com/x/weather', sha: 'a'.repeat(40), subdir: '' }]
 
     const api = vi.fn().mockResolvedValue({ entries })
     vi.stubGlobal('sciDesktop', { api })

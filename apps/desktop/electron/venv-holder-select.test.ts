@@ -39,10 +39,7 @@ test('excludes external venv holders that are not the hindsight daemon', () => {
 })
 
 test('excludes exes outside the venv even when the cmdline mentions hindsight', () => {
-  assert.equal(
-    isSciOwnedVenvDaemon('C:\\Other\\pythonw.exe', 'pythonw -m hindsight_api.main --daemon', SCRIPTS),
-    false
-  )
+  assert.equal(isSciOwnedVenvDaemon('C:\\Other\\pythonw.exe', 'pythonw -m hindsight_api.main --daemon', SCRIPTS), false)
 })
 
 test('prefix boundary: sibling dirs (ScriptsX) do not match', () => {
@@ -78,10 +75,7 @@ test('matches the dashboard scheduled task (python -m sci_cli / -m sci)', () => 
     ),
     true
   )
-  assert.equal(
-    isExternalVenvHolder('C:\\Sci\\venv\\Scripts\\pythonw.exe', 'pythonw.exe -m sci serve', SCRIPTS),
-    true
-  )
+  assert.equal(isExternalVenvHolder('C:\\Sci\\venv\\Scripts\\pythonw.exe', 'pythonw.exe -m sci serve', SCRIPTS), true)
 })
 
 test('never matches an unrelated process that merely borrows the venv interpreter', () => {

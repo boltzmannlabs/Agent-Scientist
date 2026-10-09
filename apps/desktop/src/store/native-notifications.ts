@@ -1,7 +1,7 @@
 import { atom } from 'nanostores'
 
 import { translateNow } from '@/i18n'
-import { type SciOpenTarget, resolveSciOpenPath } from '@/lib/sci-open-target'
+import { resolveSciOpenPath, type SciOpenTarget } from '@/lib/sci-open-target'
 import { persistString, storedString } from '@/lib/storage'
 
 import { recordFeatureToggle } from './desktop-metrics'

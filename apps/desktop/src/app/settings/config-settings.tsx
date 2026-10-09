@@ -6,10 +6,10 @@ import { useSearchParams } from 'react-router'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { getElevenLabsVoices, getSciConfigSchema, saveSciConfig } from '@/sci'
 import { useI18n } from '@/i18n'
 import { triggerHaptic } from '@/lib/haptics'
 import { isSubmitEnter } from '@/lib/ime'
+import { getElevenLabsVoices, getSciConfigSchema, saveSciConfig } from '@/sci'
 import { confirm } from '@/store/confirm'
 import {
   $dataUrlReadMaxMb,
@@ -128,8 +128,7 @@ function ConfigSettingsInner({
   } = useQuery({
     // Base key when following the active profile (matches every pre-existing
     // consumer); suffixed only for an explicit scope override.
-    queryKey:
-      scopeProfile == null ? ['sci-config-schema'] : ['sci-config-schema', normalizeProfileKey(scopeProfile)],
+    queryKey: scopeProfile == null ? ['sci-config-schema'] : ['sci-config-schema', normalizeProfileKey(scopeProfile)],
     queryFn: () => getSciConfigSchema(scopeProfile),
     staleTime: 5 * 60 * 1000
   })

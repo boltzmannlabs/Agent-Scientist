@@ -630,7 +630,7 @@ export const frOverrides = {
     dismiss: 'Fermer'
   },
   sendDiagnostics: {
-    title: "Envoyer le diagnostic SCI",
+    title: 'Envoyer le diagnostic SCI',
     privacyNotice:
       "Cela téléverse un paquet de débogage vers un stockage interne de Nous, et non vers un service de partage public. Il contient des informations système (système d'exploitation, versions, fournisseur et clés API configurées — jamais les clés elles-mêmes) ainsi que les journaux complets de l'agent, du gateway et du Desktop (jusqu'à 512 Ko chacun), susceptibles de contenir des conversations, des résultats d'outils et des chemins de fichiers. Les secrets sont expurgés avant l'envoi. Seuls le personnel de Nous et les modérateurs Discord autorisés peuvent consulter le paquet, qui est automatiquement supprimé après 14 jours.",
     upload: 'Envoyer',
@@ -643,10 +643,10 @@ export const frOverrides = {
     doneDescription:
       "Votre paquet a été téléversé de manière privée. Partagez le lien ci-dessous dans votre fil d'assistance afin que l'équipe puisse consulter vos journaux.",
     failedTitle: "Échec de l'envoi",
-    failedHint: "Utilisez sci debug share --local pour garder le rapport local. Contactez Boltzmann Labs.",
+    failedHint: 'Utilisez sci debug share --local pour garder le rapport local. Contactez Boltzmann Labs.',
     handoffLead: 'Poursuivez la discussion sur :',
     links: {
-      github: "Manuel SCI",
+      github: 'Manuel SCI',
       portal: 'SCI support',
       discord: 'Discord'
     }
@@ -2876,8 +2876,7 @@ export const frOverrides = {
       catalogHint:
         'Utilisez « + Ajouter à cet agent » sur un plugin : les entrées vérifiées sont installées depuis leur commit épinglé dans le profil sélectionné.',
       alreadyInstalled: (name: string) => `${name} est déjà installé dans ce profil.`,
-      catalogProvenance: (sha: string) =>
-        `Installé depuis le catalogue Sci${sha ? ` au commit épinglé ${sha}` : ''}.`,
+      catalogProvenance: (sha: string) => `Installé depuis le catalogue Sci${sha ? ` au commit épinglé ${sha}` : ''}.`,
       pinnedProvenance: (sha: string) =>
         `Épinglé au commit ${sha}. Les mises à jour sont refusées tant qu’il n’est pas réinstallé avec un nouvel épinglage.`,
       pinnedBadge: (sha: string) => `épinglé @ ${sha}`,
@@ -4264,8 +4263,7 @@ export const frOverrides = {
       '/queue':
         'Mettre un prompt en file pour le prochain tour, ou lister/modifier/supprimer/déplacer/vider les prompts en file',
       '/steer': 'Injecter un message après le prochain appel d’outil sans interrompre',
-      '/goal':
-        'Définir un objectif permanent sur lequel Sci travaille au fil des tours jusqu’à ce qu’il soit atteint',
+      '/goal': 'Définir un objectif permanent sur lequel Sci travaille au fil des tours jusqu’à ce qu’il soit atteint',
       '/heartbeat': 'Définir un prompt récurrent qui revient dans cette session lorsqu’elle est inactive',
       '/refine': 'Passer en revue cette conversation maintenant et enregistrer les leçons en mémoire/skills',
       '/review': 'Lancer un sous-agent indépendant pour relire le travail qui vient d’être discuté (PR, code, docs)',
@@ -4694,8 +4692,7 @@ export const frOverrides = {
     manualBody:
       "Vous avez installé Sci depuis la ligne de commande, les mises à jour s'y effectuent donc aussi. Collez ceci dans votre terminal :",
     manualPickedUp: 'Sci prendra en compte la nouvelle version au prochain lancement.',
-    manualBodyBackend:
-      'Le backend Sci est géré en dehors de cette app. Exécutez ceci sur le serveur qui l’héberge :',
+    manualBodyBackend: 'Le backend Sci est géré en dehors de cette app. Exécutez ceci sur le serveur qui l’héberge :',
     manualPickedUpBackend: 'Le backend chargera la nouvelle version une fois la mise à jour terminée.',
     guiSkewTitle: "Mettre à jour l'application de bureau",
     guiSkewBody:
@@ -4845,8 +4842,7 @@ export const frOverrides = {
     headerTitle: 'Configurons Sci Agent pour vous',
     headerDesc:
       'Connectez un fournisseur de modèles pour commencer à discuter. La plupart des options nécessitent un clic.',
-    preparingInstall:
-      "Sci finalise l'installation. Cela prend généralement moins d'une minute au premier lancement.",
+    preparingInstall: "Sci finalise l'installation. Cela prend généralement moins d'une minute au premier lancement.",
     starting: 'Démarrage de Sci…',
     lookingUpProviders: 'Recherche des fournisseurs...',
     collapse: 'Réduire',
@@ -5328,8 +5324,7 @@ export const frOverrides = {
       address: 'Adresse',
       addressPlaceholder: 'Saisir une adresse',
       blankPageBody: "Saisissez une adresse ci-dessus pour naviguer, ou demandez à Sci d'ouvrir une page.",
-      finishedRestarting: message =>
-        `Sci a terminé le redémarrage du serveur d'aperçu${message ? `: ${message}` : ''}`,
+      finishedRestarting: message => `Sci a terminé le redémarrage du serveur d'aperçu${message ? `: ${message}` : ''}`,
       failedRestarting: message => `Échec du redémarrage du serveur : ${message}`,
       unknownError: 'erreur inconnue',
       restartedTitle: "Serveur d'aperçu redémarré",

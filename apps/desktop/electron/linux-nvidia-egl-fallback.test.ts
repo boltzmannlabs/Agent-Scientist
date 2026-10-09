@@ -137,9 +137,7 @@ describe('decideNvidiaEglFallback — exclusions', () => {
   it('SCI_DESKTOP_DISABLE_GPU=0 keeps the GPU on even over a witnessed marker', () => {
     const marker = nvidiaEglFallbackMarker('0.21.5', '580.178.04')
 
-    expect(
-      decideNvidiaEglFallback({ ...PROBE, marker, env: { SCI_DESKTOP_DISABLE_GPU: '0' } }).enable
-    ).toBe(false)
+    expect(decideNvidiaEglFallback({ ...PROBE, marker, env: { SCI_DESKTOP_DISABLE_GPU: '0' } }).enable).toBe(false)
   })
 
   it('SCI_DESKTOP_NVIDIA_SWIFTSHADER forces the fallback on without any marker', () => {
@@ -152,9 +150,9 @@ describe('decideNvidiaEglFallback — exclusions', () => {
   it('SCI_DESKTOP_NVIDIA_SWIFTSHADER=0 opts out even over a witnessed marker', () => {
     const marker = nvidiaEglFallbackMarker('0.21.5', '580.178.04')
 
-    expect(
-      decideNvidiaEglFallback({ ...PROBE, marker, env: { SCI_DESKTOP_NVIDIA_SWIFTSHADER: 'off' } }).enable
-    ).toBe(false)
+    expect(decideNvidiaEglFallback({ ...PROBE, marker, env: { SCI_DESKTOP_NVIDIA_SWIFTSHADER: 'off' } }).enable).toBe(
+      false
+    )
   })
 })
 

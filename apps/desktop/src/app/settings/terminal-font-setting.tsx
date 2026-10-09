@@ -7,8 +7,8 @@ import {
   TERMINAL_FONT_SUGGESTIONS
 } from '@/app/right-sidebar/terminal/terminal-font'
 import { Button } from '@/components/ui/button'
-import { saveSciConfig } from '@/sci'
 import { useI18n } from '@/i18n'
+import { saveSciConfig } from '@/sci'
 import { notifyError } from '@/store/notifications'
 import type { SciConfigRecord } from '@/types/sci'
 

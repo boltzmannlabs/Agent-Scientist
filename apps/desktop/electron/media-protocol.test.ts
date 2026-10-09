@@ -126,9 +126,7 @@ describe('createMediaProtocolHandler', () => {
       fetchLocal: fetchLocal as MediaProtocolDependencies['fetchLocal']
     })
 
-    const response = await createMediaProtocolHandler(deps)(
-      request('sci-media://stream/%2Ftmp%2Fclip.mp4', {}, 'HEAD')
-    )
+    const response = await createMediaProtocolHandler(deps)(request('sci-media://stream/%2Ftmp%2Fclip.mp4', {}, 'HEAD'))
 
     expect(response.status).toBe(200)
     expect(fetchLocal).toHaveBeenCalledOnce()
@@ -175,9 +173,7 @@ describe('createMediaProtocolHandler', () => {
       }))
     })
 
-    await createMediaProtocolHandler(deps)(
-      request('sci-media://remote/%2Ftmp%2Fclip.mp4', { Range: 'bytes=0-1023' })
-    )
+    await createMediaProtocolHandler(deps)(request('sci-media://remote/%2Ftmp%2Fclip.mp4', { Range: 'bytes=0-1023' }))
 
     const [, headers] = vi.mocked(deps.fetchRemote).mock.calls[0]
     expect(headers.get('cf-access-client-id')).toBe('client-id')
@@ -287,9 +283,7 @@ describe('createMediaProtocolHandler', () => {
       }))
     })
 
-    const response = await createMediaProtocolHandler(deps)(
-      request('sci-media://remote/%2Ftmp%2Fclip.mp4', {}, 'HEAD')
-    )
+    const response = await createMediaProtocolHandler(deps)(request('sci-media://remote/%2Ftmp%2Fclip.mp4', {}, 'HEAD'))
 
     expect(response.status).toBe(200)
     expect(fetchRemote).toHaveBeenCalledOnce()
@@ -330,9 +324,7 @@ describe('createMediaProtocolHandler', () => {
       }))
     })
 
-    const response = await createMediaProtocolHandler(deps)(
-      request('sci-media://remote/%2Ftmp%2Fclip.mp4', {}, 'HEAD')
-    )
+    const response = await createMediaProtocolHandler(deps)(request('sci-media://remote/%2Ftmp%2Fclip.mp4', {}, 'HEAD'))
 
     expect(response.status).toBe(200)
     expect(fetchRemoteWithCookies).toHaveBeenCalledOnce()

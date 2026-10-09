@@ -1,6 +1,6 @@
 import type { SciGitBranch, SciGitWorktree } from '@/global'
-import type { ProjectInfo, SessionInfo } from '@/sci'
 import { normalize } from '@/lib/text'
+import type { ProjectInfo, SessionInfo } from '@/sci'
 
 import { rankSessions } from '../order'
 

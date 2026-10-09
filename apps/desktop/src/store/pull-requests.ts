@@ -1,9 +1,9 @@
 import { atom } from 'nanostores'
 
 import type { SciBranchPullRequest } from '@/global'
-import { scanSessionPullRequests, type SessionInfo } from '@/sci'
 import { desktopGit } from '@/lib/desktop-git'
 import { Codecs, persistentAtom } from '@/lib/persisted'
+import { scanSessionPullRequests, type SessionInfo } from '@/sci'
 
 /** How a row's PR reads at a glance — and what the sidebar filters on. A
  *  session with no branch, no PR, or an unreachable `gh` is `none`. */

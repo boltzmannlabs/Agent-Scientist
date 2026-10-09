@@ -1,6 +1,6 @@
+import { readKey, writeKey } from '@/lib/storage'
 import type { StaleAuxAssignment } from '@/sci'
 import { getApiRequestProfile, profileScopeKey } from '@/sci'
-import { readKey, writeKey } from '@/lib/storage'
 
 // Acknowledged stale-aux banner. The warning exists to catch a forgotten pin
 // silently billing a dead provider; a user with a deliberate cross-provider

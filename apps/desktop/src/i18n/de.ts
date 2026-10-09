@@ -266,8 +266,7 @@ export const deOverrides = {
       needsAuthBody: 'Die Anmeldung bleibt auf diesem Computer. Nichts verlässt ihn.',
       retry: 'Erneut versuchen',
       goneTitle: (name: string) => `${name} ist nicht mehr im Katalog.`,
-      goneBody:
-        'Sci kann ihn nicht mehr aufrufen. Die Zeile bleibt, bis Sie sie entfernen, damit nichts verschwindet.',
+      goneBody: 'Sci kann ihn nicht mehr aufrufen. Die Zeile bleibt, bis Sie sie entfernen, damit nichts verschwindet.',
       remove: 'Entfernen',
       offTitle: (name: string) => `${name} ist aus.`,
       offBody: 'Schalten Sie ihn mit dem Schalter oben ein, um seine Tools zu laden.',
@@ -630,8 +629,9 @@ export const deOverrides = {
     dismiss: 'Schließen'
   },
   sendDiagnostics: {
-    title: "SCI-Diagnose senden",
-    privacyNotice: "Protokolle und Systeminformationen werden an den konfigurierten SCI-Support gesendet. Sie können Gespräche, Ausgaben und Pfade enthalten. Die Schwärzung ist nicht garantiert. Ziel, Zugriff und Aufbewahrung prüfen. Standardmäßig ist kein Ziel konfiguriert.",
+    title: 'SCI-Diagnose senden',
+    privacyNotice:
+      'Protokolle und Systeminformationen werden an den konfigurierten SCI-Support gesendet. Sie können Gespräche, Ausgaben und Pfade enthalten. Die Schwärzung ist nicht garantiert. Ziel, Zugriff und Aufbewahrung prüfen. Standardmäßig ist kein Ziel konfiguriert.',
     upload: 'Hochladen',
     uploading: 'Wird hochgeladen…',
     cancel: 'Abbrechen',
@@ -639,12 +639,13 @@ export const deOverrides = {
     copyLink: 'Link kopieren',
     uploadIdFallback: id => `Kein Link zurückgegeben — zitiere die Upload-ID ${id} im Support`,
     doneTitle: 'Diagnosedaten gesendet',
-    doneDescription: "Das konfigurierte Ziel hat das Paket angenommen. Vor dem Teilen des Links die Zugriffsrechte prüfen.",
+    doneDescription:
+      'Das konfigurierte Ziel hat das Paket angenommen. Vor dem Teilen des Links die Zugriffsrechte prüfen.',
     failedTitle: 'Hochladen fehlgeschlagen',
-    failedHint: "Mit sci debug share --local bleibt der Bericht lokal. Einen Boltzmann-Labs-Maintainer kontaktieren.",
+    failedHint: 'Mit sci debug share --local bleibt der Bericht lokal. Einen Boltzmann-Labs-Maintainer kontaktieren.',
     handoffLead: 'Diskussion hier fortsetzen:',
     links: {
-      github: "SCI-Handbuch",
+      github: 'SCI-Handbuch',
       portal: 'SCI support',
       discord: 'Discord'
     }
@@ -1587,16 +1588,14 @@ export const deOverrides = {
       options: {
         gui: {
           title: 'Nur die Chat-Oberfläche deinstallieren',
-          description:
-            'Entfernt diese Desktop-App. Der Sci-Agent, Ihre Konfiguration und Ihre Chats bleiben erhalten.',
+          description: 'Entfernt diese Desktop-App. Der Sci-Agent, Ihre Konfiguration und Ihre Chats bleiben erhalten.',
           consequence: 'die Desktop-Chat-Oberfläche (diese App und ihre Daten)'
         },
         lite: {
           title: 'Oberfläche + Agent deinstallieren, Daten behalten',
           description:
             'Entfernt die App und den Sci-Agent, behält aber Konfiguration, Chats und Geheimnisse für eine spätere Neuinstallation.',
-          consequence:
-            'die Chat-Oberfläche und den Sci-Agent (Konfiguration, Chats und Geheimnisse bleiben erhalten)'
+          consequence: 'die Chat-Oberfläche und den Sci-Agent (Konfiguration, Chats und Geheimnisse bleiben erhalten)'
         },
         full: {
           title: 'Alles deinstallieren',

@@ -11,7 +11,6 @@ import {
 import { atom } from 'nanostores'
 
 import type { SciConnection } from '@/global'
-import { SciGateway, setApiRequestConnection } from '@/sci'
 import { translateNow } from '@/i18n'
 import {
   decideLivenessForceClose,
@@ -25,6 +24,7 @@ import {
   SOURCE_SWITCH_DIAL_TIMEOUT_MS,
   withTimeout
 } from '@/lib/with-timeout'
+import { SciGateway, setApiRequestConnection } from '@/sci'
 import { notifyError, RECOVERY_ACTIONS } from '@/store/notifications'
 import { markNativeNotifyBaseline } from '@/store/notify-baseline'
 import { setConnection, setGatewayState } from '@/store/session'

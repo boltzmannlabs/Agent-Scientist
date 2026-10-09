@@ -1,6 +1,6 @@
 import { LOCAL_CONNECTION_ID } from '@sci/shared'
 
-import { capabilityScoped, sciApi, type OwnerScope } from '@/api/client'
+import { capabilityScoped, type OwnerScope, sciApi } from '@/api/client'
 import type { SciConnection } from '@/global'
 import { translateNow } from '@/i18n'
 import { desktopFsCacheKey, readDesktopFileDataUrl } from '@/lib/desktop-fs'

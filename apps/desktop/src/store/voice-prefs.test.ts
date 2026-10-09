@@ -5,8 +5,8 @@ vi.mock('@/sci', () => ({
   saveSciConfig: vi.fn(async () => undefined)
 }))
 
-import { saveSciConfig } from '@/sci'
 import { isVoiceStopCommand } from '@/lib/voice-stop-word'
+import { saveSciConfig } from '@/sci'
 
 import {
   $bargeInEnabled,

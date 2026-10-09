@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 
-import type { SciGateway } from '@/sci'
 import type { IconComponent } from '@/lib/icons'
+import type { SciGateway } from '@/sci'
 import type { EnvVarInfo } from '@/types/sci'
 
 export type SettingsView =

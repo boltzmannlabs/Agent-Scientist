@@ -42,24 +42,38 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
     setSearching(false)
     setInstalling(null)
     setBrowseHub(false)
-    return () => { generation.current++; ownerGeneration.current++ }
+
+    return () => {
+      generation.current++
+      ownerGeneration.current++
+    }
   }, [owner])
 
   const lookup = async (browsePage?: number) => {
     const q = query.trim()
-    if (searching || (browsePage === undefined && !q)) return
+
+    if (searching || (browsePage === undefined && !q)) {
+      return
+    }
     const attempt = ++generation.current
     setSearching(true)
     setResults(null)
     setBrowseHub(browsePage !== undefined)
+
     try {
-      const params = browsePage === undefined
-        ? { action: 'search', query: q }
-        : { action: 'browse', source: 'official', page: browsePage, page_size: 20 }
+      const params =
+        browsePage === undefined
+          ? { action: 'search', query: q }
+          : { action: 'browse', source: 'official', page: browsePage, page_size: 20 }
+
       const scoped = { ...params, ...(bot ? { profile: bot.name } : {}) }
+
       const res: { items?: HubSkillResult[]; results?: HubSkillResult[]; page?: number; total_pages?: number } =
         await (bot ? requestForBot(bot, 'skills.manage', scoped) : host.request('skills.manage', scoped))
-      if (attempt !== generation.current) return
+
+      if (attempt !== generation.current) {
+        return
+      }
       setResults(res.items ?? res.results ?? [])
       setPage(res.page ?? 1)
       setPages(res.total_pages ?? 1)
@@ -69,7 +83,9 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
         host.notifyError(error, h.actionFailed)
       }
     } finally {
-      if (attempt === generation.current) setSearching(false)
+      if (attempt === generation.current) {
+        setSearching(false)
+      }
     }
   }
 
@@ -94,7 +110,10 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
       }
 
       await (bot ? requestForBot(bot, 'skills.manage', params) : host.request('skills.manage', params))
-      if (installOwner !== ownerGeneration.current) return
+
+      if (installOwner !== ownerGeneration.current) {
+        return
+      }
       setInstalled(prev => ({
         ...prev,
         [label]: true
@@ -108,12 +127,15 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
         onInstalled(label)
       }
     } catch (err) {
-      if (installOwner === ownerGeneration.current) host.notifyError(err, b.tools.installFailed(label))
+      if (installOwner === ownerGeneration.current) {
+        host.notifyError(err, b.tools.installFailed(label))
+      }
     } finally {
-      if (installOwner === ownerGeneration.current) setInstalling(null)
+      if (installOwner === ownerGeneration.current) {
+        setInstalling(null)
+      }
     }
   }
-
 
   return (
     <div className="grid gap-1.5 border-t border-(--ui-stroke-secondary) pt-2">
@@ -123,8 +145,13 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
           className="text-[0.65rem] text-(--ui-text-quaternary) hover:text-(--ui-text-secondary)"
           disabled={searching}
           onClick={() => {
-            if (browseHub) { generation.current++; setBrowseHub(false); setResults(null) }
-            else void lookup(1)
+            if (browseHub) {
+              generation.current++
+              setBrowseHub(false)
+              setResults(null)
+            } else {
+              void lookup(1)
+            }
           }}
           size="inline"
           variant="text"
@@ -137,7 +164,9 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
           <Button disabled={searching || page <= 1} onClick={() => void lookup(page - 1)} size="sm" variant="ghost">
             {t.ui.pagination.previous}
           </Button>
-          <span>{page} / {pages}</span>
+          <span>
+            {page} / {pages}
+          </span>
           <Button disabled={searching || page >= pages} onClick={() => void lookup(page + 1)} size="sm" variant="ghost">
             {t.ui.pagination.next}
           </Button>

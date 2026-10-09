@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { saveSciConfig } from '@/sci'
 import { useI18n } from '@/i18n'
+import { saveSciConfig } from '@/sci'
 import { notifyError } from '@/store/notifications'
 import {
   CHAT_FONT_SUGGESTIONS,

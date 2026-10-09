@@ -68,6 +68,7 @@ export async function lookupPluginCatalogEntry(
       path: PLUGIN_CATALOG_URL,
       timeoutMs: FETCH_TIMEOUT_MS
     })
+
     rows = response.entries
   } catch {
     return { ok: false, error: 'unavailable' }

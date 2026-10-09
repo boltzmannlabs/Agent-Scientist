@@ -136,8 +136,9 @@ export const ar = defineLocale({
     importError: 'تعذر استيراد هذه المحادثة.'
   },
   sendDiagnostics: {
-    title: "إرسال تشخيص SCI",
-    privacyNotice: "ترسل السجلات ومعلومات النظام إلى وجهة دعم SCI المضبوطة. قد تتضمن محادثات ومخرجات ومسارات. إخفاء الأسرار ليس مضموناً بالكامل. تحقق من الوجهة والصلاحيات وسياسة الاحتفاظ. لا توجد وجهة افتراضية.",
+    title: 'إرسال تشخيص SCI',
+    privacyNotice:
+      'ترسل السجلات ومعلومات النظام إلى وجهة دعم SCI المضبوطة. قد تتضمن محادثات ومخرجات ومسارات. إخفاء الأسرار ليس مضموناً بالكامل. تحقق من الوجهة والصلاحيات وسياسة الاحتفاظ. لا توجد وجهة افتراضية.',
     upload: 'رفع',
     uploading: 'جارٍ الرفع…',
     cancel: 'إلغاء',
@@ -145,12 +146,12 @@ export const ar = defineLocale({
     copyLink: 'نسخ الرابط',
     uploadIdFallback: id => `لم يتم إرجاع رابط عرض — اذكر معرّف الرفع ${id} للدعم`,
     doneTitle: 'تم إرسال التشخيصات',
-    doneDescription: "استقبلت الوجهة المضبوطة الحزمة. تحقق من صلاحيات الوصول قبل مشاركة الرابط.",
+    doneDescription: 'استقبلت الوجهة المضبوطة الحزمة. تحقق من صلاحيات الوصول قبل مشاركة الرابط.',
     failedTitle: 'فشل الرفع',
-    failedHint: "استخدم sci debug share --local للاحتفاظ بالتقرير محلياً. تواصل مع مسؤول Boltzmann Labs.",
+    failedHint: 'استخدم sci debug share --local للاحتفاظ بالتقرير محلياً. تواصل مع مسؤول Boltzmann Labs.',
     handoffLead: 'تابع النقاش في:',
     links: {
-      github: "دليل SCI",
+      github: 'دليل SCI',
       portal: 'SCI support',
       discord: 'Discord'
     }
@@ -2726,8 +2727,7 @@ export const ar = defineLocale({
     done: 'تم',
     applyingBody:
       'يتولّى مُحدِّث Sci المهمة في نافذته الخاصة ويعيد فتح Sci تلقائيا عند الانتهاء. الرجاء عدم إعادة فتح Sci بنفسك أثناء التحديث.',
-    applyingBodyBackend:
-      'تطبّق الواجهة الخلفية البعيدة التحديث وستعيد التشغيل. يعيد Sci الاتصال تلقائيا عند عودتها.',
+    applyingBodyBackend: 'تطبّق الواجهة الخلفية البعيدة التحديث وستعيد التشغيل. يعيد Sci الاتصال تلقائيا عند عودتها.',
     applyingClose: 'ستُغلق هذه النافذة أثناء تشغيل التحديث، ثم يعيد Sci فتح نفسه تلقائيا.',
     errorTitle: 'لم يكتمل التحديث',
     errorBody: 'لا داعي للقلق — لم يُفقد شيء. يمكنك إعادة المحاولة الآن.',
@@ -2845,8 +2845,7 @@ export const ar = defineLocale({
       },
       local: {
         short: 'مستضاف ذاتيا',
-        description:
-          'وجّه Sci إلى نقطة نهاية محلية أو مستضافة ذاتيا متوافقة مع OpenAI (vLLM، llama.cpp، Ollama، إلخ).'
+        description: 'وجّه Sci إلى نقطة نهاية محلية أو مستضافة ذاتيا متوافقة مع OpenAI (vLLM، llama.cpp، Ollama، إلخ).'
       }
     },
     backToSignIn: 'العودة إلى تسجيل الدخول',
@@ -3150,8 +3149,7 @@ export const ar = defineLocale({
       reloadingNow: 'جار إعادة تحميل المعاينة الآن.',
       restartFailedTitle: 'فشلت إعادة تشغيل المعاينة',
       restartFailedMessage: 'تعذّر على Sci إعادة تشغيل الخادم.',
-      stillWorking:
-        'لا يزال Sci يعمل، لكن لم تصل نتيجة إعادة التشغيل بعد. قد يكون أمر الخادم قيد التشغيل في المقدمة.',
+      stillWorking: 'لا يزال Sci يعمل، لكن لم تصل نتيجة إعادة التشغيل بعد. قد يكون أمر الخادم قيد التشغيل في المقدمة.',
       workspaceReloading: 'تغيّرت مساحة العمل، جار إعادة تحميل المعاينة',
       fileChanged: url => `تغيّر الملف، جار إعادة تحميل المعاينة: ${url}`,
       filesChanged: (count, url) => `${count} تغييرات ملفات، جار إعادة تحميل المعاينة: ${url}`,

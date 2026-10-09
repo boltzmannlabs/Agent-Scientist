@@ -1,8 +1,8 @@
-import { applyDocumentLocale, isRecord } from '@sci/shared/i18n'
 import { useStore } from '@nanostores/react'
+import { applyDocumentLocale, isRecord } from '@sci/shared/i18n'
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
-import { getSciConfigRecord, type SciConfigRecord, retainConfigReadOrigin, saveSciConfig } from '@/sci'
+import { getSciConfigRecord, retainConfigReadOrigin, saveSciConfig, type SciConfigRecord } from '@/sci'
 
 import { TRANSLATIONS } from './catalog'
 import {

@@ -17,9 +17,7 @@ const BIG5_TITLE = Buffer.from([
   ...Buffer.from('</title>')
 ])
 
-const TRAILER = Buffer.from(
-  '\nsci-content-type:text/html; charset=big5\nsci-url-effective:https://example.test/final'
-)
+const TRAILER = Buffer.from('\nsci-content-type:text/html; charset=big5\nsci-url-effective:https://example.test/final')
 
 describe('parseCurlTitleResponse', () => {
   test('decodes a legacy page from curl content-type metadata', () => {

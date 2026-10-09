@@ -120,10 +120,7 @@ test('buildDesktopBackendEnv forces PYTHONUTF8 unless the user set it explicitly
 })
 
 test('normalizeSciHomeRoot expands a literal leading ~ against the home directory, not cwd', () => {
-  assert.equal(
-    normalizeSciHomeRoot('~/.sci', { pathModule: path.posix, homedir: '/Users/test' }),
-    '/Users/test/.sci'
-  )
+  assert.equal(normalizeSciHomeRoot('~/.sci', { pathModule: path.posix, homedir: '/Users/test' }), '/Users/test/.sci')
   assert.equal(
     normalizeSciHomeRoot('~/.sci/profiles/oracle', { pathModule: path.posix, homedir: '/Users/test' }),
     '/Users/test/.sci'
@@ -136,10 +133,7 @@ test('normalizeSciHomeRoot expands a literal leading ~ against the home director
 })
 
 test('normalizeSciHomeRoot maps profile homes back to the global Sci root', () => {
-  assert.equal(
-    normalizeSciHomeRoot('/Users/test/.sci/profiles/oracle', { pathModule: path.posix }),
-    '/Users/test/.sci'
-  )
+  assert.equal(normalizeSciHomeRoot('/Users/test/.sci/profiles/oracle', { pathModule: path.posix }), '/Users/test/.sci')
   assert.equal(
     normalizeSciHomeRoot('C:\\Users\\test\\AppData\\Local\\sci\\profiles\\oracle', { pathModule: path.win32 }),
     'C:\\Users\\test\\AppData\\Local\\sci'

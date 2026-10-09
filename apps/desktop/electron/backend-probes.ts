@@ -115,17 +115,13 @@ async function canImportSciCli(
     const env: NodeJS.ProcessEnv = { ...process.env, ...opts.env }
 
     // Bootstrap selects the committed generation before any dependency import.
-    await execProbe(
-      pythonPath,
-      ['-c', 'import sci_bootstrap; import sci_yaml; import dotenv; import sci_cli.config'],
-      {
-        cwd: opts.cwd,
-        env: { ...env, ...buildDesktopBackendEnv({ currentEnv: env }) },
-        stdio: 'ignore',
-        timeout: PROBE_TIMEOUT_MS,
-        windowsHide: true
-      }
-    )
+    await execProbe(pythonPath, ['-c', 'import sci_bootstrap; import sci_yaml; import dotenv; import sci_cli.config'], {
+      cwd: opts.cwd,
+      env: { ...env, ...buildDesktopBackendEnv({ currentEnv: env }) },
+      stdio: 'ignore',
+      timeout: PROBE_TIMEOUT_MS,
+      windowsHide: true
+    })
 
     return true
   } catch {
