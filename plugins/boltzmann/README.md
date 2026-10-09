@@ -28,3 +28,22 @@ Other independent MCP servers are responsible for their own authentication.
 The connector was brought forward from this project's existing local Boltzmann plugin.
 Its prior workflow helpers and schemas are preserved; authorization and profile isolation were
 updated. No private `.env`, configuration, API keys, results, or local sample data are bundled.
+
+## Packaged workflow knowledge
+
+The authorized `boltzmann:tools` skill includes the module registry, scientific
+references, clarification/file/limit contracts, collection mappings and the
+optional peptide conversion script. These files ship with Git checkouts and
+Python package data; no private local plugin directory is needed. They are
+instructions and contracts, not additional model tools or installed scientific
+runtimes. The same five tools execute jobs.
+
+Read `skills/boltzmann-tools/DISTRIBUTION.md` for provenance, sanitization,
+historical verification limits, and excluded private/maintenance material.
+Installing this knowledge never grants access: authorization remains profile-
+and-key-bound, and every operation revalidates against the service.
+
+Existing user-installed plugins with the same name can override the bundled
+plugin. Inspect the discovered plugin location when updating an existing
+machine; do not overwrite a user's plugin automatically. Fresh installations
+without an override use this repository's bundled connector.

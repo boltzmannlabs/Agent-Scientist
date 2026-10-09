@@ -1,0 +1,230 @@
+{
+  "schema": "boltzmann-input-limits.v1",
+  "policy": "Only source-backed hard limits are encoded. Defaults and recommendations are not hard limits.",
+  "tools": {
+    "Random_Antibody_Generation": {
+      "fields": {
+        "n_samples": {
+          "type": "integer",
+          "required": true,
+          "exclusive_minimum": 16,
+          "recommended_minimum": 20
+        }
+      },
+      "evidence": [
+        "All_product_features_info - Boltpro_all_APIs (2).csv: samples should be greater than 16",
+        "all_experiments_table sample input uses 20"
+      ]
+    },
+    "AntiBMPNN": {
+      "fields": {
+        "generation_count": {
+          "type": "integer",
+          "required": true,
+          "minimum": 1,
+          "maximum": 10000
+        }
+      },
+      "evidence": [
+        "protein-target-aware-antibody.md: accepted range 1-10000"
+      ]
+    },
+    "pxdesigninfer": {
+      "fields": {
+        "binder_length": {
+          "type": "integer",
+          "required": true,
+          "minimum": 10,
+          "maximum": 300
+        },
+        "n_samples": {
+          "type": "integer",
+          "required": true,
+          "minimum": 1,
+          "maximum": 10000
+        }
+      },
+      "evidence": [
+        "protein-generative-design.md: PX Design Infer request contract"
+      ]
+    },
+    "Genzyme_Generation": {
+      "fields": {
+        "num_structures": {
+          "type": "integer",
+          "required": true,
+          "minimum": 1,
+          "maximum": 100000
+        }
+      },
+      "evidence": [
+        "protein-enzyme-generation.md: product validation range 1-100000"
+      ]
+    },
+    "Placer": {
+      "fields": {
+        "no_of_samples": {
+          "type": "integer",
+          "required": true,
+          "minimum": 10,
+          "maximum": 100
+        }
+      },
+      "evidence": [
+        "protein-docking.md: minimum 10, maximum 100"
+      ]
+    },
+    "Sequence_based_peptide_generation": {
+      "fields": {
+        "seq_length": {
+          "type": "numeric_string",
+          "required": true,
+          "minimum": 11,
+          "maximum": 50
+        }
+      },
+      "evidence": [
+        "protein-peptide-generation.md: documented supported range 11-50; numeric strings are normalized"
+      ]
+    },
+    "Structure_Based_Generator": {
+      "fields": {
+        "no_of_shapes": {
+          "type": "integer",
+          "required": true,
+          "minimum": 1
+        },
+        "no_of_decodings": {
+          "type": "integer",
+          "required": true,
+          "minimum": 1
+        }
+      },
+      "evidence": [
+        "small-molecule-structure-generation.md: both fields minimum 1"
+      ]
+    },
+    "siRNA_obj_pred": {
+      "fields": {
+        "min_gc": {
+          "type": "number",
+          "required": true,
+          "minimum": 0,
+          "maximum": 100
+        },
+        "max_gc": {
+          "type": "number",
+          "required": true,
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "relations": [
+        {
+          "left": "min_gc",
+          "operator": "<=",
+          "right": "max_gc"
+        }
+      ],
+      "evidence": [
+        "rna-property-prediction.md: inclusive 0-100 and max_gc not less than min_gc"
+      ]
+    },
+    "CodonRLBERTPropPred": {
+      "fields": {
+        "selected_properties": {
+          "type": "list",
+          "required": true,
+          "min_items": 1
+        }
+      },
+      "evidence": [
+        "rna-property-prediction.md: select at least one property"
+      ]
+    },
+    "Random_based_generation_training": {
+      "fields": {
+        "num_samples": {
+          "type": "integer",
+          "required": true,
+          "maximum": 5000
+        },
+        "global_models": {
+          "type": "list"
+        },
+        "custom_models": {
+          "type": "list"
+        }
+      },
+      "any_of_nonempty": [
+        [
+          "global_models",
+          "custom_models"
+        ]
+      ],
+      "evidence": [
+        "small-molecule-random-generation.md: maximum 5000 and at least one global/custom property model"
+      ]
+    },
+    "Random_based_generation_nontrans": {
+      "fields": {
+        "num_samples": {
+          "type": "integer",
+          "required": true,
+          "exclusive_minimum": 0
+        },
+        "global_models": {
+          "type": "list"
+        },
+        "custom_models": {
+          "type": "list"
+        }
+      },
+      "any_of_nonempty": [
+        [
+          "global_models",
+          "custom_models"
+        ]
+      ],
+      "combined_items": [
+        {
+          "fields": [
+            "global_models",
+            "custom_models"
+          ],
+          "maximum": 3
+        }
+      ],
+      "evidence": [
+        "small-molecule-random-generation.md: positive samples, at least one reward model, no more than three rewards"
+      ]
+    },
+    "peptiverse": {
+      "fields": {
+        "properties": {
+          "type": "list",
+          "required": true,
+          "min_items": 1
+        }
+      },
+      "evidence": [
+        "protein-property-prediction.md: at least one selected property and at least one uploaded row"
+      ]
+    },
+    "ipsae-protein": {
+      "fields": {
+        "pae_cutoff": {
+          "type": "number",
+          "exclusive_minimum": 0
+        },
+        "dist_cutoff": {
+          "type": "number",
+          "exclusive_minimum": 0
+        }
+      },
+      "evidence": [
+        "protein-structure-prediction.md: both optional cutoffs must be positive"
+      ]
+    }
+  }
+}
