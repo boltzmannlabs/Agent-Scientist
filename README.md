@@ -124,15 +124,22 @@ environments are not part of this distribution.
 
 ```text
 /Create_profile
+/profiles_list
+/activate
 /activate "antibody-project"
 /activate main
 ```
 
-Choose science skills, supported service tools, and optional source files/URLs.
-Sources are references until explicitly read or processed. A project can be
-saved before software/environment preparation. Local execution may require
-`/activate "antibody-project" --prepare`; there is no silent host fallback.
+Choose science skills, supported service tools, existing or new service credentials,
+and optional source files/URLs with explicit access choices. New projects are native
+SCI profiles. They reuse main's local runtime or Docker image with their own workspace;
+no `--prepare` command is needed. Downloads require approval. Other remote backends
+currently need separate workspace/credential setup; there is no silent host fallback.
+Creation does not install missing scientific software. See the
+[profile guide](website/docs/user-guide/features/science-profiles.md) for supported integrations.
 
+`/activate` opens a picker and restarts the native CLI in the selected profile,
+resuming its latest CLI conversation when available. The status bar shows the active name.
 Project conversations remain separate. Existing shared model login can be reused;
 service permissions remain profile-scoped. Automatic routing or collaboration
 must be explicitly configured; new permissions and sensitive transfers still

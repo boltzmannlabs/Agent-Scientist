@@ -40,6 +40,29 @@ or analyze a scientific design with a workflow represented in
 
 Do not use it for general literature search, general coding, or omics analysis.
 
+## Execution Provider Priority
+
+When this profile is authorized, load this skill and the matching complete
+contract before selecting a generic scientific skill or another execution
+provider. `boltzmann:tools` is a plugin skill, not an entry in the ordinary
+available-skills index. If the operations are deferred, discover them with
+`tool_search`, inspect schemas with `tool_describe`, and invoke them with
+`tool_call`; a deferred schema does not mean Boltzmann is unavailable.
+
+For "generate 20 random antibodies", select
+`references/modules/protein-antibody-generation.md`. Preserve `n_samples=20`
+and ask for the missing `file_format` and confirmation of `experiment_name`.
+Read the output-count limitations before promising 20 pairs. Do not start
+`paired-antibody-generation`, GPU inspection, p-IgGen, or a ToolUniverse
+generator as a substitute for this matching workflow.
+
+Missing session tools require setup/restart guidance, not automatic fallback.
+Missing scientific values require clarification, not invented defaults.
+Authentication failure stops execution. A nonmatching or blocked contract
+requires explaining the limitation and explicit approval before using a
+different scientific execution provider. Respect an explicit local/provider
+request without bypassing that environment's permissions.
+
 ## Prerequisites
 
 - If not connected, ask the user to run `/add_boltz` in the Sci CLI and

@@ -16,8 +16,8 @@ class Worker:
     def __init__(self, home: Path, cli, ui):
         from tools.environments.local import served_profile_child_env
         from agent.memory_provider import spawn_context_thread
-        from sci_cli.science_profiles_sandbox import validate_runtime
-        self.spec = validate_runtime(home)
+        from sci_cli.native_profile_runtime import routing_spec
+        self.spec = routing_spec(home)
         self.home, self.cli, self.ui = home, cli, ui
         self.session = None
         self.events = queue.Queue()

@@ -1519,6 +1519,10 @@ class SciCLI(CLIInitMixin, CLITuiRuntimeMixin, CLIProcessNotificationsMixin, CLI
         # /update relaunch happens here, after prompt_toolkit restored terminal modes, on the
         # main thread (the process_loop thread would skip cleanup / only exit itself on Windows).
         if self._pending_relaunch:
+            if getattr(self, "_pending_profile_home", None):
+                from sci_cli.native_profile_session import relaunch_profile
+                relaunch_profile(self)
+                return
             from sci_cli.relaunch import relaunch
             relaunch(self._pending_relaunch, preserve_inherited=False)
 

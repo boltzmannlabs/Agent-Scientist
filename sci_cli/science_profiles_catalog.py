@@ -72,7 +72,7 @@ def select_science_items(ui, title, options):
         pages = max(1, (len(matches) + 3) // 4)
         page = min(page, pages - 1)
         rows = matches[page * 4:page * 4 + 4]
-        labels = {f"{'[selected] ' if key in selected else ''}{key} — {options[key][:100]}": key for key in rows}
+        labels = {f"{'[selected] ' if key in selected else ''}{key} — {options[key][:100]}".strip(): key for key in rows}
         controls = ["Done", *labels, "Search"]
         if query:
             controls.append("Clear search")

@@ -8,6 +8,9 @@ import { act, useEffect } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import {
   MemoryRouter,
+  Navigate,
+  Route,
+  Routes,
   useLocation,
   useNavigate,
   type NavigateFunction,
@@ -52,7 +55,7 @@ function seen() {
   return { profile: probe.dataset.profile, url: probe.dataset.url };
 }
 
-async function mount(initialEntry: string) {
+async function mount(initialEntry: string, redirect = false) {
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -61,6 +64,12 @@ async function mount(initialEntry: string) {
       <MemoryRouter initialEntries={[initialEntry]}>
         <ProfileProvider>
           <Probe />
+          {redirect && (
+            <Routes>
+              <Route path="/" element={<Navigate to="/sessions" replace />} />
+              <Route path="/sessions" element={<p>Session list ready</p>} />
+            </Routes>
+          )}
         </ProfileProvider>
       </MemoryRouter>,
     ),
@@ -70,9 +79,21 @@ async function mount(initialEntry: string) {
 afterEach(async () => {
   await act(async () => root?.unmount());
   container?.remove();
+  delete window.__SCI_DASHBOARD_PROFILE__;
 });
 
 describe("ProfileProvider URL sync", () => {
+  it("preserves a child route redirect while adding the backend profile scope", async () => {
+    window.__SCI_DASHBOARD_PROFILE__ = "default";
+    await mount("/", true);
+
+    expect(seen()).toEqual({
+      profile: "default",
+      url: "/sessions?profile=default",
+    });
+    expect(container.textContent).toContain("Session list ready");
+  });
+
   it("adopts ?profile= from a link that also changes the path", async () => {
     await mount("/profiles?profile=alpha");
     expect(seen()).toEqual({ profile: "alpha", url: "/profiles?profile=alpha" });

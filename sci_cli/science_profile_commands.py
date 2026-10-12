@@ -6,41 +6,24 @@ from sci_cli.skill_add import WizardUI, Cancelled
 
 
 def activate(cli, command, ui=None):
-    from sci_cli.science_profiles import available_profiles
-    from sci_cli.science_profiles_sandbox import validate_runtime
-    from sci_cli.profiles import get_profile_dir
-    from sci_constants import sci_home_key
+    from sci_cli.profiles import list_profile_names
+    from sci_cli.native_profile_session import request_switch, profile_label
     ui = ui or WizardUI(cli)
     try:
         args = shlex.split(command)[1:]
-        prepare = "--prepare" in args
-        args = [arg for arg in args if arg != "--prepare"]
         if len(args) == 2 and args[1].lower() == "profile":
             args.pop()
-        if len(args) != 1:
-            ui.show('Usage: /activate "profile-name" [profile] [--prepare] | /activate main')
-            return
-        name = args[0]
-        if name == "main":
-            cli._science_active = (sci_home_key(), None)
-            ui.show("Main conversation selected. Profile conversations remain separate.")
-            return
-        profiles = available_profiles()
-        if name not in profiles:
-            raise ValueError("Unknown research profile. Create one with /Create_profile first.")
-        home = get_profile_dir(name)
-        if prepare:
-            from sci_cli.science_profiles_setup import prepare_profile
-            prepare_profile(cli, home, ui)
-        spec = validate_runtime(home)
-        cli._science_active = (sci_home_key(), name)
-        ui.show(f"Activated {name}. Your next message runs in its isolated profile conversation. "
-                "Use /activate main to return. No toolset or prompt was changed in the main conversation.")
-        if spec.setup_pending or spec.pending_tools:
-            pending = (["local execution"] if spec.setup_pending else []) + list(spec.pending_tools)
-            ui.show(f'Project ready for conversation and skill instructions. Setup required for '
-                    f'{", ".join(pending)}. '
-                    f'When needed: /activate "{name}" --prepare. No host-execution fallback.')
+        if not args:
+            choices = {}
+            for item in list_profile_names():
+                label = "main" if item == "default" else item
+                choices[label + (" — currently active" if label == profile_label() else "")] = item
+            name = choices[ui.choose("Choose a profile", [*choices, "Cancel"])]
+        elif len(args) == 1 and not args[0].startswith("--"):
+            name = args[0]
+        else:
+            raise ValueError('Usage: /activate ["profile-name"] [profile]. New profiles need no --prepare.')
+        request_switch(cli, name, ui)
     except (Cancelled, KeyboardInterrupt, EOFError):
         ui.show("Activation cancelled. Current selection unchanged.")
     except Exception as exc:

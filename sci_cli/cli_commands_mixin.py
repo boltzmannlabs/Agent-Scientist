@@ -1865,8 +1865,13 @@ class CLICommandsMixin:
         self._queue_add_request(cmd, "MCP server", "https://example.org/mcp")
 
     def _handle_create_profile_command(self, cmd: str):
-        from sci_cli.science_profiles_ui import create_wizard
+        from sci_cli.native_profile_wizard import create_wizard
         create_wizard(self, cmd)
+
+    def _handle_profiles_list_command(self, cmd: str):
+        from sci_cli.native_profile_session import list_profiles
+        from sci_cli.skill_add import WizardUI
+        list_profiles(WizardUI(self))
 
     def _handle_activate_command(self, cmd: str):
         from sci_cli.science_profile_commands import activate
@@ -1878,6 +1883,11 @@ class CLICommandsMixin:
 
     def _handle_add_tool_command(self, cmd: str):
         self._queue_add_request(cmd, "tool", "https://github.com/bio-tools/biotoolsLLMAnnotate")
+
+    def _handle_add_boltz_command(self, cmd: str):
+        from sci_cli.boltzmann_setup import run
+        from cli import _cprint
+        _cprint(run(self, _command_arg(cmd)))
 
     def _queue_add_request(self, cmd: str, kind: str, example: str):
         """Hand the user's request to the ordinary agent turn, without a setup wizard."""

@@ -121,16 +121,27 @@ your operating-system shell:
 
 ```text
 /Create_profile
+/profiles_list
+/activate
 /activate "antibody-project"
 /activate main
 ```
 
 During creation, name the project `antibody-project` (or use your own name),
-choose suitable science skills/service tools, and optionally provide downloaded
-source-file paths or reference URLs. `/activate` selects its separate project
-conversation; `/activate main` returns to the main conversation. Source paths
-and URLs are references until explicitly read or processed. Project creation
-does not automatically install scientific software or grant service permissions.
+choose suitable science skills/service tools, review existing/new credentials, and
+optionally provide downloaded source-file paths or public URLs with access choices.
+`/profiles_list` lists native profiles; `/activate` opens their picker. Activation
+restarts the native CLI in that profile and resumes its latest CLI conversation if
+one exists. `/activate main` returns to main. The left status label shows the destination
+of both messages and slash commands.
+
+New profiles reuse main's local runtime or Docker image with separate workspaces;
+no `--prepare` is needed. Docker downloads require approval. Remote execution backends
+need separate workspace/credential review and are not cloned by this wizard yet.
+Missing scientific software is not automatically installed. Boltzmann keys are validated
+without submitting jobs; MCP connections are checked before explicit tool selection.
+Sources are not read, uploaded, or indexed by creation. See the
+[profile guide](website/docs/user-guide/features/science-profiles.md) for limitations and migration.
 
 Type `/exit` to leave the CLI. To start it again in a later terminal:
 

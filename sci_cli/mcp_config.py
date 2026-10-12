@@ -412,12 +412,14 @@ def _resolve_mcp_server_config(config: dict) -> dict:
 
 
 def _probe_single_server(
-    name: str, config: dict, connect_timeout: Optional[float] = None, *, details: Optional[dict] = None
+    name: str, config: dict, connect_timeout: Optional[float] = None, *, details: Optional[dict] = None,
+    cancel_event=None,
 ) -> List[Tuple[str, str]]:
     """Temporarily connect to one MCP server, list its tools, disconnect.
 
     Returns ``(tool_name, description)`` tuples; raises on connection failure. ``details`` is an
     out-param filled with ``schema_chars``/``prompts``/``resources`` so the return shape stays stable.
+    ``cancel_event`` lets an interactive owner cancel and await probe cleanup before returning.
     """
     issues = validate_mcp_server_entry(name, config)
     if issues:
@@ -515,8 +517,28 @@ def _probe_single_server(
         finally:
             await server.shutdown()
 
+    async def _cancellable_probe():
+        if cancel_event.is_set():
+            raise InterruptedError("Connection check cancelled before connecting.")
+        task = asyncio.create_task(_probe())
+        try:
+            while not task.done():
+                if cancel_event.is_set():
+                    raise InterruptedError("Connection check cancelled; its probe has stopped.")
+                await asyncio.wait({task}, timeout=0.1)
+            if cancel_event.is_set():
+                raise InterruptedError("Connection check cancelled; its probe has stopped.")
+            return await task
+        finally:
+            if not task.done():
+                task.cancel()
+            outcome = (await asyncio.gather(task, return_exceptions=True))[0]
+            if cancel_event.is_set() and isinstance(outcome, Exception):
+                raise RuntimeError("Cancellation requested, but MCP probe cleanup could not be verified. "
+                                   "Review the connection/process state before retrying.") from None
+
     try:
-        _run_on_mcp_loop(_probe(), timeout=connect_timeout + 10)
+        _run_on_mcp_loop(_cancellable_probe() if cancel_event is not None else _probe(), timeout=connect_timeout + 10)
     except BaseException as exc:
         raise _redact_probe_exception(exc) from None
     finally:

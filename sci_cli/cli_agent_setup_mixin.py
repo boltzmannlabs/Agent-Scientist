@@ -627,6 +627,12 @@ class CLIAgentSetupMixin:
         Returns True on success."""
         from cli import ChatConsole, _cprint, _prepare_deferred_agent_startup, logger
         from run_agent import AIAgent
+        from sci_cli.science_profile_cli_policy import prepare, install
+        try:
+            legacy_spec = prepare(self)
+        except (ValueError, OSError) as exc:
+            _cprint(f"Profile execution blocked: {exc}")
+            return False
         if self.agent is not None:
             return True
 
@@ -699,6 +705,7 @@ class CLIAgentSetupMixin:
                 tool_gen_callback=self._on_tool_gen_start if self.streaming_enabled else None,
                 notice_callback=self._on_notice, notice_clear_callback=self._on_notice_clear,
                 reaction_callback=self._on_reaction)
+            install(self, legacy_spec)
             # Reference for atexit memory-provider shutdown: ``_run_cleanup`` in cli.py
             # reads ``cli._active_agent_ref``, so this MUST write the ``cli`` module's
             # global — a ``global`` statement here would bind this module's namespace.
@@ -740,6 +747,8 @@ class CLIAgentSetupMixin:
                     # Keep _pending_title so it can be retried after row creation succeeds
             return True
         except Exception as e:
+            if legacy_spec is not None:
+                _retire_agent(self)
             console = ChatConsole()
             from sci_cli.cli_chat_error_copy import agent_init_failure_message
             console.print(f"[bold red]{_escape(agent_init_failure_message(e))}[/]")

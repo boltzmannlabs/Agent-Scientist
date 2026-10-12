@@ -36,6 +36,7 @@ def test_template_policy_and_portable_skill_resources():
 def test_packaged_snapshot_sync_preserves_complete_bundles(tmp_path, monkeypatch):
     from scripts.bundles.payload import INERT_SNAPSHOT_DIRS, snapshot
     from sci_cli.config import seed_config_file
+    from sci_cli.config_skill_defaults import INITIAL_DISABLED_SKILLS
     from tools.skills_sync import _discover_bundled_skills, sync_skills
     from tools.skills_tool import _find_all_skills
 
@@ -68,7 +69,7 @@ def test_packaged_snapshot_sync_preserves_complete_bundles(tmp_path, monkeypatch
                 installed = home / "skills" / source.relative_to(packaged / "skills")
                 assert installed.read_bytes() == source.read_bytes()
     active = {s["name"] for s in _find_all_skills()}
-    assert "paired-antibody-generation" in active
-    assert "api-integration-review" not in active
+    available = {s["name"] for s in _find_all_skills(skip_disabled=True)}
+    assert active == available - set(INITIAL_DISABLED_SKILLS)
     assert not (home / ".env").exists()
     assert not (home / "skills" / ".usage.json").exists()

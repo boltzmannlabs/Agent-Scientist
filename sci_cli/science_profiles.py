@@ -44,6 +44,7 @@ class ProfileSpec:
     setup_pending: bool = False
     pending_tools: dict[str, list[str]] = field(default_factory=dict)
     capability_source_home: str = ""
+    boltzmann_enabled: bool = False
 
 
 def validate(spec: ProfileSpec):
@@ -159,9 +160,14 @@ def available_profiles() -> dict[str, ProfileSpec]:
     from sci_cli.profiles import list_profile_names, get_profile_dir
     result = {}
     for name in list_profile_names():
+        if name == "default":
+            continue
         home = get_profile_dir(name)
         if (home / MANIFEST).is_file():
             result[name] = read_spec(home)
+        else:
+            from sci_cli.native_profile_runtime import routing_spec
+            result[name] = routing_spec(home)
     return result
 
 

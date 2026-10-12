@@ -69,7 +69,7 @@ def validate_runtime(home: Path):
             expected.append(f"{path}:/sources/{index}:ro")
     if terminal.get("docker_volumes") != expected:
         raise ValueError("Project mounts differ from the reviewed sources; execution was blocked.")
-    if config.get("plugins", {}).get("enabled") != []:
+    if config.get("plugins", {}).get("enabled") != (["boltzmann"] if spec.boltzmann_enabled else []):
         raise ValueError("Host-loaded plugins are not isolated; execution was blocked.")
     for name, cfg in config.get("mcp_servers", {}).items():
         if name not in spec.mcp_tools or cfg.get("command") or not cfg.get("url", "").startswith("https://"):
@@ -78,7 +78,7 @@ def validate_runtime(home: Path):
             raise ValueError("MCP permissions differ from the reviewed allowlist.")
     regular_files(home / "skills")
     if spec.setup_pending:
-        if config.get("platform_toolsets", {}).get("cli") != ["skills", *spec.mcp_tools]:
+        if config.get("platform_toolsets", {}).get("cli") != ["skills", *spec.mcp_tools, *(["boltzmann"] if spec.boltzmann_enabled else [])]:
             raise ValueError("Local tools cannot be enabled before isolated setup is approved.")
     else:
         resolve_image(spec.image)

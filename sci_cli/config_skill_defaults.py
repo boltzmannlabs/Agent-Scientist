@@ -18,6 +18,7 @@ INITIAL_DISABLED_SKILLS = (
     "manim-video",
     "obsidian",
     "p5js",
+    "paired-antibody-generation",
     "popular-web-designs",
     "songsee",
     "songwriting-and-ai-music",

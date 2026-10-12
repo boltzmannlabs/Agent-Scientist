@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from sci_cli.config import is_managed, load_config, save_config
+from sci_cli.config import is_managed, load_config
 from .auth import KEY_NAME, authorize_saved_key
 from .nodeapi_helpers import validate_api_key
 
@@ -12,9 +12,9 @@ def register_skills(ctx):
                        description="Run authenticated Boltzmann scientific workflows.")
 
 
-def enable_toolset():
+def enable_toolset(*, expected_config=None, after_save=None):
     from agent.skill_utils import parse_config_string_list
-    from sci_cli.config import _CONFIG_LOCK, get_config_path, read_user_config_raw
+    from sci_cli.config import _CONFIG_LOCK, get_config_path, read_user_config_raw, atomic_config_write
     from sci_cli.plugins_state import _locked_plugin_state
     from sci_cli.tools_config import _get_platform_tools
     # Plugin discovery can use worker threads which read configuration. Never
@@ -22,17 +22,31 @@ def enable_toolset():
     defaults = sorted(_get_platform_tools(load_config(), "cli"))
     with _locked_plugin_state(get_config_path()), _CONFIG_LOCK:
         raw = read_user_config_raw()
+        if expected_config is not None and raw != expected_config:
+            raise ValueError("Profile configuration changed during authorization; retry.")
         configured = raw.get("platform_toolsets", {}).get("cli")
         selected = (parse_config_string_list(configured) if configured is not None
                     else defaults)
         patch = {"platform_toolsets": {"cli": list(dict.fromkeys([*selected, "boltzmann"]))}}
+        plugins = raw.get("plugins", {})
+        enabled = parse_config_string_list(plugins.get("enabled"))
+        patch["plugins"] = {"enabled": list(dict.fromkeys([*enabled, "boltzmann"]))}
+        plugin_disabled = parse_config_string_list(plugins.get("disabled"))
+        if "boltzmann" in plugin_disabled:
+            patch["plugins"]["disabled"] = [name for name in plugin_disabled if name != "boltzmann"]
         disabled = parse_config_string_list(raw.get("agent", {}).get("disabled_toolsets"))
         if "boltzmann" in disabled:
             patch["agent"] = {"disabled_toolsets": [name for name in disabled if name != "boltzmann"]}
-        save_config(patch, merge_existing=True)
+        # Only these settings change. The general setup saver also migrates
+        # unrelated backend values, which would invalidate a reviewed sandbox.
+        for section, values in patch.items():
+            raw.setdefault(section, {}).update(values)
+        atomic_config_write(get_config_path(), raw)
+        if after_save is not None:
+            after_save(read_user_config_raw())
 
 
-def add_boltz(ctx, raw_args):
+def add_boltz(ctx, raw_args, *, complete_setup=None):
     words = raw_args.strip().split()
     if any(word not in {"--now", "--replace"} for word in words):
         return "Usage: /Add_boltz [--now] [--replace]. Never paste a key in the command; use the masked prompt."
@@ -51,12 +65,17 @@ def add_boltz(ctx, raw_args):
     except Exception:
         return "[Add_boltz] FAILED during credential capture/storage. No new authorization granted. Check credential storage permissions."
     try:
-        enable_toolset()
+        if complete_setup is None:
+            enable_toolset()
+        else:
+            complete_setup()
         authorize_saved_key()
     except Exception:
         return ("[Add_boltz] FAILED while enabling. The validated key was saved; settings may be partially updated. "
                 "Activation was not confirmed. Check profile write permissions and run /Add_boltz again.")
     if "--now" in words:
+        from sci_cli.plugins import discover_plugins
+        discover_plugins(force=True)
         register_skills(ctx)
         if ctx.refresh_tools(now=True):
             return "[Add_boltz] SAVED. Boltzmann enabled now by explicit request; the prompt cache may be rebuilt."

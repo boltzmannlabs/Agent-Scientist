@@ -44,12 +44,17 @@ class WizardUI:
         return value.strip()
 
     def choose(self, question, choices):
+        # The modal trims answers. Preserve each original choice as its identity
+        # even when a shortened description leaves whitespace at the boundary.
+        normalized = {choice.strip(): choice for choice in choices}
+        if len(normalized) != len(choices):
+            raise ValueError("Menu choices must be distinct after trimming whitespace.")
         while True:
             answer = self.ask(question, choices, allow_other=False)
-            if answer in choices:
+            if answer in normalized:
                 if answer == "Cancel":
                     raise Cancelled()
-                return answer
+                return normalized[answer]
             self.show("Select one of the listed choices, or cancel.")
 
 

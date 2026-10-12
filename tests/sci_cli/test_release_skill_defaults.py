@@ -40,7 +40,8 @@ def test_first_creation_and_real_discovery_are_profile_local(tmp_path, monkeypat
             active_a = {s["name"] for s in _find_all_skills()}
             assert active_a == all_a - set(INITIAL_DISABLED_SKILLS)
             assert "sci-agent" in active_a
-            assert "paired-antibody-generation" in active_a
+            assert "paired-antibody-generation" in all_a
+            assert "paired-antibody-generation" not in active_a
         with _profile_runtime_scope(home_b, prepared_secret_scope={}):
             sync_skills(quiet=True)
             assert not get_disabled_skill_names()

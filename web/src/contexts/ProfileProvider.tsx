@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -72,7 +73,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   // Re-assert ?profile= after navigations that dropped it (bare nav links)
   // and after state-only changes. No-ops when already in sync.
-  useEffect(() => {
+  // Commit before child redirect effects: otherwise this render's stale path
+  // can overwrite their destination and leave the dashboard on an empty route.
+  useLayoutEffect(() => {
     if ((profile || "") === (urlProfile ?? "")) return;
     setSearchParams(
       (prev) => {

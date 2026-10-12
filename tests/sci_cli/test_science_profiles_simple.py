@@ -87,8 +87,11 @@ def test_simple_creation_saves_tools_and_sources_without_preparation_and_activat
     assert "do-not-copy" not in (target / "config.yaml").read_text()
     assert (home / "config.yaml").read_bytes() == before
     validate_runtime(target)  # No Docker check, even when all runtime services are absent.
+    ui.choose = Mock(side_effect=AssertionError("No setup on activation"))
+    cli._app = SimpleNamespace(is_running=True, loop=Mock(), exit=Mock())
     activate(cli, '/activate "antibody-study" profile', ui)
-    assert cli._science_active[1] == "antibody-study" and cli.agent is parent_agent
+    assert cli._pending_profile_home == str(target) and cli.agent is parent_agent
+    ui.choose.assert_not_called()
     assert cli.conversation_history == [{"role": "user", "content": "main history"}]
 
 

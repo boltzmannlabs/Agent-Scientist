@@ -154,7 +154,7 @@ those measurements unless a future output schema actually includes them.
 | Parameter | Type | Required | Notes |
 |-----------|------|----------|-------|
 | `input_path` | string | yes | S3 path to CSV or FASTA (upload first) |
-| `prediction_type` | string | no | `"S"` (solubility), `"U"` (usability), `"US"` (both). Default: `"S"` |
+| `prediction_type` | string | no | `"S"` (solubility), `"U"` (usability), `"SU"` (both). Default: `"S"` |
 
 **Input CSV columns:** `Sequence_ID, Sequences`
 

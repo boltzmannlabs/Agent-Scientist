@@ -18,10 +18,10 @@ def _call(handler, args, **kwargs):
 
 
 def register(ctx):
-    from .onboarding import add_boltz, register_skills
-    ctx.register_command("add_boltz", lambda raw_args: add_boltz(ctx, raw_args),
-                         description="Securely authorize Boltzmann with /Add_boltz",
-                         args_hint="[--now] [--replace]", argument_mode="options", cli_only=True)
+    from .execution_policy import render_execution_policy
+    from .onboarding import register_skills
+    ctx.register_system_prompt_section("boltzmann.execution", render_execution_policy,
+                                       max_chars=3500)
     if available():
         register_skills(ctx)
     for schema in SCHEMAS:

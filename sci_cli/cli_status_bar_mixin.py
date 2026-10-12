@@ -1029,6 +1029,9 @@ class CLIStatusBarMixin:
             return name not in hidden_fields and (field_set is None or name in field_set)
 
         segs: list = []
+        from sci_cli.native_profile_session import profile_label
+        label = self._trim_status_bar_text(profile_label(), max(4, min(20, width // 5)))
+        segs.append([(_STRONG if styled else "", f"[{label}]")])
 
         def add(name, style, text):
             if _ok(name):
@@ -1114,6 +1117,8 @@ class CLIStatusBarMixin:
             total_tokens = snapshot.get("session_total_tokens", 0)
             if total_tokens and field_set is not None and "total_tokens" in field_set:
                 segs.append([(_DIM, f"Σ{format_token_count_compact(total_tokens)}")])
+        if len(segs) == 1:
+            segs.append([(_STRONG if styled else "", f"☤ {model_short}")])
         return segs
 
     def _build_status_bar_text(self, width: Optional[int] = None) -> str:

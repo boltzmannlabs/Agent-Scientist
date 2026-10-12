@@ -3,11 +3,12 @@
 import json
 
 
-def install_gate(agent, ask, *, allow_local=True):
+def install_gate(agent, ask, *, allow_local=True, external_tools=()):
     from sci_cli.plugins import PluginContext, PluginManifest, get_plugin_manager
     base = {"terminal", "read_file", "write_file", "patch", "search_files", "skill_view", "skills_list"}
     if not allow_local:
         base = {"skill_view", "skills_list"}
+    base.update(external_tools)
     permitted = frozenset(t["function"]["name"] for t in agent.tools
                           if t["function"]["name"] in base or t["function"]["name"].startswith("mcp_"))
     # Freeze schemas once, before this conversation's first provider request.
@@ -18,7 +19,7 @@ def install_gate(agent, ask, *, allow_local=True):
         try:
             if tool_name not in permitted:
                 return json.dumps({"error": "Tool is outside this profile's reviewed permissions."})
-            if tool_name.startswith("mcp_"):
+            if tool_name.startswith("mcp_") or tool_name in external_tools:
                 if ask("external", tool=tool_name, arguments=args) is not True:
                     return json.dumps({"error": "External transfer/tool execution was not approved."})
             if tool_name == "terminal" and args.get("background"):

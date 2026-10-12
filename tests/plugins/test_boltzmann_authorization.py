@@ -1,6 +1,7 @@
 """Bundled connector authorization must precede discovery and every operation."""
 
 import json
+import shutil
 import sys
 import threading
 from contextlib import contextmanager
@@ -91,7 +92,10 @@ def capture(manager, monkeypatch, value):
     cli._secret_capture_callback = lambda key, prompt, **kw: prompt_for_secret(cli, key, prompt, **kw)
     manager._cli_ref = cli
     monkeypatch.setattr("sci_cli.callbacks.masked_secret_prompt", lambda _: value)
-    return manager._plugin_commands["add_boltz"]["handler"](""), cli
+    from sci_cli.plugins import PluginContext
+    loaded = manager._plugins["boltzmann"]
+    onboarding = loaded.module.onboarding
+    return onboarding.add_boltz(PluginContext(loaded.manifest, manager), ""), cli
 
 
 def test_command_is_required_and_activation_is_deferred_and_profile_local(tmp_path, monkeypatch, auth_server, capsys):
@@ -112,7 +116,8 @@ def test_command_is_required_and_activation_is_deferred_and_profile_local(tmp_pa
             from sci_cli.commands_platforms import telegram_bot_commands
             assert not is_gateway_known_command("add_boltz")
             assert "add_boltz" not in dict(telegram_bot_commands())
-            assert "add_boltz" in manager._plugin_commands
+            from sci_cli.commands import resolve_command
+            assert resolve_command("/Add_boltz").cli_only
             assert not module.available()  # a preexisting key is not command approval
             assert not state["calls"]  # discovery never contacts the service
             assert not manager._plugin_skills
@@ -210,6 +215,8 @@ def test_fresh_authorized_connector_executes_fixture_job_without_local_plugin(tm
             assert "SAVED" in message
         finally:
             manager.unload()
+
+
         manager, module = discover(monkeypatch, endpoint)
         try:
             helpers = sys.modules[module.__name__ + ".nodeapi_helpers"]
@@ -234,3 +241,85 @@ def test_fresh_authorized_connector_executes_fixture_job_without_local_plugin(tm
             assert set(state["calls"]) <= {"/api/get-projects", "/submit", "/result", "/artifact.csv"}
         finally:
             manager.unload()
+
+
+@pytest.mark.parametrize("user_override", [False, True], ids=["bundled", "user-plugin"])
+def test_execution_policy_is_authorized_profile_local_and_frozen(tmp_path, monkeypatch, auth_server, user_override):
+    from agent.conversation_loop import _restore_or_build_system_prompt
+    from agent.system_prompt import _frozen_plugin_prompt_sections
+    from run_agent import AIAgent
+    from sci_cli import plugins
+
+    state, endpoint = auth_server
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("SCI_HOME", str(tmp_path / "a"))
+    monkeypatch.delenv("SCI_BUNDLED_PLUGINS", raising=False)
+    monkeypatch.chdir(tmp_path)
+    a, b = tmp_path / "a", tmp_path / "b"
+    if user_override:
+        shutil.copytree(Path(__file__).resolve().parents[2] / "plugins/boltzmann", a / "plugins/boltzmann",
+                        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+
+    def agent(session):
+        return AIAgent(api_key="test-key", base_url="https://openrouter.ai/api/v1",
+                       model="test/model", provider="openrouter", platform="cli",
+                       enabled_toolsets=["skills", "boltzmann"], quiet_mode=True,
+                       skip_context_files=True, skip_memory=True, session_id=session)
+
+    with profile(a):
+        save_config({"plugins": {"enabled": ["boltzmann"]}})
+        manager, module = discover(monkeypatch, endpoint)
+        monkeypatch.setattr(plugins, "_plugin_manager", manager)
+        try:
+            old = agent("before-boltzmann-authorization")
+            _restore_or_build_system_prompt(old, None, [])
+            old_prompt = old._cached_system_prompt.encode()
+            old_tools = json.dumps(old.tools, sort_keys=True)
+            assert not _frozen_plugin_prompt_sections(old)
+            message, _ = capture(manager, monkeypatch, "fixture-valid")
+            assert "SAVED" in message
+            _restore_or_build_system_prompt(old, None, [{"role": "user", "content": "existing turn"}])
+            assert old._cached_system_prompt.encode() == old_prompt
+            assert json.dumps(old.tools, sort_keys=True) == old_tools
+            assert not _frozen_plugin_prompt_sections(old)
+        finally:
+            manager.unload()
+
+        manager, module = discover(monkeypatch, endpoint)
+        monkeypatch.setattr(plugins, "_plugin_manager", manager)
+        try:
+            if user_override:
+                assert Path(manager._plugins["boltzmann"].manifest.path).is_relative_to(a / "plugins")
+            fresh = agent("after-boltzmann-authorization")
+            _restore_or_build_system_prompt(fresh, None, [])
+            snapshot = _frozen_plugin_prompt_sections(fresh)
+            policy = next(section.content for section in snapshot if section.id == "boltzmann.execution")
+            assert "boltzmann:tools" in policy
+            assert "protein-antibody-generation.md" in policy
+            assert "explicit" in policy and "restart" in policy.lower()
+            assert "fixture-valid" not in policy
+            from model_tools import get_tool_definitions
+            definitions = get_tool_definitions(enabled_toolsets=["skills", "boltzmann"], quiet_mode=True,
+                                               skip_tool_search_assembly=True)
+            names = {schema["function"]["name"] for schema in definitions}
+            assert {schema["name"] for schema in module.SCHEMAS} <= names
+            skill = manager._plugin_skills["boltzmann:tools"]["path"]
+            registry = json.loads((skill.parent / "references/module-registry.v1.json").read_text())
+            antibody = next(entry for entry in registry["modules"]
+                            if entry["path"] == "modules/protein-antibody-generation.md")
+            assert (skill.parent / "references" / antibody["path"]).is_file()
+            assert "Random_Antibody_Generation" in (skill.parent / "references" / antibody["path"]).read_text()
+            fresh_prompt = fresh._cached_system_prompt.encode()
+            with profile(b):
+                save_env_value("BOLTZMANN_API_KEY", "fixture-valid")
+                assert not manager.render_system_prompt_sections({})  # same key, no approval in B
+            assert manager.render_system_prompt_sections({}) == list(snapshot)  # A → B → A
+            save_env_value("BOLTZMANN_API_KEY", "")
+            assert not manager.render_system_prompt_sections({})
+            assert not module.available()
+            _restore_or_build_system_prompt(fresh, None, [{"role": "user", "content": "existing turn"}])
+            assert fresh._cached_system_prompt.encode() == fresh_prompt
+            assert _frozen_plugin_prompt_sections(fresh) == snapshot
+        finally:
+            manager.unload()
+    assert set(state["calls"]) == {"/api/get-projects"}  # no scientific jobs or remote services

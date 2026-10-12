@@ -43,35 +43,26 @@ def main():
             import sci_bootstrap  # noqa: F401
 
         from sci_constants import get_sci_home
-        from sci_cli.science_profiles_sandbox import validate_runtime
+        from sci_cli.native_profile_runtime import routing_spec, build_native_cli
+        from sci_cli.science_profiles import MANIFEST
         home = get_sci_home()
-        spec = validate_runtime(home)
+        legacy = (home / MANIFEST).is_file()
+        spec = routing_spec(home)
         # Setup chatter goes to stderr, never into the framed control channel.
         with contextlib.redirect_stdout(sys.stderr):
             from cli import SciCLI
             toolsets = (["skills"] if spec.setup_pending else ["terminal", "file", "skills"]) + list(spec.mcp_tools)
-            instance = SciCLI(toolsets=toolsets,
-                                 max_turns=30, run_budget=spec.max_seconds, ignore_rules=True)
-            instance.system_prompt = (home / "SOUL.md").read_text()
-            if spec.setup_pending:
-                instance.system_prompt += (f'\nLocal execution is NOT ready. Do not claim to run programs or read project files. '
-                                           f'If needed, tell the user to use /activate "{spec.name}" --prepare. '
-                                           'Skill instructions are available without running their scripts.\n')
-            instance.system_prompt += "\nServices still requiring setup (NOT callable): " + json.dumps(spec.pending_tools)
-            if spec.allow_llm_sources:
-                instance.system_prompt += "\nApproved references: " + json.dumps([
-                    source.location if source.location.startswith("https://") else f"/sources/{i}"
-                    for i, source in enumerate(spec.sources)])
+            instance = (SciCLI(toolsets=toolsets, max_turns=30, run_budget=spec.max_seconds, ignore_rules=True)
+                        if legacy else build_native_cli(home, spec))
             instance._clarify_callback = lambda questions: ask("clarify", questions=questions)
             instance._approval_callback = lambda command, description, *a, **kw: (
                 "once" if ask("approval", command=command, description=description) is True else "deny")
             instance._secret_capture_callback = lambda *a, **kw: None
             instance._sudo_password_callback = lambda *a, **kw: None
+            instance._science_permission_ask = ask
             if not instance._init_agent():
                 raise RuntimeError("Profile model initialization failed. Check the shared provider login.")
             agent = instance.agent
-            from sci_cli.science_profile_permissions import install_gate
-            install_gate(agent, ask, allow_local=not spec.setup_pending)
             def interrupt(signum, frame):
                 from agent.interrupt_compat import request_hard_interrupt
                 request_hard_interrupt(agent, "Profile controller interrupted execution")
@@ -86,7 +77,7 @@ def main():
             if request.get("kind") != "turn" or not isinstance(request.get("text"), str):
                 raise ValueError("Malformed profile request.")
             with contextlib.redirect_stdout(sys.stderr):
-                validate_runtime(home)
+                routing_spec(home)
                 try:
                     result = agent.run_conversation(request["text"], conversation_history=instance.conversation_history,
                                                     task_id=instance.session_id)
