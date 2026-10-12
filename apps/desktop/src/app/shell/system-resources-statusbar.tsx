@@ -2,9 +2,9 @@ import { useStore } from '@nanostores/react'
 import { useEffect, useState } from 'react'
 
 import type { StatusbarItem } from '@/app/shell/statusbar-controls'
-import { getLocalHardware } from '@/sci'
 import { useI18n } from '@/i18n'
 import { Activity } from '@/lib/icons'
+import { getLocalHardware } from '@/sci'
 import { $localModelsEnabled } from '@/store/local-models-flag'
 import { $statusbarHiddenIds } from '@/store/statusbar-prefs'
 import type { LocalHardware } from '@/types/sci'
@@ -96,6 +96,7 @@ export function useSystemResourcesStatusbarItem(): StatusbarItem {
           window.clearTimeout(timer)
           timer = null
         }
+
         void poll()
       }
     }

@@ -335,9 +335,7 @@ test('environment remote wins over a registry-backed global SSH route', () => {
 test('local route does not inherit an unrelated registry SSH connection', () => {
   const route = resolveDesktopRemoteRoute({
     config: { mode: 'local' },
-    registry: registry('local', [
-      { id: 'unused-ssh', kind: 'ssh', label: 'Unused SSH', host: 'box.test', user: 'sci' }
-    ])
+    registry: registry('local', [{ id: 'unused-ssh', kind: 'ssh', label: 'Unused SSH', host: 'box.test', user: 'sci' }])
   })
 
   assert.equal(route, null)

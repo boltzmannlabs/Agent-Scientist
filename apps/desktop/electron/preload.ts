@@ -454,8 +454,7 @@ contextBridge.exposeInMainWorld('sciDesktop', {
       commitContext: repoPath => ipcRenderer.invoke('sci:git:review:commitContext', repoPath),
       push: repoPath => ipcRenderer.invoke('sci:git:review:push', repoPath),
       shipInfo: repoPath => ipcRenderer.invoke('sci:git:review:shipInfo', repoPath),
-      prList: (repoPath, branches, numbers) =>
-        ipcRenderer.invoke('sci:git:review:prList', repoPath, branches, numbers),
+      prList: (repoPath, branches, numbers) => ipcRenderer.invoke('sci:git:review:prList', repoPath, branches, numbers),
       createPr: repoPath => ipcRenderer.invoke('sci:git:review:createPr', repoPath)
     }
   },

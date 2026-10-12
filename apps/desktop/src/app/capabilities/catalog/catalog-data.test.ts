@@ -120,10 +120,12 @@ describe('public catalog data', () => {
     vi.stubGlobal('window', { sciDesktop: { api } })
 
     expect(await fetchCatalog(kind)).toEqual(parseCatalog(kind, rows))
-    expect(api).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
-      path: kind === 'skills' ? '/api/skills/hub/official' : '/api/dashboard/plugins/catalog',
-      timeoutMs: 60_000
-    }))
+    expect(api).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        path: kind === 'skills' ? '/api/skills/hub/official' : '/api/dashboard/plugins/catalog',
+        timeoutMs: 60_000
+      })
+    )
     expect(fetch).not.toHaveBeenCalled()
   })
 

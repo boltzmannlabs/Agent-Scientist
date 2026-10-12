@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { getActionStatus, getComputerUseStatus, grantComputerUsePermissions } from '@/sci'
 import { useI18n } from '@/i18n'
 import { AlertTriangle, Check, ExternalLink, Loader2, RefreshCw, X } from '@/lib/icons'
+import { getActionStatus, getComputerUseStatus, grantComputerUsePermissions } from '@/sci'
 import { upsertDesktopActionTask } from '@/store/activity'
 import { notify, notifyError } from '@/store/notifications'
 import type { ComputerUseStatus } from '@/types/sci'
@@ -173,8 +173,8 @@ export function ComputerUsePanel({ onConfiguredChange }: ComputerUsePanelProps) 
         <div className="min-w-0">
           {status.can_grant ? (
             <p className="text-[0.72rem] text-muted-foreground">
-              Grants attach to CuaDriver&apos;s own identity (com.trycua.driver), not Sci — so the dialog is
-              attributed to the process that drives your Mac.
+              Grants attach to CuaDriver&apos;s own identity (com.trycua.driver), not Sci — so the dialog is attributed
+              to the process that drives your Mac.
             </p>
           ) : (
             <p className="text-[0.72rem] text-muted-foreground">{PLATFORM_NOTE[status.platform] ?? ''}</p>

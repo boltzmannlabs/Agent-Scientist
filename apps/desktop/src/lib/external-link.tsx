@@ -220,8 +220,10 @@ export function useLinkTitle(url?: null | string): string {
 export function openExternalLink(href: string): void {
   if (href === DESKTOP_DOCS_URL) {
     openLocalManual()
+
     return
   }
+
   if (href) {
     void window.sciDesktop?.openExternal?.(href)
   }

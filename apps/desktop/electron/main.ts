@@ -207,7 +207,11 @@ import type { RegistryConnection } from './connection-registry'
 import type { RosterProfileMetadata } from './connection-registry'
 import { liveWindowState, overlayWindowState } from './connection-window-state'
 import { describeCrashReason, installCrashForensics } from './crash-forensics'
-import { adoptServedDashboardToken, isAttachedBackendTokenDrifted, resolveServedDashboardToken } from './dashboard-token'
+import {
+  adoptServedDashboardToken,
+  isAttachedBackendTokenDrifted,
+  resolveServedDashboardToken
+} from './dashboard-token'
 import { resolveDesktopSciHome, resolveDesktopUserData } from './data-paths'
 import { loadOrCreateInstallationId, sshOwnershipId } from './desktop-installation'
 import { formatDesktopLogLine, formatLogStamp } from './desktop-log-line'
@@ -626,7 +630,6 @@ import {
   MIN_WIDTH as WINDOW_MIN_WIDTH
 } from './window-state'
 import { hiddenWindowsChildOptions, windowsShellCommand } from './windows-child-options'
-import { buildPathExtCandidates, chooseUpdaterArgs, resolveVenvSciCommand } from './windows-sci-path'
 import {
   connectWindowsRemote,
   detectRemotePlatform,
@@ -648,6 +651,7 @@ import {
   shouldRelaunchForRendererSandboxCrashLoop,
   writeSandboxMarker
 } from './windows-sandbox-fallback'
+import { buildPathExtCandidates, chooseUpdaterArgs, resolveVenvSciCommand } from './windows-sci-path'
 import {
   alreadyHasDisableGpu,
   buildDisableGpuRelaunchArgs,
@@ -1757,14 +1761,13 @@ function spawnOwnedBackend(...args: Parameters<typeof spawn>): ChildProcess {
 }
 
 const remoteLiveness = new RemoteLivenessTracker()
+
 // Pooled remotes are probed on the renderer reconnect cadence (minutes apart),
 // not the primary's sub-minute retry loop, so they need a failure window wider
 // than that cadence or a dead pooled descriptor's streak resets on every tick
 // and it is never dropped (#94381).
-const pooledRemoteLiveness = new RemoteLivenessTracker(
-  undefined,
-  REMOTE_POOLED_LIVENESS_FAILURE_WINDOW_MS
-)
+const pooledRemoteLiveness = new RemoteLivenessTracker(undefined, REMOTE_POOLED_LIVENESS_FAILURE_WINDOW_MS)
+
 const remoteRevalidation = new RemoteRevalidationCoordinator()
 const registryDispatchRevalidation = new RemoteRevalidationCoordinator()
 // Single-owner reconnect/dial claim (#90812): reconnectGateway()'s in-flight
@@ -1983,10 +1986,7 @@ function setPoolLimits(raw) {
 //     pool idle window above (default 10 min) — this constant only governs the
 //     "is this backend plausibly still alive" question for LRU eviction,
 //     not when the idle reaper definitively tears a backend down.
-const POOL_KEEPALIVE_FRESH_MS = Math.max(
-  120_000,
-  Number(process.env.SCI_DESKTOP_POOL_KEEPALIVE_FRESH_MS) || 4 * 60_000
-)
+const POOL_KEEPALIVE_FRESH_MS = Math.max(120_000, Number(process.env.SCI_DESKTOP_POOL_KEEPALIVE_FRESH_MS) || 4 * 60_000)
 
 // Pinned-tier TTL (#105239): the renderer's 60s keepalive (touchPoolBackend)
 // refreshes lastActiveAt for every OPEN chat, so the idle reaper's only clock
@@ -2388,12 +2388,16 @@ async function openLocalFilesystemPath(rawPath: string): Promise<boolean> {
     try {
       shell.showItemInFolder(localPath)
     } catch (revealError) {
-      rememberLog(`[file] showItemInFolder failed: ${revealError instanceof Error ? revealError.message : String(revealError)}; path=${localPath}`)
+      rememberLog(
+        `[file] showItemInFolder failed: ${revealError instanceof Error ? revealError.message : String(revealError)}; path=${localPath}`
+      )
     }
 
     return true
   } catch (error) {
-    rememberLog(`[file] openPath rejected: ${error instanceof Error ? error.message : String(error)}; path=${localPath}`)
+    rememberLog(
+      `[file] openPath rejected: ${error instanceof Error ? error.message : String(error)}; path=${localPath}`
+    )
 
     return true
   }
@@ -4468,9 +4472,7 @@ async function claimBackendChild(
     return identity
   } catch (error) {
     await localBackendLifecycle.stop(child)
-    throw new Error(
-      `Could not persist ownership for the Sci backend: ${error.message}${outputTail?.describe() ?? ''}`
-    )
+    throw new Error(`Could not persist ownership for the Sci backend: ${error.message}${outputTail?.describe() ?? ''}`)
   }
 }
 
@@ -5196,8 +5198,10 @@ async function resolveSciBackend(backendArgs: string[]): Promise<ResolvedSciBack
         rememberLog(`Ignoring desktop app executable on PATH while resolving Sci CLI: ${sciCommand}`)
         sciCommand = null
       } else {
-        const unwrapped: Awaited<ReturnType<typeof unwrapWindowsVenvSciCommand>> =
-          await unwrapWindowsVenvSciCommand(sciCommand, backendArgs)
+        const unwrapped: Awaited<ReturnType<typeof unwrapWindowsVenvSciCommand>> = await unwrapWindowsVenvSciCommand(
+          sciCommand,
+          backendArgs
+        )
 
         if (unwrapped) {
           return unwrapped
@@ -5205,10 +5209,7 @@ async function resolveSciBackend(backendArgs: string[]): Promise<ResolvedSciBack
 
         const shellForProbe: boolean = isCommandScript(sciCommand)
 
-        if (
-          shouldTrustSciOverride(sciOverride) ||
-          (await verifySciCli(sciCommand, { shell: shellForProbe }))
-        ) {
+        if (shouldTrustSciOverride(sciOverride) || (await verifySciCli(sciCommand, { shell: shellForProbe }))) {
           return {
             label: `existing Sci CLI at ${sciCommand}`,
             command: sciCommand,
@@ -5221,9 +5222,7 @@ async function resolveSciBackend(backendArgs: string[]): Promise<ResolvedSciBack
           }
         }
 
-        rememberLog(
-          `Ignoring existing Sci CLI at ${sciCommand}: --version probe failed; falling through to bootstrap.`
-        )
+        rememberLog(`Ignoring existing Sci CLI at ${sciCommand}: --version probe failed; falling through to bootstrap.`)
       }
     }
   }
@@ -5324,10 +5323,7 @@ interface ResolvedSciBackend {
   readyFile?: boolean
 }
 
-async function ensureRuntime(
-  backend: ResolvedSciBackend,
-  assertStillOwned: () => void
-): Promise<ResolvedSciBackend> {
+async function ensureRuntime(backend: ResolvedSciBackend, assertStillOwned: () => void): Promise<ResolvedSciBackend> {
   localBackendLifecycle.assertCanStart()
   assertStillOwned()
 
@@ -8466,9 +8462,7 @@ async function discoverCloudAgents(org?: string) {
       // A 401 means the portal session lapsed (and silent renewal could not
       // recover it) — surface it as a re-login, not a generic failure.
       if (error && error.statusCode === 401) {
-        const err = new Error(
-          'Your Sci Cloud session has expired. Open Settings → Gateway and sign in again.'
-        ) as any
+        const err = new Error('Your Sci Cloud session has expired. Open Settings → Gateway and sign in again.') as any
 
         err.needsCloudLogin = true
         err.cause = error
@@ -12267,7 +12261,7 @@ function startPoolIdleReaper() {
           ? poolRetirer.retireIdle(profile, poolIdleMs(), candidate =>
               Boolean(
                 Date.now() - (candidate.lastActiveAt || 0) > poolIdleMs() ||
-                  (candidate.lastStreamedAt ? Date.now() - candidate.lastStreamedAt > POOL_PINNED_IDLE_MS : false)
+                (candidate.lastStreamedAt ? Date.now() - candidate.lastStreamedAt > POOL_PINNED_IDLE_MS : false)
               )
             )
           : stopPoolBackend(profile)
@@ -12499,9 +12493,7 @@ async function runPoolBackendStart(
   // here, and logging "Starting" first left an orphaned line with no READY
   // and no exit — the exact undiagnosable burst signature in remote-gateway
   // user bundles (Aug 2026, Dash's report).
-  assertLocalProfileCanStart(profile, profileDeletionGate, key =>
-    directoryExists(path.join(SCI_HOME, 'profiles', key))
-  )
+  assertLocalProfileCanStart(profile, profileDeletionGate, key => directoryExists(path.join(SCI_HOME, 'profiles', key)))
   rememberLog(`Starting Sci backend for profile "${profile}" via ${backend.label}`)
 
   const parentStartMarker = await desktopParentStartMarker()
@@ -13090,8 +13082,7 @@ function reportPrimaryRecoveryCrashLoop(code: number | null, signal: string | nu
     return false
   }
 
-  const message =
-    'Sci backend keeps crashing right after it restarts; not restarting it again. Relaunch Sci Desktop.'
+  const message = 'Sci backend keeps crashing right after it restarts; not restarting it again. Relaunch Sci Desktop.'
 
   rememberLog(`[supervisor] ${message}`)
   sendBackendExit({ code, signal, error: message })
@@ -13845,12 +13836,14 @@ function installPreviewGuestEscapeHatch() {
 
           break
         }
+
         case 'close-preview': {
           event.preventDefault()
           sendClosePreviewRequested()
 
           break
         }
+
         default:
           break
       }
@@ -15890,10 +15883,7 @@ ipcMain.handle('sci:window:openInTerminal', async (_event, sessionId, opts) => {
     const scriptDir = path.join(app.getPath('userData'), 'open-in-terminal')
     fs.mkdirSync(scriptDir, { recursive: true })
 
-    const scriptPath = path.join(
-      scriptDir,
-      `sci-${crypto.randomBytes(6).toString('hex')}${terminalScriptExtension()}`
-    )
+    const scriptPath = path.join(scriptDir, `sci-${crypto.randomBytes(6).toString('hex')}${terminalScriptExtension()}`)
 
     fs.writeFileSync(
       scriptPath,
@@ -16764,43 +16754,43 @@ ipcMain.handle('sci:connections:update-all', async (_event, payload) => {
       const eligibility = updateEligibility(connection)
 
       if (!eligibility.eligible) {
-          return { ...base, ok: false, skipped: true, reason: eligibility.reason }
+        return { ...base, ok: false, skipped: true, reason: eligibility.reason }
       }
 
       try {
-          if (connection.kind === 'local') {
-            // The app-managed runtime updates through the same pipeline as the
-            // Settings → Updates button (marker + venv gate + relaunch flow).
-            const result: any = await applyUpdates()
+        if (connection.kind === 'local') {
+          // The app-managed runtime updates through the same pipeline as the
+          // Settings → Updates button (marker + venv gate + relaunch flow).
+          const result: any = await applyUpdates()
 
-            return { ...base, ok: result?.ok !== false, detail: result?.message || 'update started' }
+          return { ...base, ok: result?.ok !== false, detail: result?.message || 'update started' }
+        }
+
+        if (connection.kind === 'ssh') {
+          return managedSshUpdateAllRow(base, await requestManagedSshUpdate(connection.id))
+        }
+
+        // Claim-guarded (#90812): coalesce with a concurrent renderer dial
+        // for the same connection instead of bootstrapping a second backend.
+        const descriptor: any = await backendDialClaims.run(backendScopeKey(connection.id, null), () =>
+          ensureRegistryBackend(connection.id, null)
+        )
+
+        const body: any = await postJsonForBackend(descriptor, '/api/sci/update', {}, { timeoutMs: 15_000 })
+
+        if (body?.ok === false) {
+          // The backend refused (docker/nix/externally-managed installs) —
+          // surface ITS message, per-row, instead of failing the batch.
+          return {
+            ...base,
+            ok: false,
+            skipped: true,
+            reason: body?.error || 'backend-refused',
+            detail: body?.message
           }
+        }
 
-          if (connection.kind === 'ssh') {
-            return managedSshUpdateAllRow(base, await requestManagedSshUpdate(connection.id))
-          }
-
-          // Claim-guarded (#90812): coalesce with a concurrent renderer dial
-          // for the same connection instead of bootstrapping a second backend.
-          const descriptor: any = await backendDialClaims.run(backendScopeKey(connection.id, null), () =>
-            ensureRegistryBackend(connection.id, null)
-          )
-
-          const body: any = await postJsonForBackend(descriptor, '/api/sci/update', {}, { timeoutMs: 15_000 })
-
-          if (body?.ok === false) {
-            // The backend refused (docker/nix/externally-managed installs) —
-            // surface ITS message, per-row, instead of failing the batch.
-            return {
-              ...base,
-              ok: false,
-              skipped: true,
-              reason: body?.error || 'backend-refused',
-              detail: body?.message
-            }
-          }
-
-          return { ...base, ok: true, detail: body?.message || 'update started' }
+        return { ...base, ok: true, detail: body?.message || 'update started' }
       } catch (error: any) {
         return { ...base, ok: false, error: String(error?.message || error) }
       }
@@ -18098,8 +18088,7 @@ const streamThrottle = createStreamThrottle(undefined, undefined, {
   // #94865 is specific to native Wayland fullscreen surfaces. Reuse the same
   // Ozone resolver as the rest of Desktop so XWayland/macOS/Windows retain the
   // normal idle throttling contract.
-  keepFullscreenPainting:
-    process.platform === 'linux' && linuxOzoneBackend(process.env, process.argv) === 'wayland'
+  keepFullscreenPainting: process.platform === 'linux' && linuxOzoneBackend(process.env, process.argv) === 'wayland'
 })
 
 function updateStreamThrottleFromActiveWork() {

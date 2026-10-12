@@ -9,15 +9,7 @@
  */
 
 import * as sdk from '@sci/plugin-sdk'
-import {
-  Checkbox,
-  GlyphSpinner,
-  host,
-  Input,
-  queryClient,
-  surfaceModelSwitchConfirm,
-  Textarea
-} from '@sci/plugin-sdk'
+import { Checkbox, GlyphSpinner, host, Input, queryClient, surfaceModelSwitchConfirm, Textarea } from '@sci/plugin-sdk'
 import { useState } from 'react'
 
 import { $lastRoster, ROSTER_KEY } from './data'

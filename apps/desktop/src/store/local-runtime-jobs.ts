@@ -16,16 +16,10 @@ import { useEffect, useMemo } from 'react'
 
 import { $apiRequestScope, getApiRequestConnection, getApiRequestProfile } from '@/api/client'
 import type { LocalModelsScope } from '@/api/local-models'
-import {
-  getLocalCatalog,
-  getLocalHardware,
-  getLocalModelsJobs,
-  getLocalModelsStatus,
-  installLocalRuntime
-} from '@/sci'
 import { translateNow } from '@/i18n'
 import { queryClient } from '@/lib/query-client'
 import { useStoresSelector } from '@/lib/use-session-slice'
+import { getLocalCatalog, getLocalHardware, getLocalModelsJobs, getLocalModelsStatus, installLocalRuntime } from '@/sci'
 import { notify, notifyError } from '@/store/notifications'
 import { $connection } from '@/store/session'
 import type { LocalCatalogModel, LocalHardware, LocalModelsStatus, LocalRuntimeJob } from '@/types/sci'

@@ -1,6 +1,6 @@
 import type { McpCatalogResponse, McpServerSummary } from '@/types/sci'
 
-import { capabilityScoped, sciApi, type ProfileScope, profileScoped } from './client'
+import { capabilityScoped, type ProfileScope, profileScoped, sciApi } from './client'
 
 export interface McpTestResult {
   ok: boolean

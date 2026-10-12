@@ -3,8 +3,8 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 
 import { capabilityScoped } from '@/api/client'
 import { Loader } from '@/components/ui/loader'
-import { getOfficialSkills, type ProfileScope, profileScopeKey } from '@/sci'
 import { useI18n } from '@/i18n'
+import { getOfficialSkills, type ProfileScope, profileScopeKey } from '@/sci'
 import { HUB_SOURCES_KEY, installHubSkill, notifyHubActionFailed, OFFICIAL_SKILLS_KEY } from '@/store/hub-actions'
 import { notify } from '@/store/notifications'
 import type { SkillHubSourcesResponse, SkillInfo } from '@/types/sci'
@@ -264,7 +264,6 @@ function ScopedSkillCatalog({
 
   return (
     <CatalogBrowser
-      profile={profile}
       actions={actions}
       installedEntries={catalog.entries}
       installedPending={installedPending || identityPending}
@@ -304,6 +303,7 @@ function ScopedSkillCatalog({
       }
       onInstall={install}
       onQueryChange={onQueryChange}
+      profile={profile}
       query={query}
       renderInstalledAction={entry => {
         const skill = catalog.skillsById.get(entry.id)

@@ -588,14 +588,7 @@ function shellSections({ navigate, t }: ShellVerbs): ReactNode[][] {
         onSelect={() => navigateToWorkspacePage(navigate, SETTINGS_ROUTE)}
       />
     ],
-    [
-      <Item
-        icon="cloud-download"
-        key="shell-update"
-        label={t.commandCenter.updateSci}
-        onSelect={requestActiveUpdate}
-      />
-    ]
+    [<Item icon="cloud-download" key="shell-update" label={t.commandCenter.updateSci} onSelect={requestActiveUpdate} />]
   ]
 }
 

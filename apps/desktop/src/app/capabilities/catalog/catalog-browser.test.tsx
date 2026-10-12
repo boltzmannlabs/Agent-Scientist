@@ -8,7 +8,7 @@ import { queryClient } from '@/lib/query-client'
 import { PageSearchShell } from '../../page-search-shell'
 
 import { CatalogBrowser } from './catalog-browser'
-import { catalogQuery, type CatalogKind, parseCatalog } from './catalog-data'
+import { type CatalogKind, catalogQuery, parseCatalog } from './catalog-data'
 import { $catalogCardView } from './store'
 
 beforeEach(() => {

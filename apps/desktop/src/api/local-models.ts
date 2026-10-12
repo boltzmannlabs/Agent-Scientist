@@ -1,6 +1,6 @@
 import type { LocalCatalogModel, LocalHardware, LocalModelsStatus, LocalRuntimeJob } from '@/types/sci'
 
-import { sciApi, profileScoped } from './client'
+import { profileScoped, sciApi } from './client'
 
 export interface LocalModelsScope {
   connectionId: string | null

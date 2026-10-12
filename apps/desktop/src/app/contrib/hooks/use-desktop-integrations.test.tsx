@@ -1,8 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { setApiRequestConnection, setApiRequestProfile } from '@/sci'
 import { createClientSessionState } from '@/lib/chat-runtime'
+import { setApiRequestConnection, setApiRequestProfile } from '@/sci'
 import { adoptNewSessionDraft, stashSessionDraft, takeSessionDraft } from '@/store/composer'
 import { $confirmRequest, runConfirm, settleConfirm } from '@/store/confirm'
 import { $hubInstalledOverride } from '@/store/hub-actions'
@@ -229,7 +229,7 @@ describe('useDesktopIntegrations', () => {
   })
 
   describe('peer instance windows (#74948)', () => {
-    it('does not restore the primary window\'s remembered session into a peer window', () => {
+    it("does not restore the primary window's remembered session into a peer window", () => {
       // Ctrl+Shift+N opens a peer that shares the profile's remembered
       // navigation (the primary window writes it continuously), but the peer
       // must boot into its own blank fresh-draft chat, not the session the

@@ -99,10 +99,7 @@ test('mode predicates classify what each mode removes', () => {
 // --- resolveRemovableAppPath ---
 
 test('resolveRemovableAppPath finds the .app bundle on macOS', () => {
-  assert.equal(
-    resolveRemovableAppPath('/Applications/Sci.app/Contents/MacOS/Sci', 'darwin'),
-    '/Applications/Sci.app'
-  )
+  assert.equal(resolveRemovableAppPath('/Applications/Sci.app/Contents/MacOS/Sci', 'darwin'), '/Applications/Sci.app')
   assert.equal(
     resolveRemovableAppPath('/Users/x/Applications/Sci.app/Contents/MacOS/Sci', 'darwin'),
     '/Users/x/Applications/Sci.app'

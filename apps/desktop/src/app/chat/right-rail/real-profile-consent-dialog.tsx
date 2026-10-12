@@ -11,9 +11,9 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { saveSciConfigRecord } from '@/sci'
 import { useI18n } from '@/i18n'
 import { Check, Globe } from '@/lib/icons'
+import { saveSciConfigRecord } from '@/sci'
 import { notify, notifyError } from '@/store/notifications'
 import {
   $realProfilePromptClaim,
