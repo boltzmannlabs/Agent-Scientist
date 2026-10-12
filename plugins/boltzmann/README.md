@@ -49,6 +49,15 @@ and-key-bound, and every operation revalidates against the service.
 
 ## Scientific execution routing
 
+Inventory questions such as "what Boltzmann tools do we have" use the installed
+module registry through `boltzmann:tools`, showing scientific display names by
+domain and module rather than the five connector operations. All-tools requests
+list active catalog entries; removed/ignored entries are excluded and on-hold
+entries are labeled separately. Listing requires no scientific job or upload.
+Catalog membership does not establish account entitlement or execution readiness.
+This guidance is loaded in a fresh conversation; existing cached prompts remain
+unchanged. Helper descriptions are reserved for explicit integration questions.
+
 For an authorized profile, the plugin supplies a session-frozen prompt section
 that points to `boltzmann:tools` before generic generation skills. Plugin skills
 are intentionally absent from the ordinary system-prompt skill index; deferred

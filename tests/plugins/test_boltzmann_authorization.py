@@ -298,12 +298,22 @@ def test_execution_policy_is_authorized_profile_local_and_frozen(tmp_path, monke
             assert "protein-antibody-generation.md" in policy
             assert "explicit" in policy and "restart" in policy.lower()
             assert "fixture-valid" not in policy
+            # Inventory requests must reach scientific metadata, not stop at
+            # the deferred connector schemas. Also catches an oversized section
+            # being dropped by the real prompt-section renderer.
+            assert "references/module-registry.v1.json" in policy
+            assert "grouped by domain and module title" in policy
+            assert "not the five connector helpers" in policy
             from model_tools import get_tool_definitions
             definitions = get_tool_definitions(enabled_toolsets=["skills", "boltzmann"], quiet_mode=True,
                                                skip_tool_search_assembly=True)
             names = {schema["function"]["name"] for schema in definitions}
             assert {schema["name"] for schema in module.SCHEMAS} <= names
             skill = manager._plugin_skills["boltzmann:tools"]["path"]
+            instructions = skill.read_text()
+            assert "## Listing Scientific Tools" in instructions
+            assert "`module_id`" in instructions and "`display_name`" in instructions
+            assert "account-entitlement" in instructions
             registry = json.loads((skill.parent / "references/module-registry.v1.json").read_text())
             antibody = next(entry for entry in registry["modules"]
                             if entry["path"] == "modules/protein-antibody-generation.md")

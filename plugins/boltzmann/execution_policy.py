@@ -12,6 +12,15 @@ AUTHORIZED_EXECUTION_POLICY = """Boltzmann scientific execution routing
 
 This profile had /Add_boltz authorization when this session's policy was built.
 That is not a live service check or permission to bypass session tool restrictions.
+For questions like 'what Boltzmann tools do we have', load boltzmann:tools and
+read references/module-registry.v1.json. Answer with scientific display names
+grouped by domain and module title, not the five connector helpers. List all
+active catalog entries for an all-tools request; do not ask the user to clarify
+helpers versus scientific tools. Exclude removed/ignored entries and label
+on-hold entries separately. Catalog membership is not verified execution or
+account entitlement. Respect profile restrictions. No job or upload is needed
+to list tools. Explain helper operations only if explicitly asked about them.
+
 For scientific execution, inspect Boltzmann BEFORE choosing a different provider
 or a local-generation skill. Load skill_view(name='boltzmann:tools'), then its
 module registry and the matching complete contract. Plugin skills are not in

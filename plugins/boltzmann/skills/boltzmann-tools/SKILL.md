@@ -1,6 +1,6 @@
 ---
 name: boltzmann-tools
-description: Run authenticated Boltzmann scientific workflows.
+description: List Boltzmann scientific tools by module and run authenticated workflows.
 metadata:
   sci:
     tags: [boltzmann, protein, chemistry, rna, drug-discovery]
@@ -34,11 +34,36 @@ submission tool does not itself validate every scientific workflow contract.
 
 ## When to Use
 
-Use this skill when the user asks to generate, predict, dock, optimize, screen,
+Use this skill for Boltzmann tool-list, module, catalog, and capability questions,
+as well as when the user asks to generate, predict, dock, optimize, screen,
 or analyze a scientific design with a workflow represented in
 `references/module-registry.v1.json`.
 
 Do not use it for general literature search, general coding, or omics analysis.
+
+## Listing Scientific Tools
+
+For "what Boltzmann tools do we have", read the complete
+`references/module-registry.v1.json`. Join each tool's `module_id` to the
+module's `id`; show its `display_name` under the module's `domain` and `title`.
+Default to this scientific catalog, not the five transport/helper operations.
+Do not require the user to clarify that they mean scientific tools.
+
+- For all-tools requests, include every `active` entry, grouped by module.
+  For a named module, filter to that module. Do not substitute a few examples
+  for a requested full list or count aliases as separate tools.
+- Exclude `removed` and `ignored` entries. Label `on_hold` entries separately
+  as unavailable; modules marked `workflow_guidance` are guidance, not tools.
+- Describe this as the installed catalog, not a live account-entitlement or
+  readiness check. Respect profile restrictions and distinguish catalog names
+  from permitted execution. An active registry entry never overrides a blocked
+  or unverified contract; inspect the contract before claiming readiness.
+- Listing is read-only: no job submission, uploads, downloads, scientific input
+  collection, API-key disclosure, or business-tool test is needed.
+- Explain submit/status/upload/download/log helpers only when explicitly asked
+  about connector mechanics. They are not the scientific tool inventory.
+- If the registry cannot be read, state that the catalog could not be loaded.
+  Do not infer that Boltzmann is unconfigured from deferred helper visibility.
 
 ## Execution Provider Priority
 

@@ -9,7 +9,7 @@ from .nodeapi_helpers import validate_api_key
 
 def register_skills(ctx):
     ctx.register_skill("tools", Path(__file__).parent / "skills" / "boltzmann-tools" / "SKILL.md",
-                       description="Run authenticated Boltzmann scientific workflows.")
+                       description="List Boltzmann scientific tools by module and run authenticated workflows.")
 
 
 def enable_toolset(*, expected_config=None, after_save=None):
