@@ -24,13 +24,13 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { CopyButton } from '@/components/ui/copy-button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { renameSession } from '@/sci'
 import { useI18n } from '@/i18n'
 import { triggerHaptic } from '@/lib/haptics'
 import { ArchiveOff } from '@/lib/icons'
 import { isSubmitEnter } from '@/lib/ime'
 import { PROFILE_SWATCHES } from '@/lib/profile-color'
 import { exportSession } from '@/lib/session-export'
+import { renameSession } from '@/sci'
 import { activeGateway } from '@/store/gateway'
 import { notify, notifyError } from '@/store/notifications'
 import {
@@ -94,9 +94,7 @@ function resolveRuntimeIdForStored(storedSessionId: string): null | string {
     }
   }
 
-  const tileRuntimeId = $sessionTiles
-    .get()
-    .find(tile => tile.storedSessionId === storedSessionId)?.runtimeId
+  const tileRuntimeId = $sessionTiles.get().find(tile => tile.storedSessionId === storedSessionId)?.runtimeId
 
   if (tileRuntimeId) {
     return tileRuntimeId

@@ -1,5 +1,5 @@
-import { registryBackendScopeKey } from '@sci/shared'
 import { useStore } from '@nanostores/react'
+import { registryBackendScopeKey } from '@sci/shared'
 import { act, cleanup, render, waitFor } from '@testing-library/react'
 import type { MutableRefObject } from 'react'
 import { useEffect, useRef } from 'react'
@@ -11,6 +11,7 @@ import { resolveSessionRpcOwner } from '@/app/contrib/wiring-routing'
 import { $terminalTakeover, setTerminalTakeover } from '@/app/right-sidebar/store'
 import { group } from '@/components/pane-shell/tree/model'
 import { $activeTreeGroup, $layoutTree, noteActiveTreeGroup, revealTreePane } from '@/components/pane-shell/tree/store'
+import { createClientSessionState } from '@/lib/chat-runtime'
 import {
   deleteSession,
   getAllSessionMessages,
@@ -21,7 +22,6 @@ import {
   type SessionResumeResult,
   setSessionArchived
 } from '@/sci'
-import { createClientSessionState } from '@/lib/chat-runtime'
 import { $clarifyRequests, clearClarifyRequest, setClarifyRequest } from '@/store/clarify'
 import { clearSessionDraft, stashSessionDraft, takeSessionDraft } from '@/store/composer'
 import {
@@ -6119,7 +6119,7 @@ describe('routed fresh chat keeps its exact owner across turns', () => {
 
   it('can preserve the current fresh draft key when explicitly requested', async () => {
     let handle: HarnessHandle | null = null
-    const requestGateway = vi.fn(async () => ({} as never))
+    const requestGateway = vi.fn(async () => ({}) as never)
 
     render(<Harness onReady={h => (handle = h)} requestGateway={requestGateway} />)
     await waitFor(() => expect(handle).not.toBeNull())

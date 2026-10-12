@@ -93,9 +93,7 @@ describe('scanDiskPlugins (#66899)', () => {
 
       if (dir === '/local/.sci/desktop-plugins/my-feature') {
         return {
-          entries: [
-            { isDirectory: false, name: 'README.md', path: '/local/.sci/desktop-plugins/my-feature/README.md' }
-          ]
+          entries: [{ isDirectory: false, name: 'README.md', path: '/local/.sci/desktop-plugins/my-feature/README.md' }]
         }
       }
 

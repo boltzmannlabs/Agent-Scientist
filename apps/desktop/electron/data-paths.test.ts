@@ -31,10 +31,7 @@ test('default data roots append the suffix literally on each platform', (): void
 
       assert.equal(platformDefaultSciHome(home, env, platform), base + suffix)
       assert.equal(resolveDesktopUserData(userData, env), userData + suffix)
-      assert.equal(
-        resolveDesktopSciHome({ home, env, platform, directoryExists: (): boolean => false }),
-        base + suffix
-      )
+      assert.equal(resolveDesktopSciHome({ home, env, platform, directoryExists: (): boolean => false }), base + suffix)
     }
   }
 })

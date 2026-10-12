@@ -1,8 +1,8 @@
 import { useStore } from '@nanostores/react'
 import { useEffect, useState } from 'react'
 
-import { getLogs } from '@/sci'
 import { startCompletionPoll } from '@/lib/completion-poll'
+import { getLogs } from '@/sci'
 import { $activeGatewayProfile } from '@/store/profile'
 
 export const LOG_POLL_MS = 2000

@@ -2,7 +2,6 @@ import { LOCAL_CONNECTION_ID, registryBackendScopeKey } from '@sci/shared'
 import { atom, batch, computed } from 'nanostores'
 
 import type { SciConnection } from '@/global'
-import { getProfiles, sciApi, setApiRequestProfile, STARTUP_REQUEST_TIMEOUT_MS } from '@/sci'
 import { sortByProfileOrder as sortProfilesByOrder } from '@/lib/profile-order'
 import { invalidateProfileScopedQueries } from '@/lib/query-client'
 import {
@@ -15,6 +14,7 @@ import {
   storedStringRecord
 } from '@/lib/storage'
 import { withTimeout } from '@/lib/with-timeout'
+import { getProfiles, sciApi, setApiRequestProfile, STARTUP_REQUEST_TIMEOUT_MS } from '@/sci'
 import { registryConnectionKind } from '@/store/connection-registry-state'
 import {
   $gateway,

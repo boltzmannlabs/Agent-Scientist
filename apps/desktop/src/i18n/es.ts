@@ -631,8 +631,9 @@ export const esOverrides = {
     dismiss: 'Descartar'
   },
   sendDiagnostics: {
-    title: "Enviar diagnóstico de SCI",
-    privacyNotice: "Se envían registros e información del sistema al destino de soporte SCI configurado. Pueden incluir conversaciones, resultados y rutas. La redacción no es infalible. Confirma destino, acceso y retención. No hay destino predeterminado.",
+    title: 'Enviar diagnóstico de SCI',
+    privacyNotice:
+      'Se envían registros e información del sistema al destino de soporte SCI configurado. Pueden incluir conversaciones, resultados y rutas. La redacción no es infalible. Confirma destino, acceso y retención. No hay destino predeterminado.',
     upload: 'Subir',
     uploading: 'Subiendo…',
     cancel: 'Cancelar',
@@ -640,12 +641,12 @@ export const esOverrides = {
     copyLink: 'Copiar enlace',
     uploadIdFallback: id => `No se devolvió un enlace para verlo: indica el ID de subida ${id} al equipo de soporte`,
     doneTitle: 'Diagnóstico enviado',
-    doneDescription: "El destino configurado aceptó el paquete. Confirma los permisos antes de compartir el enlace.",
+    doneDescription: 'El destino configurado aceptó el paquete. Confirma los permisos antes de compartir el enlace.',
     failedTitle: 'Error al subir',
-    failedHint: "Usa sci debug share --local para conservar el informe localmente. Contacta con Boltzmann Labs.",
+    failedHint: 'Usa sci debug share --local para conservar el informe localmente. Contacta con Boltzmann Labs.',
     handoffLead: 'Continúa la conversación en:',
     links: {
-      github: "Manual de SCI",
+      github: 'Manual de SCI',
       portal: 'SCI support',
       discord: 'Discord'
     }
@@ -1210,8 +1211,7 @@ export const esOverrides = {
       modelPricingDesc:
         'Muestra los precios de entrada, salida y lectura de caché por millón de tokens en el selector de modelos.',
       reactionsTitle: 'Reacciones a mensajes',
-      reactionsDesc:
-        'Reacciones emoji estilo iMessage — reacciona a los mensajes, y Sci puede reaccionar a los tuyos.',
+      reactionsDesc: 'Reacciones emoji estilo iMessage — reacciona a los mensajes, y Sci puede reaccionar a los tuyos.',
       tipsTitle: 'Consejos en la app',
       tipsDesc:
         'Sugerencias ocasionales de la app y de Sci. Cada consejo aparece una vez. Se desactiva automáticamente tras tus primeros 30 días; puedes volver a activarlo.',
@@ -1862,8 +1862,7 @@ export const esOverrides = {
         'Un ajuste de inicio externo a la app eligió esta conexión, así que las opciones de abajo son de solo lectura. Reinicia Sci sin ese ajuste (o pregunta a quien lo configuró) para cambiarla aquí.',
       modeTitle: 'Modo de conexión',
       localTitle: 'Gateway local',
-      localDesc:
-        'Inicia un backend privado de Sci en localhost. Es el valor predeterminado y funciona sin conexión.',
+      localDesc: 'Inicia un backend privado de Sci en localhost. Es el valor predeterminado y funciona sin conexión.',
       remoteTitle: 'Gateway remoto',
       remoteDesc: 'Conecta esta shell de escritorio a un backend remoto de Sci.',
       remoteAuthHint:
@@ -2587,8 +2586,7 @@ export const esOverrides = {
       noKeysMatch: 'Ningún proveedor coincide con tu búsqueda.',
       localEndpoint: {
         title: 'Endpoint local o personalizado',
-        description:
-          'Conecta Sci con cualquier endpoint compatible con OpenAI (Zyphra, vLLM, llama.cpp, Ollama, etc.).'
+        description: 'Conecta Sci con cualquier endpoint compatible con OpenAI (Zyphra, vLLM, llama.cpp, Ollama, etc.).'
       },
       loading: 'Cargando proveedores...'
     },
@@ -3997,8 +3995,7 @@ export const esOverrides = {
       title: 'La base de datos de sesiones está dañada',
       body: (profiles: string) =>
         `Sci no puede leer todo el historial de sesiones de ${profiles}. Los chats que faltan en esta lista no se eliminaron; el archivo donde se guardan está dañado.`,
-      action:
-        'Sal de Sci en este perfil y luego inspecciona el archivo sin modificarlo, o restaura una instantánea:',
+      action: 'Sal de Sci en este perfil y luego inspecciona el archivo sin modificarlo, o restaura una instantánea:',
       guide: 'Guía de recuperación'
     },
     noFilterMatches: 'Ninguna sesión coincide con estos filtros',
@@ -4659,8 +4656,7 @@ export const esOverrides = {
     availableTitle: 'Nueva actualización disponible',
     availableBody: 'Hay una nueva versión de Sci lista para instalar.',
     availableTitleBackend: 'Actualización del backend disponible',
-    availableBodyBackend:
-      'Hay una versión más reciente del backend de Sci al que estás conectado lista para instalar.',
+    availableBodyBackend: 'Hay una versión más reciente del backend de Sci al que estás conectado lista para instalar.',
     availableBodyNoChangelog:
       'Hay una versión más reciente lista. Las notas de la versión no están disponibles para este tipo de instalación.',
     updateNow: 'Actualizar ahora',
@@ -4680,8 +4676,7 @@ export const esOverrides = {
     copy: 'Copiar',
     copied: 'Copiado',
     done: 'Listo',
-    applyingBody:
-      'El actualizador de Sci tomará el control en su propia ventana y volverá a abrir Sci al terminar.',
+    applyingBody: 'El actualizador de Sci tomará el control en su propia ventana y volverá a abrir Sci al terminar.',
     applyingBodyBackend:
       'El backend remoto está aplicando la actualización y se reiniciará. Sci se reconectará automáticamente cuando vuelva a estar disponible.',
     applyingClose: 'Sci se cerrará para aplicar la actualización.',
@@ -5291,8 +5286,7 @@ export const esOverrides = {
       askRestart: 'Pedir a Sci que reinicie el servidor',
       lookingRestart: taskId => `Sci está buscando un servidor de vista previa para reiniciar (${taskId})`,
       restartingTitle: 'Reiniciando servidor de vista previa',
-      restartingMessage:
-        'Sci está trabajando en segundo plano. Mira la consola de vista previa para ver el progreso.',
+      restartingMessage: 'Sci está trabajando en segundo plano. Mira la consola de vista previa para ver el progreso.',
       startRestartFailed: message => `No se pudo iniciar el reinicio del servidor: ${message}`,
       restartFailed: 'Falló el reinicio del servidor',
       hideConsole: 'Ocultar consola de vista previa',

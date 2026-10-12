@@ -614,8 +614,7 @@ export const en: Translations = {
       microphonePermission: 'Microphone permission was denied.',
       openaiRejectedApiKey: "OpenAI didn't accept your API key. Update it in Settings → Keys, then try again.",
       openaiTtsNeedsKey: 'Voice needs an OpenAI key. Add one in Settings → Keys.',
-      codeSkewRestartRequired:
-        'Sci was updated but is still running the old version. Restart it to finish the update.',
+      codeSkewRestartRequired: 'Sci was updated but is still running the old version. Restart it to finish the update.',
       rpcOutOfSync: 'The app and the backend are on different versions. Update both.',
       restartSciFailed: "Couldn't restart Sci"
     },
@@ -683,8 +682,9 @@ export const en: Translations = {
   },
 
   sendDiagnostics: {
-    title: "Send SCI diagnostics",
-    privacyNotice: "Upload logs and system information to the configured SCI support endpoint. Logs may contain conversations, outputs and paths. Redaction is best effort. Confirm the destination, access and retention policy. No destination is configured by default.",
+    title: 'Send SCI diagnostics',
+    privacyNotice:
+      'Upload logs and system information to the configured SCI support endpoint. Logs may contain conversations, outputs and paths. Redaction is best effort. Confirm the destination, access and retention policy. No destination is configured by default.',
     upload: 'Upload',
     uploading: 'Uploading…',
     cancel: 'Cancel',
@@ -692,12 +692,12 @@ export const en: Translations = {
     copyLink: 'Copy link',
     uploadIdFallback: id => `No view link returned — quote upload ID ${id} to support`,
     doneTitle: 'Diagnostics sent',
-    doneDescription: "The configured endpoint accepted the bundle. Confirm access permissions before sharing its link.",
+    doneDescription: 'The configured endpoint accepted the bundle. Confirm access permissions before sharing its link.',
     failedTitle: 'Upload failed',
-    failedHint: "Use sci debug share --local to keep the report local. Contact a Boltzmann Labs maintainer.",
+    failedHint: 'Use sci debug share --local to keep the report local. Contact a Boltzmann Labs maintainer.',
     handoffLead: 'Pick up the discussion in:',
     links: {
-      github: "SCI manual",
+      github: 'SCI manual',
       portal: 'SCI support',
       discord: 'Discord'
     }
@@ -1342,8 +1342,7 @@ export const en: Translations = {
         },
         lite: {
           title: 'Uninstall GUI + agent, keep my data',
-          description:
-            'Remove the app and the Sci agent, but keep config, chats, and secrets for a future reinstall.',
+          description: 'Remove the app and the Sci agent, but keep config, chats, and secrets for a future reinstall.',
           consequence: 'the Chat GUI and the Sci agent (config, chats, and secrets are kept)'
         },
         full: {
@@ -1456,8 +1455,7 @@ export const en: Translations = {
         'Allow Sci in System Settings → Privacy & Security → Input Monitoring, then retry. This gesture does not record keystrokes or capture your screen.',
       unavailable:
         'The HUD gesture helper could not start or stopped unexpectedly. Retry, or restart Sci. The existing HUD shortcut still works inside Sci.',
-      missingHelper:
-        'This Sci installation is missing the HUD gesture helper. Update or reinstall Sci, then retry.',
+      missingHelper: 'This Sci installation is missing the HUD gesture helper. Update or reinstall Sci, then retry.',
       unsupportedSession:
         'This desktop session does not support global modifier taps. Linux requires X11; Wayland is not supported.'
     },
@@ -1598,8 +1596,7 @@ export const en: Translations = {
     gateway: {
       loading: 'Loading gateway settings...',
       unavailableTitle: 'Gateway settings unavailable',
-      unavailableDesc:
-        'Connection settings can only be changed from the Sci Desktop app on the computer running it.',
+      unavailableDesc: 'Connection settings can only be changed from the Sci Desktop app on the computer running it.',
       title: 'Gateway Connection',
       envOverride: 'env override',
       intro:
@@ -4189,8 +4186,7 @@ export const en: Translations = {
 
   updates: {
     discontinuedTitle: 'This build of Sci is no longer supported',
-    discontinuedBody:
-      'This build of Sci is no longer supported and may break — uninstall it. Your data stays on disk.',
+    discontinuedBody: 'This build of Sci is no longer supported and may break — uninstall it. Your data stays on disk.',
     channels: { stable: 'Stable', canary: 'Canary' },
     bundleSwapPending: 'Restart to finish the update',
     bundleSwapPendingDesc:
@@ -4260,8 +4256,7 @@ export const en: Translations = {
     errorTitle: 'Update didn’t finish',
     errorBody: 'No worries — nothing was lost. You can try again now.',
     blockerTitle: 'Close local previews to update Sci?',
-    blockerBody:
-      'Sci needs to stop these local previews before updating. This will not modify or delete your files.',
+    blockerBody: 'Sci needs to stop these local previews before updating. This will not modify or delete your files.',
     foreignBlockerTitle: 'Close other processes to update Sci',
     foreignBlockerBody:
       'Sci can’t safely close these processes automatically. Close the app, terminal, or service that owns each one, then try the update again.',
@@ -4376,8 +4371,7 @@ export const en: Translations = {
     installTo: 'Will install to',
     retryAfterRun: 'I’ve run it -- retry',
     setupChoiceTitle: 'Set up Sci Desktop',
-    setupChoiceDesc:
-      'Connect this app to a Sci gateway you already run, or install Sci locally on this computer.',
+    setupChoiceDesc: 'Connect this app to a Sci gateway you already run, or install Sci locally on this computer.',
     setupChoiceDescLocal: 'Install Sci on this computer, or connect to a Sci gateway you already run.',
     connectExistingTitle: 'Connect to existing Sci',
     connectExistingShort: 'Connect existing',
@@ -4586,8 +4580,7 @@ export const en: Translations = {
       powRequired:
         "The Nous server asked for a proof of work, but that isn't implemented in your Agent yet. Sign in or create a free Nous account to continue.",
       locked: "This session can't continue without signing in. Sign in or create a free Nous account to keep going.",
-      generic:
-        "Sci couldn't set up free access without signing in. Signing in is free, or connect another provider.",
+      generic: "Sci couldn't set up free access without signing in. Signing in is free, or connect another provider.",
       signInBelow: 'Signing in is free. Pick Nous below.',
       tryAgain: 'Try again',
       retrying: 'Trying again…'
@@ -5081,8 +5074,7 @@ export const en: Translations = {
         auth: 'The AI service rejected your sign-in. Check the credentials for this provider, then send your message again.',
         billing: 'Your account has no credits left for this provider. Top up or switch provider, then send again.',
         disk: 'Your disk is full, so Sci could not save this conversation. Free some space, then retry.',
-        endpoint:
-          "Sci can't reach your custom model server. Check that it is running, then send your message again.",
+        endpoint: "Sci can't reach your custom model server. Check that it is running, then send your message again.",
         gateway:
           'Sci hit an internal problem starting this reply. Send your message again; if it keeps happening, send diagnostics.',
         generic: 'Something went wrong while Sci was replying. Retry, or copy the details if it keeps happening.',

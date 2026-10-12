@@ -13,7 +13,7 @@ import type {
   WebhooksResponse
 } from '@/types/sci'
 
-import { sciApi, profileScoped } from './client'
+import { profileScoped, sciApi } from './client'
 
 export function getMessagingPlatforms(profile?: null | string): Promise<MessagingPlatformsResponse> {
   return sciApi<MessagingPlatformsResponse>({

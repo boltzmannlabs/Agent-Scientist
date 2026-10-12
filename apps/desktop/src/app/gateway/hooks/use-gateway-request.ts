@@ -1,10 +1,10 @@
-import { isGatewayReauthRequired } from '@sci/shared'
 import { useStore } from '@nanostores/react'
+import { isGatewayReauthRequired } from '@sci/shared'
 import { useCallback, useEffect, useRef } from 'react'
 
-import type { SciGateway } from '@/sci'
 import { resolveDesktopGatewayWsUrl } from '@/lib/gateway-ws-url'
 import { RECONNECT_ATTEMPT_TIMEOUT_MS, withTimeout } from '@/lib/with-timeout'
+import type { SciGateway } from '@/sci'
 import { $gateway, activeGateway, ensureActiveGatewayOpen, isActivePrimary } from '@/store/gateway'
 import { $gatewayState, setConnection } from '@/store/session'
 
@@ -20,9 +20,7 @@ export function useGatewayRequest() {
   const gateway = useStore($gateway) as SciGateway | null
   const gatewayRef = useRef<SciGateway | null>(null)
 
-  const connectionRef = useRef<Awaited<ReturnType<NonNullable<typeof window.sciDesktop>['getConnection']>> | null>(
-    null
-  )
+  const connectionRef = useRef<Awaited<ReturnType<NonNullable<typeof window.sciDesktop>['getConnection']>> | null>(null)
 
   const gatewayStateRef = useRef(gatewayState)
   const reconnectingRef = useRef<Promise<SciGateway | null> | null>(null)

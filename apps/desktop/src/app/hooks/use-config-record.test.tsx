@@ -3,17 +3,12 @@ import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
 import { afterEach, expect, it, vi } from 'vitest'
 
+import { queryClient } from '@/lib/query-client'
 import type * as SciApi from '@/sci'
 import { bindConfigReadOrigin, getSciConfigRecord } from '@/sci'
-import { queryClient } from '@/lib/query-client'
 import { $connection } from '@/store/session'
 
-import {
-  SCI_CONFIG_KEY,
-  sciConfigCacheWriter,
-  setSciConfigCache,
-  useSciConfigRecord
-} from './use-config-record'
+import { SCI_CONFIG_KEY, sciConfigCacheWriter, setSciConfigCache, useSciConfigRecord } from './use-config-record'
 
 vi.mock('@/sci', async importOriginal => ({
   ...(await importOriginal<typeof SciApi>()),

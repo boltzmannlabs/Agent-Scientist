@@ -1,5 +1,5 @@
-import { getActionStatus, installMcpCatalogEntry, type McpCatalogEntry, type ProfileScope } from '@/sci'
 import { translateNow } from '@/i18n'
+import { getActionStatus, installMcpCatalogEntry, type McpCatalogEntry, type ProfileScope } from '@/sci'
 
 const INSTALL_POLL_MS = 1500
 

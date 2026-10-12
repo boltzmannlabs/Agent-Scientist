@@ -677,15 +677,7 @@ async function remoteProcessCreationTime(ssh, pid) {
 
 // A pid is "provably ours" only if its remote cmdline carries our dashboard
 // args — never kill a pid we can't positively identify as our dashboard.
-async function pidIsOurDashboard(
-  ssh,
-  pid,
-  spawnNonce,
-  sciPath = '',
-  sciHome = '',
-  ownershipId = '',
-  profile = ''
-) {
+async function pidIsOurDashboard(ssh, pid, spawnNonce, sciPath = '', sciHome = '', ownershipId = '', profile = '') {
   if (!pid || !/^[0-9a-f]{16}$/.test(String(spawnNonce || '')) || !sciPath) {
     return false
   }
@@ -762,15 +754,7 @@ async function cleanupStale(ssh, ownershipId, lock, pidAlive = true) {
   if (
     pidAlive &&
     lock &&
-    (await pidIsOurDashboard(
-      ssh,
-      lock.pid,
-      lock.spawnNonce,
-      lock.sciPath,
-      lock.sciHome,
-      ownershipId,
-      lock.profile
-    ))
+    (await pidIsOurDashboard(ssh, lock.pid, lock.spawnNonce, lock.sciPath, lock.sciHome, ownershipId, lock.profile))
   ) {
     try {
       const result = (
@@ -1070,15 +1054,7 @@ async function terminateOwnedDashboardForUpdate(ssh, expected) {
   }
 
   if (
-    !(await pidIsOurDashboard(
-      ssh,
-      lock.pid,
-      lock.spawnNonce,
-      lock.sciPath,
-      lock.sciHome,
-      ownershipId,
-      lock.profile
-    ))
+    !(await pidIsOurDashboard(ssh, lock.pid, lock.spawnNonce, lock.sciPath, lock.sciHome, ownershipId, lock.profile))
   ) {
     const error: any = new Error('Refusing to terminate a remote process whose Desktop ownership is unproven.')
     error.kind = 'foreign-backend'
@@ -1097,15 +1073,7 @@ async function terminateOwnedDashboardForUpdate(ssh, expected) {
 
   if (
     (await remoteProcessCreationTime(ssh, lock.pid)) !== lock.creationTime ||
-    !(await pidIsOurDashboard(
-      ssh,
-      lock.pid,
-      lock.spawnNonce,
-      lock.sciPath,
-      lock.sciHome,
-      ownershipId,
-      lock.profile
-    ))
+    !(await pidIsOurDashboard(ssh, lock.pid, lock.spawnNonce, lock.sciPath, lock.sciHome, ownershipId, lock.profile))
   ) {
     const error: any = new Error('The remote POSIX process identity changed during managed update drain.')
     error.kind = 'ownership-changed'
@@ -1159,9 +1127,7 @@ function buildSpawnCommand(sciPath, profile, opts: any = {}) {
   const subCmd = `serve --isolated --host 127.0.0.1 --port 0${tokenArg}${ownerArg}`
   const marker = expandRemotePath(`${remoteInstallRoot(opts.sciHome || '~/.sci')}/.sci-update-in-progress`)
 
-  const updateMutex = expandRemotePath(
-    `${remoteInstallRoot(opts.sciHome || '~/.sci')}/.sci-update-in-progress.mutex`
-  )
+  const updateMutex = expandRemotePath(`${remoteInstallRoot(opts.sciHome || '~/.sci')}/.sci-update-in-progress.mutex`)
 
   // The marker probe, ownership reservation, process creation, and initial
   // lockfile publication must be one remote command. A second Desktop process
@@ -1563,15 +1529,7 @@ async function connect(deps) {
 
     const owned =
       pidAlive &&
-      (await pidIsOurDashboard(
-        ssh,
-        lock.pid,
-        lock.spawnNonce,
-        lock.sciPath,
-        lock.sciHome,
-        ownershipId,
-        lock.profile
-      ))
+      (await pidIsOurDashboard(ssh, lock.pid, lock.spawnNonce, lock.sciPath, lock.sciHome, ownershipId, lock.profile))
 
     const reusable =
       pidAlive &&
@@ -1813,9 +1771,9 @@ export {
   openForward,
   ownershipDirectory,
   pidIsOurDashboard,
-  probeSciVersion,
-  probeRemoteSciHome,
   probeRemotePlatform,
+  probeRemoteSciHome,
+  probeSciVersion,
   PROTOCOL_VERSION,
   readLockfile,
   readRemoteInstallId,

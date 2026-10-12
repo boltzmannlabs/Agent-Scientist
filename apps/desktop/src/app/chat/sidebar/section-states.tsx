@@ -80,8 +80,7 @@ export function SidebarLoadErrorState({ onRetry }: { onRetry: () => void }) {
   )
 }
 
-const SESSION_STORAGE_RECOVERY_URL =
-  'sci:manual'
+const SESSION_STORAGE_RECOVERY_URL = 'sci:manual'
 
 interface SidebarStorageCorruptNoticeProps {
   openRecoveryGuide?: (url: string) => void
@@ -109,9 +108,7 @@ export function SidebarStorageCorruptNotice({
         <AlertDescription>
           <p>{copy.body(profiles.join(', '))}</p>
           <p>{copy.action}</p>
-          <code className="break-all text-[0.7rem]">
-            sci sessions recover --source &lt;state.db&gt; --inspect-only
-          </code>
+          <code className="break-all text-[0.7rem]">sci sessions recover --source &lt;state.db&gt; --inspect-only</code>
           <Button
             className="-ml-1 mt-0.5 text-(--ui-text-secondary)"
             onClick={() => openRecoveryGuide(SESSION_STORAGE_RECOVERY_URL)}
