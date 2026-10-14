@@ -121,6 +121,10 @@ your operating-system shell:
 
 ```text
 /Create_profile
+/Update_profile
+/capabilities
+/capabilities setup
+/boltzmann_tools
 /profiles_list
 /activate
 /activate "antibody-project"
@@ -171,9 +175,18 @@ activation choices are preserved. External services use their own credentials.
 ```
 
 Boltzmann tools remain locked until a valid API key is authorized through
-`/Add_boltz`. ToolUniverse, PubMed, and other MCP services require their own
-documented server setup and permissions; a website URL is not necessarily an
-MCP endpoint. New capabilities normally become available in the next session.
+`/Add_boltz`. Use `/capabilities setup` for the optional portable ToolUniverse
+and PubMed definitions. ToolUniverse requires approved managed dependency installation
+and separate execution approval; PubMed uses a reviewed third-party HTTPS MCP.
+Both require handshake verification and explicit tool selection before saving.
+Existing custom/disabled connections remain unchanged. Other MCP services require
+their documented setup; a website URL is not necessarily an MCP endpoint.
+New capabilities become available after a fresh runtime/new conversation, not by
+changing the active conversation. `/Update_profile` offers a fresh-conversation restart.
+Use `/resume` or `/sessions` to select saved conversations. Their retained messages,
+are restored into terminal scrollback without tool activity; continue at the bottom.
+Ctrl+O / F8 opens the transcript viewer: Tab selects tool entries, Enter expands details,
+and Escape returns to chat. There is no separate `/history` command.
 Never put API keys in chat, the repository, or screenshots.
 
 For OAuth-protected MCP services, dynamic registration or a service-registered

@@ -42,6 +42,20 @@ These terms describe different parts of Sci:
   [`delegate_task`](./features/delegation.md) for a task, with a fresh
   conversation. A separate conversation is different from a separate profile.
 
+## Main versus named-profile credentials
+
+The science CLI displays the native `default` profile as **main**. On a standard
+installation, main reads `~/.sci/.env`; it does **not** read
+`~/.sci/profiles/default/.env`. An activated named profile such as `omics` reads
+`~/.sci/profiles/omics/.env`. Custom installations use the equivalent paths under
+their configured SCI root.
+
+Boltzmann does not fall back to main's key when a named profile has no key. Each
+profile needs its own `/Add_boltz` authorization record. An existing key that fails
+remote validation is not a missing key: the connector reports the resolved profile
+home and distinguishes missing credentials, missing/mismatched local authorization,
+and an unsuccessful service credential check. Credential values are never shown.
+
 ## Quick start
 
 ```bash

@@ -14,10 +14,10 @@ Omics checkpoints, conversation memory, or the existing workflow logger.
    replacement for live polling and it never submits, updates, searches, or
    retries a job.
 
-When `boltzmann_status` receives a terminal `failed` or `error` response, the
-plugin automatically performs this exact lookup and adds the result under
-`durable_log`. The model must summarize the recorded cause from that object;
-it must not stop at a generic message such as “Failed to generate output”.
+When `boltzmann_status` receives a terminal `failed` or `error` response,
+summarize its sanitized diagnostic. If more detail is needed and a verified
+collection mapping exists, explicitly call the read-only log helper. Do not
+claim an automatic durable lookup occurred when no such call was made.
 
 ## Endpoint contract
 
@@ -41,7 +41,7 @@ uses v5 by default and allows an operator-provided
 Use the registered `boltzmann_fetch_tool_log` tool only after the current
 conversation contains a successful submit/workflow record with the exact
 collection and document ID. Resolve the collection from
-`references/tool-collection-inventory.csv` only when its mapping is non-empty
+the selected entry's `diagnostics` in `references/tool-contracts.v1.json` only when its mapping is non-empty
 and unambiguous. Resolve the ID from the immediate submit response or the
 current conversation's workflow record. Do not infer either value from
 arbitrary user text.

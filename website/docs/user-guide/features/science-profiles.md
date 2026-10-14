@@ -14,12 +14,17 @@ memory, workspaces, and a scientific persona.
 /activate
 /activate "omics" profile
 /activate main
+/Update_profile "omics"
+/capabilities
+/boltzmann_tools
+/resume
 ```
 
 ## Create and review
 
 The wizard asks for a name, scientific skills, tools, service credentials, optional
-sources, and final confirmation. Skills are copied with supporting files from main;
+sources, and final confirmation. Skills are offered from bundled defaults and the
+source profile, and copied with supporting files;
 main's activation choices remain unchanged. The essential operating-manual skill
 remains available through native skill synchronization. Missing capabilities can be
 set up in main using `/Add_skill`, `/Add_tool`, and `/Add_mcp` first.
@@ -58,6 +63,84 @@ Review lists skills, tool counts, hidden credential choices, backend, workspace,
 source access. Creation stages the profile outside discovery and publishes it only
 after confirmation. Duplicate names cannot overwrite existing profiles. After saving,
 choose **Activate now** or **Stay in current profile**.
+
+## Selection and updating
+
+`/Update_profile` opens the native profile picker; `/Update_profile "omics"` edits
+that profile directly. Existing choices are preselected. The available choices merge
+bundled science skills, main-available capabilities, and profile-local entries. A local
+skill version wins over the bundled version with the same path. Custom entries and
+unchanged credentials are preserved; keeping an existing connection does not probe it.
+
+Skills, MCP connections, plugins, and each discovered MCP tool list have independent
+**Select all**, **Clear selection**, and **Done** controls. Select all covers the whole
+section, including filtered-out search results. Individual items remain reversible.
+Plugin permissions are plugin-wide, not per-tool sandboxing. Selecting everything does
+not bypass authentication, process execution consent, or connection checking.
+
+Review the additions/removals and choose **Save and enable for the next session**.
+Deselecting disables profile access without uninstalling shared software. History,
+memory, workspace, persona and backend settings are retained. Changes to source mounts
+on non-local backends require separate environment review and are currently rejected
+before saving. Restricted legacy profiles require a separate reviewed migration, not
+automatic conversion by this command.
+
+The config commit is atomic and rejects intervening config/metadata edits. The entire
+operation is not a multi-file transaction: a failed commit can retain copied files,
+staged credentials, or approved downloads/OAuth grants. Failures report that possibility
+and do not claim rollback. Existing conversations keep their cached prompt and toolset;
+the active profile offers an explicit fresh-conversation restart after saving.
+
+## Capability overview and standard connections
+
+`/capabilities` (or `/capabilities search pubmed`) is a searchable, paginated local
+inventory of tools, skills, MCPs and plugins. It distinguishes saved enablement from
+tools visible in this conversation. Deferred-discovery availability, authentication,
+dependencies, and connection readiness are labeled **not verified** where local metadata
+cannot establish them. Inventory viewing does not install, authenticate, probe, or run
+scientific tools.
+
+`/capabilities setup` offers missing ToolUniverse and PubMed definitions on both fresh
+and existing installations. Nothing connects automatically merely because SCI was
+installed. Existing custom, disabled, or excluded connections are not overwritten.
+
+- [ToolUniverse](https://github.com/mims-harvard/ToolUniverse): explicitly approve the
+  pinned managed Python environment installation, then separately approve starting its
+  stdio MCP and handshake. No ad hoc installation into SCI's own environment is used.
+- [PubMed MCP](https://pubmed.caseyjhand.com/): the offered HTTPS endpoint is a public
+  third-party service, not NCBI-operated. It needs no local server installation. Review
+  that destination and approve discovery before selecting tools. Its availability and
+  access policy can change; a failed handshake saves no enabled connection.
+
+Save an explicit allowlist of discovered tools. New MCP tools are not silently granted.
+ToolUniverse's `execute_tool` is itself a dispatcher into its internal catalog: granting
+it is **not** per-scientific-tool isolation, including when that internal catalog changes.
+Choose only discovery operations if you do not want to grant dispatcher access.
+
+These saves defer MCP activation in this CLI only. Other running processes retain their
+watcher behavior. If another config edit arrives while changes are deferred, this CLI
+reports it and asks for restart or an explicit `/reload-mcp`; it cannot automatically
+reload only that edit because the existing reloader reconnects all servers. Explicit
+reload also rebuilds the conversation's tool prefix.
+
+## Boltzmann scientific catalog
+
+```text
+/boltzmann_tools
+/boltzmann_tools protein
+/boltzmann_tools search docking
+```
+
+The paginated view uses the installed scientific module registry, grouped by domain,
+module and tool name—not the five connector operations. Unavailable/on-hold entries
+are labeled separately; removed/ignored entries are omitted. Catalog visibility grants
+no execution access. The local authorization receipt and profile restrictions are shown
+without revealing keys or making a network request. Natural-language inventory guidance
+points to this same installed registry in main and named profiles.
+
+The previously reported connector input-schema defect remains a separate execution
+readiness blocker. This catalog/update feature does not establish that a scientific job
+can run, that every contract is verified, or that results are scientifically valid.
 
 ## Environment
 
@@ -104,6 +187,21 @@ This switches slash commands as well as messages: `/Add_boltz`, `/Add_tool`,
 `/Add_mcp`, and skill commands affect the selected profile. Finish or cancel running
 work first. No live agent/toolset is transplanted between profiles, and activation
 does not rewrite an existing cached system prompt.
+
+Before switching, the departing conversation must flush successfully; failure leaves
+the current conversation in place. `/resume` and `/sessions` open a searchable, paginated
+picker for the active profile with title, last activity, message count, and session ID.
+`/resume <session-id>` still selects directly. Interactive resumption uses a fresh native
+CLI runtime, so current permission gates apply rather than reviving revoked tool access.
+
+Resume restores **retained** user/assistant messages in full, including compression ancestry,
+without tool activity in the chat. Ctrl+O / F8 opens a scrollable, searchable transcript;
+Tab selects a tool entry and Enter expands its stored arguments or result. Escape returns
+to the unchanged chat prompt. There is no separate `/history` command.
+Detected secrets are masked and reasoning text
+is hidden. Deleted or unrecorded history cannot be reconstructed. Visible history is
+separate from model context: replay does not append historical tokens, rerun tools, or
+change the cached prompt. Your terminal's own scrollback capacity still applies.
 
 Existing legacy science profiles also activate directly, without migration or setup
 questions. Their saved files, credentials, history and isolation settings are preserved.

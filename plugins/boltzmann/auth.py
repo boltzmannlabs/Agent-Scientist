@@ -4,13 +4,20 @@ import hashlib
 import hmac
 
 from agent.secret_scope import build_profile_secret_scope
-from sci_constants import get_sci_home, sci_home_key
+from sci_constants import get_sci_home, profile_name_for_home, sci_home_key
 from sci_cli.plugins_state import PluginState
 
 from .nodeapi_helpers import validate_api_key
 
 KEY_NAME = "BOLTZMANN_API_KEY"
 AUTH_MESSAGE = "Boltzmann is locked. Run /Add_boltz in this profile and enter a valid API key."
+
+
+def _profile_context():
+    home = get_sci_home()
+    name = profile_name_for_home(home)
+    label = "main (default)" if name == "default" else name or "custom SCI_HOME"
+    return f"Active profile: {label}. Resolved SCI_HOME: {home}. Profile .env location: {home / '.env'}."
 
 
 def current_key():
@@ -44,12 +51,26 @@ def authorize_saved_key():
 
 
 def require_authorized():
-    if not available():
-        raise PermissionError(AUTH_MESSAGE)
     key = current_key()
+    context = _profile_context()
+    if not key:
+        raise PermissionError(
+            f"No Boltzmann API key is configured in this profile's credential scope. {context} "
+            "Keys from main or other profiles are not used as a fallback. "
+            f"{AUTH_MESSAGE} The requested operation was not started."
+        )
+    if not available():
+        raise PermissionError(
+            f"A Boltzmann API key is configured, but its profile authorization record is missing, "
+            f"unreadable, or does not match. {context} {AUTH_MESSAGE} "
+            "The requested operation was not started."
+        )
     if not validate_api_key(key):
         raise PermissionError(
-            "Boltzmann authorization failed or the service is unreachable. "
-            "No operation ran. Check connectivity or replace the key with /Add_boltz."
+            f"A Boltzmann API key is configured and locally authorized. {context} "
+            "The service credential check did not succeed; this is NOT a missing-key diagnosis. "
+            "The check may have failed due to authorization, connectivity, or a service response error. "
+            "The requested operation was not started. This does not determine or change any existing job's outcome. "
+            "Check service connectivity and credential validity before retrying."
         )
     return key

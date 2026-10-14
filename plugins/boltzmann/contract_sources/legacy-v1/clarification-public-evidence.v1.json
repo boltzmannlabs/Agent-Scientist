@@ -1771,18 +1771,25 @@
           "label": "Ions",
           "description": "Ions to be added to the system",
           "type": "string",
-          "required": false,
+          "required": true,
           "options": [
             "K+",
-            "CL-"
+            "Cl-"
           ]
+        },
+        {
+          "name": "Ligand_Force_field",
+          "label": "Ligand Force Field",
+          "description": "Optional ligand force field.",
+          "type": "string",
+          "required": false
         },
         {
           "name": "dcd_file",
           "label": "DCD Output File",
           "description": "Whether the output should contain the trajectory in DCD format",
           "type": "string",
-          "required": false,
+          "required": true,
           "options": [
             "YES",
             "NO"
@@ -1792,7 +1799,7 @@
           "name": "Force_constant",
           "label": "Force Constant",
           "description": "Harmonic force/restrain applied to the atoms in the MDS system.",
-          "type": "integer",
+          "type": "number",
           "required": true
         }
       ]
@@ -3068,135 +3075,6 @@
           "label": "Model Name",
           "description": "Name of the model being trained (required, but not critical).",
           "type": "string",
-          "required": true
-        },
-        {
-          "name": "global_models",
-          "label": "Global Property Models",
-          "description": "Select from predefined global property models and set thresholds.",
-          "type": "checkbox_array_of_objects",
-          "options": [
-            "CaCo2 permeability",
-            "Half Life",
-            "Solubility",
-            "VDss",
-            "GIA",
-            "Biodegradability",
-            "Cyp2d9 inh",
-            "Cyp2d9 sub",
-            "PGP sub",
-            "Endocrine disrupting",
-            "Eye corrosive",
-            "Genotoxicity",
-            "Clearance",
-            "Hydration Free Energy",
-            "LD50",
-            "Lipophilicity",
-            "PPBR",
-            "rPPB",
-            "hPPB",
-            "Nephrotox_v3",
-            "BBB",
-            "Bioavailability",
-            "HIA",
-            "PAMPA",
-            "PGP_inh",
-            "Cyp1a2 inh",
-            "Cyp2c9 inh",
-            "Cyp2c9 sub",
-            "Cyp2c19 inh",
-            "Cyp2d6 inh",
-            "Cyp2d6 sub",
-            "Cyp3a4 inh",
-            "Cyp3a4 sub",
-            "AMES",
-            "Carcinogenicity",
-            "DILI",
-            "hERG",
-            "Skin reaction",
-            "ClinTox",
-            "NR-AR",
-            "NR-AR-LBD",
-            "NR-AhR",
-            "NR-Aromatase",
-            "NR-ER",
-            "NR-ER-LBD",
-            "NR-PPAR-gamma",
-            "SR-ARE",
-            "SR-ATAD5",
-            "SR-HSE",
-            "SR-MMP",
-            "SR-p53"
-          ],
-          "required": false,
-          "sub_parameters": [
-            {
-              "name": "min_threshold",
-              "label": "Min Threshold",
-              "type": "number",
-              "required": true
-            },
-            {
-              "name": "max_threshold",
-              "label": "Max Threshold",
-              "type": "number",
-              "required": true
-            }
-          ]
-        },
-        {
-          "name": "custom_models",
-          "label": "Custom Property Models",
-          "description": "Add your own custom property models.",
-          "type": "array_of_objects",
-          "required": false,
-          "sub_parameters": [
-            {
-              "name": "id",
-              "label": "Document Id",
-              "type": "string",
-              "required": true
-            },
-            {
-              "name": "min_threshold",
-              "label": "Min Threshold",
-              "type": "number",
-              "required": true
-            },
-            {
-              "name": "max_threshold",
-              "label": "Max Threshold",
-              "type": "number",
-              "required": true
-            }
-          ]
-        }
-      ]
-    },
-    "Fragment_based_generation_Inference": {
-      "id": 64,
-      "name": "Fragment Based Generation Inference",
-      "job_name": "Fragment_based_generation_Inference",
-      "parameters": [
-        {
-          "name": "job_name",
-          "label": "Experiment Name",
-          "description": "Unique name for the job.",
-          "type": "string",
-          "required": true
-        },
-        {
-          "name": "gen_model_path",
-          "label": "GFlow Model Path",
-          "description": "Path to the fine-tuned GFlow model used for molecule generation.(.ckpt)",
-          "type": "string",
-          "required": true
-        },
-        {
-          "name": "num_samples",
-          "label": "Number of Samples",
-          "description": "Number of molecules to generate from the trained model.",
-          "type": "number",
           "required": true
         },
         {

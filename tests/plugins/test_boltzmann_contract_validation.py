@@ -1,0 +1,102 @@
+"""Contract coverage and preflight behavior; no scientific service is contacted."""
+
+
+def test_every_catalog_tool_has_explicit_contract_coverage():
+    from plugins.boltzmann.contracts import ContractStore
+    from plugins.boltzmann.contract_docs import generated_modules
+
+    store = ContractStore()
+    assert store.tools
+    assert set(store.files) <= set(store.tools)
+    assert set(store.limits) <= set(store.tools)
+    for path, content in generated_modules(store.root).items():
+        assert path.read_text() == content
+    for name, contract in store.tools.items():
+        assert contract["job_name"] == name
+        assert contract["request_schema"]["type"] == "object"
+        assert "file_fields" not in contract
+        for field in store.files.get(name, {}).get("files", {}):
+            assert field in store.file_fields(name)
+        for prop in contract["request_schema"]["properties"].values():
+            assert prop["x-input-kind"] in {"file", "value", "file_or_value", "artifact"}
+        assert (store.root / contract["source"]).is_file() or contract["status"] != "active"
+
+
+def test_known_invalid_is_blocked_but_missing_detailed_file_rules_are_partial(tmp_path):
+    import zipfile
+
+    from plugins.boltzmann.contracts import ContractStore
+    from plugins.boltzmann.file_validation import validate_file
+    from plugins.boltzmann.preflight import decision
+
+    store = ContractStore()
+    # A harmless molecular geometry fixture. No backend or chemistry software runs.
+    water = tmp_path / "water.xyz"
+    water.write_text("3\nwater\nO 0 0 0\nH 0 0 1\nH 0 1 0\n")
+    report = validate_file(water, {"formats": ["xyz"], "coverage": "partial"}, {})
+    assert not report.errors
+    assert report.warnings  # Not a claim of scientific correctness.
+    payload = {"task_name": "water", "molecule_path": "fixture/upload.xyz",
+               "method": "B3LYP", "basis": "def2-TZVP", "charge": 0,
+               "spin_multiplicity": "1", "dispersion": "D3BJ"}
+    assert not store.validate_payload("Single_Point_Energy", payload).errors
+    del payload["task_name"]
+    assert any("task_name" in error for error in store.validate_payload("Single_Point_Energy", payload).errors)
+    csv = tmp_path / "input.csv"
+    rule = {"formats": ["csv"], "columns": ["id", "value"], "extra_columns": False,
+            "values": {"value": "number"}, "header_case_sensitive": True}
+    csv.write_text("id,wrong\nx,1\n")
+    assert validate_file(csv, rule, {}).errors
+    csv.write_text("id,value\nx,NaN\n")
+    assert validate_file(csv, rule, {}).errors
+    csv.write_text("id,value\nx,1\n")
+    assert not validate_file(csv, rule, {}).errors
+    csv.write_text("ID,value\nx,1\n")
+    assert validate_file(csv, rule, {}).errors
+    assert not validate_file(csv, dict(rule, header_case_sensitive=False), {}).errors
+    archive = tmp_path / "unsafe.zip"
+    with zipfile.ZipFile(archive, "w") as handle:
+        handle.writestr("../escape.txt", "fixture")
+    unsafe = validate_file(archive, {"formats": ["zip"], "coverage": "partial"}, {})
+    assert unsafe.errors and decision(unsafe, True)["status"] == "not_started"
+    with zipfile.ZipFile(archive, "w") as handle:
+        handle.writestr("fixture.txt", "harmless")
+    partial = validate_file(archive, {"formats": ["zip"], "coverage": "partial"}, {})
+    assert not partial.errors and partial.warnings
+    assert decision(partial, False)["approval_required"]
+    assert decision(partial, True) is None
+    blocked = validate_file(water, {"formats": ["xyz"], "execution_blocked": True}, {})
+    assert decision(blocked, True)["status"] == "not_started"
+
+
+def test_historical_worker_failure_warns_without_prohibiting_reviewed_submission():
+    from plugins.boltzmann.contracts import ContractStore
+    from plugins.boltzmann.preflight import decision
+
+    store = ContractStore()
+    payload = {"target_name": "fixture", "processed_pdb": "fixture/receptor.pdb",
+               "center_x": "0", "center_y": "0", "center_z": "0",
+               "max_radius_size": "1", "exhaustivness": "8", "upload_sdf": "False",
+               "smiles": "fixture/ligands.csv"}
+    # Pure preflight only: no upload, network access or scientific execution.
+    report = store.validate_payload("Vina_basic_docking", payload)
+    assert not report.errors
+    assert report.warnings
+    assert decision(report, False)["approval_required"]
+    assert decision(report, True) is None
+    del payload["processed_pdb"]
+    assert decision(store.validate_payload("Vina_basic_docking", payload), True)["status"] == "not_started"
+
+
+def test_unreconciled_entries_are_visible_without_granting_execution():
+    from plugins.boltzmann.contracts import ContractStore
+    from sci_cli.science_catalog_view import catalog_rows
+
+    store = ContractStore()
+    pending = store.catalog["unavailable_entries"]
+    rows = catalog_rows(store.root / "tool-contracts.v1.json")
+    for entry in pending:
+        assert any(row["name"] == entry["display_name"] and row["status"] != "active" for row in rows)
+        assert entry["availability_reason"]
+        if entry.get("job_name"):
+            assert store.validate_payload(entry["job_name"], {}).errors

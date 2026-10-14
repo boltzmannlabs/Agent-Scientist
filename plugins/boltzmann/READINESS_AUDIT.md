@@ -1,0 +1,221 @@
+# Boltzmann contract standardization — 2026-10-14
+
+This report supersedes the earlier 19/10/68/25 classification. The earlier
+classification is not a current executable-tool readiness score.
+
+## Result and verification boundary
+
+All 122 catalogued request entries passed local schema/type/requiredness checks,
+file-mode registration checks, and generated-document synchronization checks.
+38 entries received targeted source-backed corrections in addition to the shared
+normalization. All 31 module sheets are generated from the same three definitions.
+
+152 targeted tests passed across eight files using `scripts/run_tests.sh`.
+They cover native/MCP discovery and forwarding, localhost upload → submission →
+polling → downloads, refreshed status links, multiple/same-named artifacts,
+sanitized failures, invalid inputs, authorization/revocation, A→B→A profile
+isolation, fresh-session discovery and byte-stable existing prompts.
+
+No production scientific jobs were submitted. Passing a local request-shape test
+does not establish backend acceptance, current service availability, scientific
+correctness, subscription entitlement, cost, or correct output for every tool.
+Synthetic shape fixtures are not runnable scientific examples.
+
+## What changed
+
+- Request properties own inline/file/artifact semantics. The duplicated
+  `file_fields` allowlist has been removed, eliminating the shared-omission gate.
+- Twelve source-backed missing upload registrations were supplied. Multimer's
+  recorded inline input was preserved rather than inventing a file mode.
+- Nested model/threshold schemas, numeric-string fields, requiredness and
+  conditional inputs were reconciled from the retained evidence.
+- File rules and limits are sparse supplements, not mandatory duplicate entries.
+  Missing specialized rules do not alone prohibit an otherwise documented call.
+- Basic FASTA/PDB syntax inspection supplements existing CSV/ZIP/XYZ/SDF checks.
+  Scientific suitability is not falsely marked verified.
+- Native and MCP helper arguments agree. Polling retains all returned links and
+  refreshes terminal responses; artifact filename collisions no longer overwrite.
+- Development classifications/history live outside active skill knowledge.
+
+The storage reference returned by upload is used unchanged in the declared
+payload field. The existing helper response key is `s3_path`; that name does not
+require changing a platform-returned GCP/object reference or inventing a URL.
+
+## Remaining boundaries — not hidden
+
+Two file modes remain restricted for serialized-code safety:
+
+- `Thermal_MPNN.model_path`: custom serialized model upload. The documented
+  platform-default mode is separate.
+- `epitope_abgen.input_path`: prepared serialized features/archive. The recorded
+  PDB-input mode is separate.
+
+Authentication, profile permission checks, unsafe archives and known-invalid
+inputs remain enforced. User approval does not make those inputs safe.
+
+The retained sources do not fully specify these optional nested shapes:
+`boltzgen.atom1_list`, `boltzgen.atom2_list`, `boltzgen.total_len`, and
+`Lead_Generation_Reinvent.off_tar_seqs`. Existing descriptions/examples are
+preserved, but full item/object constraints were not fabricated. These do not
+create a blanket tool-level block. A platform-owner request example/specification
+is needed before claiming every optional mode is precisely modeled.
+
+Seven historical entries below lack a complete reconciled executable request
+and remain outside the 122-job catalog. Twenty-six additional historical names
+remain in the prior developer audit; they have not been silently enabled or
+mapped to similarly named services. The old audit is retained at
+`contract_sources/availability-audit-before-standardization.md`.
+
+## Additional unavailable entries
+
+| Name | Historical job name | Missing information |
+|---|---|---|
+| Create Library | `create_library` | Historical job name documented; no reconciled executable request contract in this catalog. Do not infer a payload or claim current service availability. |
+| Deepcodon | `Deepcodon` | Historical job name documented; no reconciled executable request contract in this catalog. Do not infer a payload or claim current service availability. |
+| Formulation Search | `Formulation_Search` | Historical job name documented; no reconciled executable request contract in this catalog. Do not infer a payload or claim current service availability. |
+| Fragments | `fragments` | Historical job name documented; no reconciled executable request contract in this catalog. Do not infer a payload or claim current service availability. |
+| Interactive Builder | `not established` | No explicit job name or executable request contract established in the reviewed sources. |
+| QM-MM Single-Point Energy | `QM_MM_SPE` | Historical job name documented; no reconciled executable request contract in this catalog. Do not infer a payload or claim current service availability. |
+| Toxicophore Screening | `toxic_screening` | Historical job name documented; no reconciled executable request contract in this catalog. Do not infer a payload or claim current service availability. |
+
+## Full 122-job list
+
+Every row below passed local contract checks, not a production experiment.
+File-mode restrictions and incomplete optional shape definitions are explicitly
+listed in the CSV/JSON inventory; a passing row does not erase those boundaries.
+
+| # | Scientific tool | Exact job name | Module |
+|---:|---|---|---|
+| 1 | Geometry Optimization | `Geometry_Optimization` | quantum-chemistry |
+| 2 | HOMO-LUMO & Reactivity Descriptors | `Reactivity_Descriptors_Combined` | quantum-chemistry |
+| 3 | Single Point Energy | `Single_Point_Energy` | quantum-chemistry |
+| 4 | MDS Gromacs | `MDS_Gromacs` | molecular-dynamics |
+| 5 | MDS OpenMM | `MDS_openMM` | molecular-dynamics |
+| 6 | Antibody Backbone to Sequence Generation | `Antibody_Backbone_to_Sequence_Generation` | protein-antibody-generation |
+| 7 | Backbone Generation | `Backbone_Generation` | protein-antibody-generation |
+| 8 | CDR Generator | `CDR_Generator` | protein-antibody-generation |
+| 9 | Random Antibody Generation | `Random_Antibody_Generation` | protein-antibody-generation |
+| 10 | MegaDock | `MegaDock` | protein-docking |
+| 11 | Placer | `Placer` | protein-docking |
+| 12 | Function-Based Enzyme Generation | `Function_Based_Enzyme_Generation` | protein-enzyme-generation |
+| 13 | Genzyme Generation | `Genzyme_Generation` | protein-enzyme-generation |
+| 14 | BoltzGen | `boltzgen` | protein-generative-design |
+| 15 | PPI Flow Antibody | `ppiflowantibody` | protein-generative-design |
+| 16 | PPI Flow Monomer | `ppiflowmonomer` | protein-generative-design |
+| 17 | PPI Flow Nanobody | `ppiflownanobody` | protein-generative-design |
+| 18 | PPI Flow Protein | `ppiflowprotein` | protein-generative-design |
+| 19 | PX Design Infer | `pxdesigninfer` | protein-generative-design |
+| 20 | PX Design Pipeline | `pxdesignpipeline` | protein-generative-design |
+| 21 | Directed Evolution (MLDE) | `Insilico_Directed_Evolution` | protein-optimization |
+| 22 | Random Controlled Mutagenesis | `Random_Controlled_Mutagenesis` | protein-optimization |
+| 23 | ActSeek | `act_seek` | protein-optimization |
+| 24 | Stability-Binding DDG | `stability-binding-ddg` | protein-optimization |
+| 25 | Evobind | `Evobind` | protein-peptide-generation |
+| 26 | Sequence based peptide generation | `Sequence_based_peptide_generation` | protein-peptide-generation |
+| 27 | Structure-Based Peptide Generation | `Structure_based_peptide_generation` | protein-peptide-generation |
+| 28 | Cyclic Binder | `cyclic_binder` | protein-peptide-generation |
+| 29 | Antibody Property Prediction | `Antibody_Prediction` | protein-property-prediction |
+| 30 | Enzymes | `Enzymes` | protein-property-prediction |
+| 31 | Peptide Property Prediction | `Peptide_Property_Prediction` | protein-property-prediction |
+| 32 | Vaccines | `Vaccines` | protein-property-prediction |
+| 33 | Kinetic Kcat | `kcat_km` | protein-property-prediction |
+| 34 | Kcatnet | `kcatnet` | protein-property-prediction |
+| 35 | Peptiverse | `peptiverse` | protein-property-prediction |
+| 36 | Boltz-2 | `Boltz2` | protein-structure-prediction |
+| 37 | Multimer Structure Prediction | `Multimer_Structure_Prediction` | protein-structure-prediction |
+| 38 | Monomer Structure Prediction | `Protein_Structure_Prediction` | protein-structure-prediction |
+| 39 | ipSAE Generation | `ipsae-protein` | protein-structure-prediction |
+| 40 | AntiBMPNN | `AntiBMPNN` | protein-target-aware-antibody |
+| 41 | Antibody RFD3 | `agcdr_diff` | protein-target-aware-antibody |
+| 42 | Target-Aware CDR Designer / Epitope Conditioned Antibody Generation | `epitope_abgen` | protein-target-aware-antibody |
+| 43 | RF-Antibody | `rfdiffusion_proteinmpnn` | protein-target-aware-antibody |
+| 44 | Antibody Numbering | `Antibody_Numbering` | protein-toolbox |
+| 45 | Cat_Pred (Catalyst Prediction) | `Cat_Pred` | protein-toolbox |
+| 46 | Clean (Enzyme Classification) | `Clean` | protein-toolbox |
+| 47 | Ligand MPNN | `Ligand_MPNN` | protein-toolbox |
+| 48 | Motif Scaffolding | `Motiff_Scaffolding` | protein-toolbox |
+| 49 | NetsolP (Solubility) | `Netsolp` | protein-toolbox |
+| 50 | Pep_Patch | `Pep_Patch` | protein-toolbox |
+| 51 | Prodigy (Binding Affinity) | `Prodigy` | protein-toolbox |
+| 52 | RC Plot | `RC_Plot` | protein-toolbox |
+| 53 | Solublempnn | `Solublempnn` | protein-toolbox |
+| 54 | Thermal MPNN | `Thermal_MPNN` | protein-toolbox |
+| 55 | Unconditional Sampling | `Uncondtional_Sampling` | protein-toolbox |
+| 56 | IG Design | `igdesign` | protein-toolbox |
+| 57 | TM Align | `tm_align` | protein-toolbox |
+| 58 | Protein-RNA Interaction Prediction | `Rna_Inter_Pred` | rna-binding |
+| 59 | RNA_Binding_Specificity_Prediction | `rna_bind_specificity_pred` | rna-binding |
+| 60 | RNA Pocket Prediction | `rna_pocket_pred` | rna-binding |
+| 61 | Circular RNA Design | `CircRNA` | rna-circrna |
+| 62 | Circular RNA Evaluation | `CircRNAEvaluate` | rna-circrna |
+| 63 | BiomambaRna | `BiomambaRna` | rna-generation |
+| 64 | siRNA Generation | `rna_siRNA_gen` | rna-generation |
+| 65 | RNA 3'UTR Generation | `rnagen_3utr` | rna-generation |
+| 66 | RNA 5'UTR Generation | `rnagen_5utr` | rna-generation |
+| 67 | RNA CDS Generation | `rnagen_cds` | rna-generation |
+| 68 | RNA mRNA Generation | `rnagen_cds_mrna-gen` | rna-generation |
+| 69 | CRISPR Bystander Effect Prediction | `BE_bystander_prediction` | rna-grna-design |
+| 70 | CRISPR Base-Editing Efficacy Prediction | `BE_efficacy_pred` | rna-grna-design |
+| 71 | CRISPR Base Editing | `crispr_base_editing` | rna-grna-design |
+| 72 | CRISPR IndelShift Prediction | `crispr_fs_score` | rna-grna-design |
+| 73 | CRISPR Off-Target Prediction | `crispr_score` | rna-grna-design |
+| 74 | CRISPR gRNA Design | `gRNA_design` | rna-grna-design |
+| 75 | RNA Tertiary Folding | `TertiaryFolding` | rna-inverse-fold |
+| 76 | RNA 2D Inverse Folding | `rna_inverse_fold` | rna-inverse-fold |
+| 77 | CDS Property Prediction | `CodonRLBERTPropPred` | rna-property-prediction |
+| 78 | mRNA Property Calculation | `rna_property_calculation` | rna-property-prediction |
+| 79 | RNA Property Prediction — In-Cell Stability | `rna_property_prediction_incell_stabilty` | rna-property-prediction |
+| 80 | RNA Property Prediction — Mean Ribosomal Load | `rna_property_prediction_mean_ribosomal_load` | rna-property-prediction |
+| 81 | siRNA Efficacy Prediction | `rna_siRNA_efficacy_pred` | rna-property-prediction |
+| 82 | siRNA Property Prediction | `siRNA_obj_pred` | rna-property-prediction |
+| 83 | RNA Tertiary Structure Prediction | `rna_structure_prediction` | rna-structure-prediction |
+| 84 | Secondary Structure Prediction | `sec_struct_pred` | rna-structure-prediction |
+| 85 | CodonRLBERT | `CodonRLBERT` | rna-translation-codon |
+| 86 | RNA Translation Prediction | `RNA_Translation` | rna-translation-codon |
+| 87 | RNA Translational Efficiency Prediction | `transla_score` | rna-translation-codon |
+| 88 | R-Group Enumeration | `Molecule_Enumeration` | small-molecule-enumeration |
+| 89 | Create Dataset | `dataset_creation` | small-molecule-enumeration |
+| 90 | Fragment-Based Optimization | `Fragment_Based_Optimization` | small-molecule-optimization |
+| 91 | Lead Generation — Augmented | `Lead_Generation_Augmented` | small-molecule-optimization |
+| 92 | Graph GA | `Lead_Generation_Graph_GA` | small-molecule-optimization |
+| 93 | Mars Plus | `Lead_Generation_Mars_Plus` | small-molecule-optimization |
+| 94 | Lead Generation — Reinvent | `Lead_Generation_Reinvent` | small-molecule-optimization |
+| 95 | Lead Optimization MCTS | `Lead_Optimization_Mcts` | small-molecule-optimization |
+| 96 | Pharmacophore-Based Generator (pgmg_molgen) | `Pharmacophore_Based_Generator` | small-molecule-pharmacophore-generation |
+| 97 | Pharmacophore Hypothesis (phcore_gen) | `Pharmacophore_Hypothesis` | small-molecule-pharmacophore-generation |
+| 98 | Custom Property Model ML | `Custom_Property_Model_Automl` | small-molecule-qspr |
+| 99 | Custom Property Model DL | `Custom_Property_Model_DL` | small-molecule-qspr |
+| 100 | Property Prediction (propinf) | `Property_Prediction` | small-molecule-qspr |
+| 101 | global_ic50 | `global_ic50` | small-molecule-qspr |
+| 102 | Random Generation — Inference | `Random_based_generation_Inference_transvaegen` | small-molecule-random-generation |
+| 103 | Random Generation — Inference | `Random_based_generation_nontrans` | small-molecule-random-generation |
+| 104 | Random based generation training | `Random_based_generation_training` | small-molecule-random-generation |
+| 105 | Butina Clustering | `Butina_Clustering` | small-molecule-screening |
+| 106 | K-Means Clustering | `K_Means_Clustering` | small-molecule-screening |
+| 107 | Novelty Check | `Novelty` | small-molecule-screening |
+| 108 | Pharmacophore Screening | `Pharmacophore_Screening` | small-molecule-screening |
+| 109 | QSPR Screening | `QSPR_Screening` | small-molecule-screening |
+| 110 | Similarity Screening | `Similarity_Screening` | small-molecule-screening |
+| 111 | Substructure Screening | `Substructure_Screening` | small-molecule-screening |
+| 112 | Structure-Based Generator | `Structure_Based_Generator` | small-molecule-structure-generation |
+| 113 | Binding Site Prediction (fpocket) | `Binding_Site_Prediction` | small-molecule-toolbox |
+| 114 | Molecular Docking — DiffDock Mode | `Diffdock` | small-molecule-toolbox |
+| 115 | Flexible Docking | `Vina_Flexible_Docking` | small-molecule-toolbox |
+| 116 | Molecular Docking — Vina Score Only Mode | `Vina_Score_only_docking` | small-molecule-toolbox |
+| 117 | Molecular Docking | `Vina_basic_docking` | small-molecule-toolbox |
+| 118 | Atom Mapping | `atom_mapping` | synthetic-forward-reaction |
+| 119 | Condition Recommendation | `condition_recommendation` | synthetic-forward-reaction |
+| 120 | Forward Reaction Prediction | `forward_reaction` | synthetic-forward-reaction |
+| 121 | Impurity Prediction | `impurity_prediction` | synthetic-forward-reaction |
+| 122 | Retrosynthesis | `retrosynthesis` | synthetic-retrosynthesis |
+
+## Reproducible records
+
+- [Filterable per-tool CSV](contract_sources/verification-2026-10-14.csv)
+- [Per-tool JSON and source hashes](contract_sources/verification-2026-10-14.json)
+- [Original definitions and change notes](contract_sources/standardization-record.v1.json)
+- [Definition ownership and maintenance](CONTRACTS.md)
+
+Use a fresh process/conversation after updating installed code; do not reload
+instructions into an existing cached conversation. Profile state and credentials
+are not distributed with these definitions.

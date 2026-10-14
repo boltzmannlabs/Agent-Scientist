@@ -246,12 +246,6 @@
       "source": "modules/synthetic-forward-reaction.md",
       "user_fields": [
         {
-          "name": "session_id",
-          "type": "string",
-          "required": true,
-          "notes": "Session identifier"
-        },
-        {
           "name": "reactants",
           "type": "string",
           "required": true,
@@ -916,13 +910,13 @@
           "name": "input_path",
           "type": "file",
           "required": true,
-          "notes": "Platform path to the input CSV returned by `file_upload`.",
+          "notes": "Required CSV storage path returned by `file_upload`. Headers are case-insensitive, but the singular aliases `sequence` and `smile` are rejected; `seq_id` is not required. Sequence and SMILES values retain their case. CatPred automatically predicts kcat, Km, and Ki for every row and has no user-selectable mode or `prediction_type` field.",
           "accepted_file_extensions": [
             ".csv"
           ],
           "required_columns": [
-            "Sequences",
-            "SMILES"
+            "sequences",
+            "smiles"
           ],
           "control": "file"
         }
@@ -1200,12 +1194,6 @@
       "source_status": "documented",
       "source": "modules/synthetic-forward-reaction.md",
       "user_fields": [
-        {
-          "name": "session_id",
-          "type": "string",
-          "required": true,
-          "notes": "Session identifier"
-        },
         {
           "name": "reactants",
           "type": "string",
@@ -1869,110 +1857,6 @@
         }
       ]
     },
-    "Fragment_based_generation_Inference": {
-      "display_name": "Fragment-Based Generation Inference (gflowinf)",
-      "job_name": "Fragment_based_generation_Inference",
-      "aliases": [
-        "Fragment-Based Generation Inference",
-        "Fragment-Based Generation Inference (gflowinf)",
-        "Fragment_based_generation_Inference"
-      ],
-      "module_id": "small-molecule-structure-generation",
-      "status": "active",
-      "source_status": "documented",
-      "source": "modules/small-molecule-structure-generation.md",
-      "user_fields": [
-        {
-          "name": "model_name",
-          "type": "string",
-          "required": true,
-          "notes": "Model name"
-        },
-        {
-          "name": "gen_model_path",
-          "type": "string",
-          "required": true,
-          "notes": "S3 path to trained model"
-        },
-        {
-          "name": "num_samples",
-          "type": "integer",
-          "required": true,
-          "notes": "Number of molecules"
-        },
-        {
-          "name": "prop_model_category",
-          "type": "string",
-          "required": false,
-          "notes": "Default: `\"ML\"`"
-        },
-        {
-          "name": "global_models",
-          "type": "array",
-          "required": true,
-          "notes": "At least one model",
-          "options": [
-            "CaCo2 permeability",
-            "Half Life",
-            "Solubility",
-            "VDss",
-            "GIA",
-            "Biodegradability",
-            "Cyp2d9 inh",
-            "Cyp2d9 sub",
-            "PGP sub",
-            "Endocrine disrupting",
-            "Eye corrosive",
-            "Genotoxicity",
-            "Clearance",
-            "Hydration Free Energy",
-            "LD50",
-            "Lipophilicity",
-            "PPBR",
-            "rPPB",
-            "hPPB",
-            "Nephrotox_v3",
-            "BBB",
-            "Bioavailability",
-            "HIA",
-            "PAMPA",
-            "PGP_inh",
-            "Cyp1a2 inh",
-            "Cyp2c9 inh",
-            "Cyp2c9 sub",
-            "Cyp2c19 inh",
-            "Cyp2d6 inh",
-            "Cyp2d6 sub",
-            "Cyp3a4 inh",
-            "Cyp3a4 sub",
-            "AMES",
-            "Carcinogenicity",
-            "DILI",
-            "hERG",
-            "Skin reaction",
-            "ClinTox",
-            "NR-AR",
-            "NR-AR-LBD",
-            "NR-AhR",
-            "NR-Aromatase",
-            "NR-ER",
-            "NR-ER-LBD",
-            "NR-PPAR-gamma",
-            "SR-ARE",
-            "SR-ATAD5",
-            "SR-HSE",
-            "SR-MMP",
-            "SR-p53"
-          ]
-        },
-        {
-          "name": "custom_models",
-          "type": "array",
-          "required": true,
-          "notes": "At least one model"
-        }
-      ]
-    },
     "Function_Based_Enzyme_Generation": {
       "display_name": "Function-Based Enzyme Generation",
       "job_name": "Function_Based_Enzyme_Generation",
@@ -2147,12 +2031,6 @@
       "source_status": "documented",
       "source": "modules/synthetic-forward-reaction.md",
       "user_fields": [
-        {
-          "name": "session_id",
-          "type": "string",
-          "required": true,
-          "notes": "Session identifier"
-        },
         {
           "name": "reactants",
           "type": "string",
@@ -2569,6 +2447,410 @@
       ],
       "execution_hold": "Operator hold: documentation/clarification does not authorize execution."
     },
+    "Lead_Optimization_Mcts": {
+      "display_name": "Lead Optimization MCTS",
+      "job_name": "Lead_Optimization_Mcts",
+      "aliases": [
+        "Lead Optimization MCTS",
+        "Lead Optimization Mcts",
+        "Lead_Optimization_Mcts",
+        "lead optimization",
+        "mcts lead optimization"
+      ],
+      "module_id": "small-molecule-optimization",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/small-molecule-optimization.md",
+      "user_fields": [
+        {
+          "name": "n_mols",
+          "type": "integer",
+          "required": true,
+          "notes": "Number of molecules to generate during lead optimization."
+        },
+        {
+          "name": "hit_smile",
+          "type": "string",
+          "required": true,
+          "notes": "Reference molecule SMILES used as the starting point. Use the exact field `hit_smile`."
+        },
+        {
+          "name": "global_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional global property models. Each selected item uses `{name, min_threshold, max_threshold}`. Preserve supplied bounds; empty strings represent omitted bounds in the supplied platform example.",
+          "options": [
+            "CaCo2 permeability",
+            "Half Life",
+            "Solubility",
+            "VDss",
+            "GIA",
+            "Biodegradability",
+            "Cyp2d9 inh",
+            "Cyp2d9 sub",
+            "PGP sub",
+            "Endocrine disrupting",
+            "Eye corrosive",
+            "Genotoxicity",
+            "Clearance",
+            "Hydration Free Energy",
+            "LD50",
+            "Lipophilicity",
+            "PPBR",
+            "rPPB",
+            "hPPB",
+            "Nephrotox_v3",
+            "BBB",
+            "Bioavailability",
+            "HIA",
+            "PAMPA",
+            "PGP_inh",
+            "Cyp1a2 inh",
+            "Cyp2c9 inh",
+            "Cyp2c9 sub",
+            "Cyp2c19 inh",
+            "Cyp2d6 inh",
+            "Cyp2d6 sub",
+            "Cyp3a4 inh",
+            "Cyp3a4 sub",
+            "AMES",
+            "Carcinogenicity",
+            "DILI",
+            "hERG",
+            "Skin reaction",
+            "ClinTox",
+            "NR-AR",
+            "NR-AR-LBD",
+            "NR-AhR",
+            "NR-Aromatase",
+            "NR-ER",
+            "NR-ER-LBD",
+            "NR-PPAR-gamma",
+            "SR-ARE",
+            "SR-ATAD5",
+            "SR-HSE",
+            "SR-MMP",
+            "SR-p53"
+          ]
+        },
+        {
+          "name": "custom_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional custom property models in `{id, min_threshold, max_threshold}` form."
+        }
+      ],
+      "show_optional_fields": true
+    },
+    "Lead_Generation_Mars_Plus": {
+      "display_name": "Mars Plus",
+      "job_name": "Lead_Generation_Mars_Plus",
+      "aliases": [
+        "Mars Plus",
+        "Lead Generation Mars Plus",
+        "Lead_Generation_Mars_Plus",
+        "mars plus lead generation"
+      ],
+      "module_id": "small-molecule-optimization",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/small-molecule-optimization.md",
+      "user_fields": [
+        {
+          "name": "smiles",
+          "type": "string",
+          "required": true,
+          "notes": "Starting molecule SMILES string."
+        },
+        {
+          "name": "n_mols",
+          "type": "integer",
+          "required": true,
+          "notes": "Number of molecules to generate."
+        },
+        {
+          "name": "n_steps",
+          "type": "integer",
+          "required": true,
+          "notes": "Number of optimization steps."
+        },
+        {
+          "name": "global_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional global property models. Each selected item uses `{name, min_threshold, max_threshold}`. Preserve supplied bounds; empty strings represent omitted bounds in the supplied platform example.",
+          "options": [
+            "CaCo2 permeability",
+            "Half Life",
+            "Solubility",
+            "VDss",
+            "GIA",
+            "Biodegradability",
+            "Cyp2d9 inh",
+            "Cyp2d9 sub",
+            "PGP sub",
+            "Endocrine disrupting",
+            "Eye corrosive",
+            "Genotoxicity",
+            "Clearance",
+            "Hydration Free Energy",
+            "LD50",
+            "Lipophilicity",
+            "PPBR",
+            "rPPB",
+            "hPPB",
+            "Nephrotox_v3",
+            "BBB",
+            "Bioavailability",
+            "HIA",
+            "PAMPA",
+            "PGP_inh",
+            "Cyp1a2 inh",
+            "Cyp2c9 inh",
+            "Cyp2c9 sub",
+            "Cyp2c19 inh",
+            "Cyp2d6 inh",
+            "Cyp2d6 sub",
+            "Cyp3a4 inh",
+            "Cyp3a4 sub",
+            "AMES",
+            "Carcinogenicity",
+            "DILI",
+            "hERG",
+            "Skin reaction",
+            "ClinTox",
+            "NR-AR",
+            "NR-AR-LBD",
+            "NR-AhR",
+            "NR-Aromatase",
+            "NR-ER",
+            "NR-ER-LBD",
+            "NR-PPAR-gamma",
+            "SR-ARE",
+            "SR-ATAD5",
+            "SR-HSE",
+            "SR-MMP",
+            "SR-p53"
+          ]
+        },
+        {
+          "name": "custom_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional custom property models in `{id, min_threshold, max_threshold}` form."
+        }
+      ],
+      "show_optional_fields": true
+    },
+    "Lead_Generation_Graph_GA": {
+      "display_name": "Graph GA",
+      "job_name": "Lead_Generation_Graph_GA",
+      "aliases": [
+        "Graph GA",
+        "Lead Generation Graph GA",
+        "Lead_Generation_Graph_GA",
+        "graph genetic algorithm"
+      ],
+      "module_id": "small-molecule-optimization",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/small-molecule-optimization.md",
+      "user_fields": [
+        {
+          "name": "smiles",
+          "type": "string",
+          "required": true,
+          "notes": "Validated starting molecule SMILES. Screenshot text is not a default."
+        },
+        {
+          "name": "n_mols",
+          "type": "integer",
+          "required": true,
+          "notes": "Number of molecules to generate."
+        },
+        {
+          "name": "n_steps",
+          "type": "integer",
+          "required": true,
+          "notes": "Number of optimization steps."
+        },
+        {
+          "name": "global_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional global property models. Each selected item uses `{name, min_threshold, max_threshold}`. Preserve supplied bounds; empty strings represent omitted bounds in the supplied platform example.",
+          "options": [
+            "CaCo2 permeability",
+            "Half Life",
+            "Solubility",
+            "VDss",
+            "GIA",
+            "Biodegradability",
+            "Cyp2d9 inh",
+            "Cyp2d9 sub",
+            "PGP sub",
+            "Endocrine disrupting",
+            "Eye corrosive",
+            "Genotoxicity",
+            "Clearance",
+            "Hydration Free Energy",
+            "LD50",
+            "Lipophilicity",
+            "PPBR",
+            "rPPB",
+            "hPPB",
+            "Nephrotox_v3",
+            "BBB",
+            "Bioavailability",
+            "HIA",
+            "PAMPA",
+            "PGP_inh",
+            "Cyp1a2 inh",
+            "Cyp2c9 inh",
+            "Cyp2c9 sub",
+            "Cyp2c19 inh",
+            "Cyp2d6 inh",
+            "Cyp2d6 sub",
+            "Cyp3a4 inh",
+            "Cyp3a4 sub",
+            "AMES",
+            "Carcinogenicity",
+            "DILI",
+            "hERG",
+            "Skin reaction",
+            "ClinTox",
+            "NR-AR",
+            "NR-AR-LBD",
+            "NR-AhR",
+            "NR-Aromatase",
+            "NR-ER",
+            "NR-ER-LBD",
+            "NR-PPAR-gamma",
+            "SR-ARE",
+            "SR-ATAD5",
+            "SR-HSE",
+            "SR-MMP",
+            "SR-p53"
+          ]
+        },
+        {
+          "name": "custom_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional custom property models in `{id, min_threshold, max_threshold}` form."
+        }
+      ],
+      "show_optional_fields": true
+    },
+    "Fragment_Based_Optimization": {
+      "display_name": "Fragment-Based Optimization",
+      "job_name": "Fragment_Based_Optimization",
+      "aliases": [
+        "Fragment-Based Optimization",
+        "Fragment Based Optimization",
+        "Fragment_Based_Optimization",
+        "fragment based optimization"
+      ],
+      "module_id": "small-molecule-optimization",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/small-molecule-optimization.md",
+      "user_fields": [
+        {
+          "name": "ref_mol",
+          "type": "string",
+          "required": true,
+          "notes": "Validated reference molecule SMILES. Screenshot text is not a default."
+        },
+        {
+          "name": "library_path",
+          "type": "file",
+          "required": true,
+          "notes": "Upload a CSV with a `SMILES` header and use the returned platform storage path.",
+          "accepted_file_extensions": [
+            "csv"
+          ],
+          "required_columns": [
+            "SMILES"
+          ],
+          "control": "file"
+        },
+        {
+          "name": "global_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional global property models. Each selected item uses `{name, min_threshold, max_threshold}`. Preserve supplied bounds; empty strings represent omitted bounds in the supplied platform example.",
+          "options": [
+            "CaCo2 permeability",
+            "Half Life",
+            "Solubility",
+            "VDss",
+            "GIA",
+            "Biodegradability",
+            "Cyp2d9 inh",
+            "Cyp2d9 sub",
+            "PGP sub",
+            "Endocrine disrupting",
+            "Eye corrosive",
+            "Genotoxicity",
+            "Clearance",
+            "Hydration Free Energy",
+            "LD50",
+            "Lipophilicity",
+            "PPBR",
+            "rPPB",
+            "hPPB",
+            "Nephrotox_v3",
+            "BBB",
+            "Bioavailability",
+            "HIA",
+            "PAMPA",
+            "PGP_inh",
+            "Cyp1a2 inh",
+            "Cyp2c9 inh",
+            "Cyp2c9 sub",
+            "Cyp2c19 inh",
+            "Cyp2d6 inh",
+            "Cyp2d6 sub",
+            "Cyp3a4 inh",
+            "Cyp3a4 sub",
+            "AMES",
+            "Carcinogenicity",
+            "DILI",
+            "hERG",
+            "Skin reaction",
+            "ClinTox",
+            "NR-AR",
+            "NR-AR-LBD",
+            "NR-AhR",
+            "NR-Aromatase",
+            "NR-ER",
+            "NR-ER-LBD",
+            "NR-PPAR-gamma",
+            "SR-ARE",
+            "SR-ATAD5",
+            "SR-HSE",
+            "SR-MMP",
+            "SR-p53"
+          ]
+        },
+        {
+          "name": "custom_models",
+          "type": "array",
+          "required": false,
+          "format": "threshold_models",
+          "notes": "Optional custom property models in `{id, min_threshold, max_threshold}` form."
+        }
+      ],
+      "show_optional_fields": true
+    },
     "Ligand_MPNN": {
       "display_name": "Ligand MPNN",
       "job_name": "Ligand_MPNN",
@@ -2637,49 +2919,323 @@
       ],
       "show_optional_fields": true
     },
-    "Merge_Substructure": {
-      "display_name": "Merge Substructure",
-      "job_name": "Merge_Substructure",
+    "MDS_openMM": {
+      "display_name": "MDS OpenMM",
+      "job_name": "MDS_openMM",
       "aliases": [
-        "Merge Substructure",
-        "Merge_Substructure"
+        "MDS OpenMM",
+        "MDS openMM",
+        "MDS_openMM",
+        "OpenMM molecular dynamics",
+        "openmm"
       ],
-      "module_id": "small-molecule-structure-generation",
+      "module_id": "molecular-dynamics",
       "status": "active",
       "source_status": "documented",
-      "source": "modules/small-molecule-structure-generation.md",
+      "source": "modules/molecular-dynamics.md",
       "user_fields": [
         {
-          "name": "rationale_path_1",
-          "type": "string",
-          "required": true,
-          "notes": "S3 path (from subgen output)"
+          "name": "Complex_pdb",
+          "type": "file",
+          "required": false,
+          "notes": "Optional uploaded complex PDB. Supply this, or supply both separate protein and ligand PDBs; use the returned platform storage path.",
+          "accepted_file_extensions": [
+            "pdb"
+          ],
+          "required_columns": [],
+          "control": "file"
         },
         {
-          "name": "rationale_path_2",
-          "type": "string",
-          "required": true,
-          "notes": "S3 path (from subgen output)"
+          "name": "Protein_PDB_file_name",
+          "type": "file",
+          "required": false,
+          "notes": "Optional uploaded protein `.pdb`; required together with `Ligand_PDB_file_name` when `Complex_pdb` is absent.",
+          "accepted_file_extensions": [
+            "pdb"
+          ],
+          "required_columns": [],
+          "control": "file"
         },
         {
-          "name": "prop_model_category",
+          "name": "Ligand_PDB_file_name",
+          "type": "file",
+          "required": false,
+          "notes": "Optional uploaded ligand `.pdb`; required together with `Protein_PDB_file_name` when `Complex_pdb` is absent.",
+          "accepted_file_extensions": [
+            "pdb"
+          ],
+          "required_columns": [],
+          "control": "file"
+        },
+        {
+          "name": "Pressure",
+          "type": "number",
+          "required": true,
+          "notes": "Simulation pressure in bar. Ask the user; no default was supplied."
+        },
+        {
+          "name": "Temperature",
+          "type": "number",
+          "required": true,
+          "notes": "Simulation temperature in kelvin. Ask the user; no default was supplied."
+        },
+        {
+          "name": "Time",
+          "type": "number",
+          "required": true,
+          "notes": "Production time in nanoseconds. Ask the user; no default was supplied."
+        },
+        {
+          "name": "Water_type",
+          "type": "string",
+          "required": true,
+          "notes": "Select the exact water-model value.",
+          "options": [
+            "TIP3P",
+            "OPC"
+          ]
+        },
+        {
+          "name": "Force_field",
+          "type": "string",
+          "required": true,
+          "notes": "Select the exact protein force-field value.",
+          "options": [
+            "ff19SB",
+            "ff14SB"
+          ]
+        },
+        {
+          "name": "Ions",
+          "type": "string",
+          "required": true,
+          "notes": "Preserve exact spelling and case.",
+          "options": [
+            "K+",
+            "Cl-"
+          ]
+        },
+        {
+          "name": "Ligand_Force_field",
           "type": "string",
           "required": false,
-          "notes": "Default: `\"ML\"`"
+          "notes": "Optional ligand force field. No supported-value enum was supplied; do not invent one."
         },
         {
-          "name": "global_models",
-          "type": "array",
+          "name": "dcd_file",
+          "type": "string",
           "required": true,
-          "notes": "At least one model"
+          "notes": "Whether the result should include a DCD trajectory.",
+          "options": [
+            "YES",
+            "NO"
+          ]
         },
         {
-          "name": "custom_models",
-          "type": "array",
+          "name": "Force_constant",
+          "type": "number",
           "required": true,
-          "notes": "At least one model"
+          "notes": "User-confirmed restraint force constant. No unit, default, or range was supplied."
         }
-      ]
+      ],
+      "show_optional_fields": true
+    },
+    "MDS_Gromacs": {
+      "display_name": "MDS Gromacs",
+      "job_name": "MDS_Gromacs",
+      "aliases": [
+        "MDS Gromacs",
+        "MDS_Gromacs",
+        "Gromacs molecular dynamics",
+        "gromacs"
+      ],
+      "module_id": "molecular-dynamics",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/molecular-dynamics.md",
+      "user_fields": [
+        {
+          "name": "force_field",
+          "type": "string",
+          "required": true,
+          "notes": "Select the exact force-field value.",
+          "options": [
+            "amber",
+            "charmm36"
+          ]
+        },
+        {
+          "name": "Protein_PDB_file",
+          "type": "file",
+          "required": true,
+          "notes": "Upload the protein `.pdb` and use the returned platform storage path.",
+          "accepted_file_extensions": [
+            "pdb"
+          ],
+          "required_columns": [],
+          "control": "file"
+        },
+        {
+          "name": "Ligand_PDB_file",
+          "type": "file",
+          "required": true,
+          "notes": "Upload the ligand `.pdb` and use the returned platform storage path.",
+          "accepted_file_extensions": [
+            "pdb"
+          ],
+          "required_columns": [],
+          "control": "file"
+        },
+        {
+          "name": "Stream_str_file",
+          "type": "file",
+          "required": false,
+          "notes": "STR file required when `force_field` is `charmm36`.",
+          "accepted_file_extensions": [
+            "str"
+          ],
+          "required_columns": [],
+          "control": "file"
+        },
+        {
+          "name": "Time",
+          "type": "number",
+          "required": true,
+          "notes": "Total production time in picoseconds. Ask the user; screenshot values are not defaults."
+        },
+        {
+          "name": "XTC Trajectory File",
+          "type": "string",
+          "required": false,
+          "notes": "Whether to generate an XTC trajectory. Preserve the spaces and capitalization in this wire key.",
+          "options": [
+            "YES",
+            "NO"
+          ]
+        },
+        {
+          "name": "temparature",
+          "type": "number",
+          "required": true,
+          "notes": "Simulation temperature. Preserve the backend misspelling; do not send `temperature`."
+        },
+        {
+          "name": "pressure",
+          "type": "number",
+          "required": true,
+          "notes": "Simulation pressure. Ask the user; screenshot values are not defaults."
+        },
+        {
+          "name": "water_type",
+          "type": "string",
+          "required": true,
+          "notes": "Select the exact water-model value.",
+          "options": [
+            "TIP3P",
+            "SPC",
+            "TIP4P",
+            "TIP5P",
+            "TIP4PEW"
+          ]
+        },
+        {
+          "name": "snaptime",
+          "type": "number",
+          "required": true,
+          "notes": "Snapshot interval in picoseconds. Ask the user; screenshot values are not defaults."
+        }
+      ],
+      "show_optional_fields": true
+    },
+    "Vina_Flexible_Docking": {
+      "display_name": "Flexible Docking",
+      "job_name": "Vina_Flexible_Docking",
+      "aliases": [
+        "Flexible Docking",
+        "Vina Flexible Docking",
+        "Vina_Flexible_Docking"
+      ],
+      "module_id": "small-molecule-toolbox",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/small-molecule-toolbox.md",
+      "user_fields": [
+        {
+          "name": "target_name",
+          "type": "string",
+          "required": true,
+          "notes": "User-supplied target/receptor label. Screenshot text is not a default."
+        },
+        {
+          "name": "processed_pdb",
+          "type": "file",
+          "required": true,
+          "notes": "Upload the processed receptor PDB and use the returned platform storage path.",
+          "accepted_file_extensions": [
+            "pdb"
+          ],
+          "required_columns": [],
+          "control": "file"
+        },
+        {
+          "name": "center_x",
+          "type": "string",
+          "required": true,
+          "notes": "Finite numeric string for the validated binding-pocket X coordinate; never copy screenshot values."
+        },
+        {
+          "name": "center_y",
+          "type": "string",
+          "required": true,
+          "notes": "Finite numeric string for the validated binding-pocket Y coordinate; never copy screenshot values."
+        },
+        {
+          "name": "center_z",
+          "type": "string",
+          "required": true,
+          "notes": "Finite numeric string for the validated binding-pocket Z coordinate; never copy screenshot values."
+        },
+        {
+          "name": "max_radius_size",
+          "type": "string",
+          "required": true,
+          "notes": "Positive numeric string for the binding-pocket diameter; never copy screenshot values."
+        },
+        {
+          "name": "exhaustivness",
+          "type": "string",
+          "required": true,
+          "notes": "Preserve the backend misspelling. User must choose one supported value.",
+          "options": [
+            "8",
+            "16",
+            "32"
+          ]
+        },
+        {
+          "name": "upload_sdf",
+          "type": "string",
+          "required": true,
+          "notes": "Whether to return docked poses in SDF format.",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "name": "flexible_residues",
+          "type": "array",
+          "required": true,
+          "notes": "User-confirmed receptor residue identifiers. Every entry must exist in the processed receptor; do not fabricate residues."
+        },
+        {
+          "name": "smiles",
+          "type": "string",
+          "required": true,
+          "notes": "One validated ligand SMILES string. This is not the basic-docking ligand CSV path."
+        }
+      ],
+      "show_optional_fields": true
     },
     "Vina_basic_docking": {
       "display_name": "Molecular Docking",
@@ -2688,7 +3244,6 @@
         "Molecular Docking",
         "Vina_basic_docking",
         "basic docking",
-        "flexible docking",
         "vina basic docking"
       ],
       "module_id": "small-molecule-toolbox",
@@ -2771,12 +3326,6 @@
             "NAMES"
           ],
           "control": "file"
-        },
-        {
-          "name": "flexible_residues",
-          "type": "array",
-          "required": false,
-          "notes": "Optional flexible receptor residues; omit for basic docking with a rigid receptor."
         }
       ]
     },
@@ -3259,13 +3808,16 @@
           "name": "properties",
           "type": "array",
           "required": true,
-          "notes": "One or more exact identifiers: `hemolysis`, `nf`, `solubility`, `permeability_penetrance`, `halflife`.",
+          "notes": "One or more exact identifiers from the supplied platform list.",
           "options": [
             "hemolysis",
             "nf",
             "solubility",
             "permeability_penetrance",
-            "halflife"
+            "halflife",
+            "toxicity",
+            "permeability_pampa",
+            "permeability_caco2"
           ]
         }
       ],
@@ -5178,6 +5730,256 @@
         }
       ]
     },
+    "Geometry_Optimization": {
+      "display_name": "Geometry Optimization",
+      "job_name": "Geometry_Optimization",
+      "aliases": [
+        "Geometry Optimization",
+        "Geometry_Optimization",
+        "geometry optimisation",
+        "molecular geometry optimization"
+      ],
+      "module_id": "quantum-chemistry",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/quantum-chemistry.md",
+      "user_fields": [
+        {
+          "name": "experiment_name",
+          "type": "string",
+          "required": true,
+          "notes": "Unique user-confirmed job name. Send as top-level `experimentName`, not inside `experimentData`. Supplied example: `prime`."
+        },
+        {
+          "name": "molecule_path",
+          "type": "string",
+          "required": true,
+          "notes": "One molecule file path (`.xyz`, `.cif`, `.sdf`, `.gjf`, or `.mol`) or SMILES string. The supplied wire contract copies this exact value to both `molecule_path` and `smiles` inside `experimentData`. Upload a local file first and use its returned platform path.",
+          "label": "Molecule Path/SMILES"
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "required": true,
+          "notes": "DFT functional.",
+          "options": [
+            "B3LYP",
+            "PBE",
+            "PBE0",
+            "M06-2X",
+            "M06-L",
+            "wB97X-D",
+            "wB97X-D3",
+            "wB97M-V",
+            "HF",
+            "LDA",
+            "TPSS",
+            "TPSSh",
+            "CAM-B3LYP"
+          ],
+          "label": "DFT Functional"
+        },
+        {
+          "name": "basis",
+          "type": "string",
+          "required": true,
+          "notes": "Basis set.",
+          "options": [
+            "def2-SVP",
+            "def2-TZVP",
+            "def2-TZVPP",
+            "def2-QZVP",
+            "cc-pVDZ",
+            "cc-pVTZ",
+            "cc-pVQZ",
+            "STO-3G",
+            "6-31G",
+            "6-31G*",
+            "6-311G**",
+            "aug-cc-pVDZ",
+            "aug-cc-pVTZ"
+          ],
+          "label": "Basis Set"
+        },
+        {
+          "name": "charge",
+          "type": "integer",
+          "required": true,
+          "notes": "Net molecular charge. Use `0` for a neutral molecule and an explicit signed integer for an ion.",
+          "label": "Molecular Charge"
+        },
+        {
+          "name": "spin_multiplicity",
+          "type": "integer",
+          "required": true,
+          "notes": "The supplied Geometry Optimization payload uses a number: 1 for singlet, 2 for doublet, or 3 for triplet.",
+          "options": [
+            1,
+            2,
+            3
+          ],
+          "label": "Spin Multiplicity"
+        },
+        {
+          "name": "dispersion",
+          "type": "string",
+          "required": true,
+          "notes": "Dispersion correction.",
+          "options": [
+            "D3",
+            "D3BJ",
+            "D4"
+          ],
+          "label": "Dispersion Correction"
+        },
+        {
+          "name": "use_gpu",
+          "type": "boolean",
+          "required": false,
+          "notes": "Enable GPU acceleration. Supplied example: `true`. Confirm before submission."
+        },
+        {
+          "name": "use_xtb_preopt",
+          "type": "boolean",
+          "required": false,
+          "notes": "Run xTB pre-optimization. Supplied example: `true`. Confirm before submission."
+        },
+        {
+          "name": "use_alchemi_prescreen",
+          "type": "boolean",
+          "required": false,
+          "notes": "Enable Alchemi conformer prescreening. Supplied example: `false`. Confirm before submission."
+        },
+        {
+          "name": "n_conformers",
+          "type": "integer",
+          "required": false,
+          "notes": "Positive number of conformers. Supplied example: `5`; no upper bound was supplied."
+        },
+        {
+          "name": "compute_resp",
+          "type": "boolean",
+          "required": false,
+          "notes": "Compute RESP charges. Supplied example: `false`. Confirm before submission."
+        }
+      ],
+      "show_optional_fields": true
+    },
+    "Reactivity_Descriptors_Combined": {
+      "display_name": "HOMO-LUMO & Reactivity Descriptors",
+      "job_name": "Reactivity_Descriptors_Combined",
+      "aliases": [
+        "HOMO-LUMO & Reactivity Descriptors",
+        "HOMO-LUMO and Reactivity Descriptors",
+        "Reactivity Descriptors Combined",
+        "Reactivity_Descriptors_Combined",
+        "homo lumo"
+      ],
+      "module_id": "quantum-chemistry",
+      "status": "active",
+      "source_status": "documented",
+      "source": "modules/quantum-chemistry.md",
+      "user_fields": [
+        {
+          "name": "TASK_NAME",
+          "type": "string",
+          "required": true,
+          "notes": "Exact task selector. Preserve uppercase field spelling.",
+          "options": [
+            "homo_lumo_combined"
+          ]
+        },
+        {
+          "name": "molecule_path",
+          "type": "string",
+          "required": true,
+          "notes": "One uploaded `.xyz`, `.cif`, `.sdf`, or `.gjf` platform path, or one validated SMILES string. Do not create a separate `smiles` field.",
+          "label": "Molecule Path/SMILES"
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "required": true,
+          "notes": "DFT functional.",
+          "options": [
+            "B3LYP",
+            "PBE",
+            "PBE0",
+            "M06-2X",
+            "M06-L",
+            "wB97X-D",
+            "wB97X-D3",
+            "wB97M-V",
+            "HF",
+            "LDA",
+            "TPSS",
+            "TPSSh",
+            "CAM-B3LYP"
+          ],
+          "label": "DFT Functional"
+        },
+        {
+          "name": "basis",
+          "type": "string",
+          "required": true,
+          "notes": "Basis set.",
+          "options": [
+            "def2-SVP",
+            "def2-TZVP",
+            "def2-TZVPP",
+            "def2-QZVP",
+            "cc-pVDZ",
+            "cc-pVTZ",
+            "cc-pVQZ",
+            "STO-3G",
+            "6-31G",
+            "6-31G*",
+            "6-311G**",
+            "aug-cc-pVDZ",
+            "aug-cc-pVTZ"
+          ],
+          "label": "Basis Set"
+        },
+        {
+          "name": "charge",
+          "type": "number",
+          "required": true,
+          "notes": "Net molecular charge. Ask the user; the recording value is not a default.",
+          "label": "Molecular Charge"
+        },
+        {
+          "name": "spin_multiplicity",
+          "type": "number",
+          "required": true,
+          "notes": "1 for singlet, 2 for doublet, or 3 for triplet. Confirm consistency with charge and electron count.",
+          "options": [
+            1,
+            2,
+            3
+          ],
+          "label": "Spin Multiplicity"
+        },
+        {
+          "name": "calculate_local",
+          "type": "boolean",
+          "required": true,
+          "notes": "Whether to calculate local Fukui descriptors."
+        },
+        {
+          "name": "dispersion",
+          "type": "string",
+          "required": true,
+          "notes": "Dispersion correction.",
+          "options": [
+            "D3",
+            "D3BJ",
+            "D4"
+          ],
+          "label": "Dispersion Correction"
+        }
+      ],
+      "show_optional_fields": true
+    },
     "Single_Point_Energy": {
       "display_name": "Single Point Energy",
       "job_name": "Single_Point_Energy",
@@ -5609,83 +6411,6 @@
             "in",
             "out"
           ]
-        }
-      ]
-    },
-    "Substructures": {
-      "display_name": "Substructure-Based Generation (subgen)",
-      "job_name": "Substructures",
-      "aliases": [
-        "Substructure-Based Generation",
-        "Substructure-Based Generation (subgen)",
-        "Substructures"
-      ],
-      "module_id": "small-molecule-structure-generation",
-      "status": "active",
-      "source_status": "documented",
-      "source": "modules/small-molecule-structure-generation.md",
-      "user_fields": [
-        {
-          "name": "filePath",
-          "type": "string",
-          "required": true,
-          "notes": "S3 path to CSV (upload first)"
-        },
-        {
-          "name": "max_atoms",
-          "type": "integer",
-          "required": true,
-          "notes": "Maximum atoms"
-        },
-        {
-          "name": "prop_model_category",
-          "type": "string",
-          "required": false,
-          "notes": "Default: `\"ML\"`"
-        },
-        {
-          "name": "global_models",
-          "type": "array",
-          "required": true,
-          "notes": "At least one model"
-        },
-        {
-          "name": "custom_models",
-          "type": "array",
-          "required": true,
-          "notes": "At least one model"
-        }
-      ]
-    },
-    "Synergy_Prediction": {
-      "display_name": "Synergy Prediction",
-      "job_name": "Synergy_Prediction",
-      "aliases": [
-        "Synergy Prediction",
-        "Synergy_Prediction"
-      ],
-      "module_id": "small-molecule-qspr",
-      "status": "active",
-      "source_status": "documented",
-      "source": "modules/small-molecule-qspr.md",
-      "user_fields": [
-        {
-          "name": "smile_1",
-          "type": "string",
-          "required": true,
-          "notes": "Drug 1 SMILES"
-        },
-        {
-          "name": "smile_2",
-          "type": "string",
-          "required": false,
-          "notes": "Drug 2 SMILES"
-        },
-        {
-          "name": "cell_line_type",
-          "type": "string",
-          "required": true,
-          "notes": "e.g., `\"THYROID\"`, `\"PROSTATE\"`, `\"KIDNEY\"`, `\"OVARY\"`, `\"SKIN\"`, `\"SALIVARY_GLAND\"`"
         }
       ]
     },

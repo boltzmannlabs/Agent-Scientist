@@ -886,6 +886,10 @@ class CLIInfoMixin:
         if new_mcp == self._config_mcp_servers:
             return  # some other section was edited
 
+        from sci_cli.native_profile_deferred import defer_watcher_reload
+        if defer_watcher_reload(self, new_mcp):
+            return
+
         # Read the toggle from the config just parsed so the user can flip it in the same edit;
         # missing key means default-on.
         _mcp_cfg = new_cfg.get("mcp")
@@ -939,6 +943,7 @@ class CLIInfoMixin:
             shutdown_mcp_servers()
             reprobe_tool_availability()  # explicit reload also re-probes check_fn availability
             new_tools = discover_mcp_tools()  # reads config.yaml fresh
+            self._science_deferred_mcp = {}
 
             with _lock:
                 connected_servers = set(_servers.keys())

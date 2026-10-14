@@ -1,6 +1,5 @@
 """Workflow knowledge survives package-data copying without private state."""
 
-import csv
 import json
 import re
 import tomllib
@@ -32,18 +31,26 @@ def test_packaged_knowledge_resolves_registry_and_preserves_contract_limits(tmp_
             if path.suffix == ".json":
                 json.loads(text)
     refs = packaged / "references"
-    registry = json.loads((refs / "module-registry.v1.json").read_text())
+    registry = json.loads((refs / "tool-contracts.v1.json").read_text())
     modules = {entry["id"]: entry for entry in registry["modules"]}
     for entry in modules.values():
         module = refs / entry["path"]
         assert module.resolve().is_relative_to(refs.resolve()) and module.is_file()
-    for tool in registry["tools"]:
+    for tool in registry["tools"].values():
         if tool.get("status") == "active":
             assert tool["module_id"] in modules
+    for tool in registry["tools"].values():
+        field_names = {
+            re.sub(r"[_ -]", "", name).casefold()
+            for name in tool["request_schema"]["properties"]
+        }
+        assert "sessionid" not in field_names
+    for entry in modules.values():
+        module_text = (refs / entry["path"]).read_text()
+        assert not re.search(r"\|\s*`session[_ -]?id`\s*\|", module_text, re.IGNORECASE)
     contracts = json.loads((refs / "tool-contracts.v1.json").read_text())
-    assert contracts["status"] == "scaffold"
-    assert all(t["contract_status"] == "needs_audit" for t in contracts["tools"].values())
-    with (refs / "tool-collection-inventory.csv").open() as handle:
-        assert list(csv.DictReader(handle))
+    assert contracts["status"] == "canonical"
+    assert set(json.loads((refs / "file-input-contracts.v1.json").read_text())["tools"]) <= set(contracts["tools"])
+    assert set(json.loads((refs / "input-limits.v1.json").read_text())["tools"]) <= set(contracts["tools"])
     script = packaged / "scripts/peptide_fasta_to_smiles.py"
     compile(script.read_text(), str(script), "exec")  # Inspection does not execute scientific software.

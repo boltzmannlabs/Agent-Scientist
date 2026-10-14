@@ -1,19 +1,20 @@
 {
   "schema": "boltzmann-file-input-contracts.v1",
-  "policy": "Validate actual bytes. Correct only unique case/whitespace header matches and explicitly listed aliases. Preserve every row and value; never overwrite input. Missing contracts block file submission.",
+  "policy": "Validate documented file rules and report specific unchecked aspects for explicit approval. Missing specialized rules do not make a file invalid. Never bypass known errors, authorization or archive security; never alter input bytes silently.",
   "tools": {
     "CircRNA": {
       "source": "modules/rna-circrna.md: protein FASTA; clarification-public-evidence.v1.json CircRNA: .fasta/.fa/.txt uploads",
       "files": {
         "fasta_file": {
-          "required": true,
           "formats": [
             "fasta",
             "fa",
             "txt"
           ],
           "content_format": "fasta",
-          "alphabet": "protein"
+          "alphabet": "protein",
+          "header_case_sensitive": true,
+          "notes": "Protein FASTA used to design circRNA candidates. Upload via `file_upload` first, then pass the returned platform path here"
         }
       }
     },
@@ -21,14 +22,15 @@
       "source": "modules/rna-circrna.md: circRNA sequence FASTA; clarification-public-evidence.v1.json CircRNAEvaluate: .fasta/.fa/.txt uploads",
       "files": {
         "fasta_file": {
-          "required": true,
           "formats": [
             "fasta",
             "fa",
             "txt"
           ],
           "content_format": "fasta",
-          "alphabet": "rna"
+          "alphabet": "rna",
+          "header_case_sensitive": true,
+          "notes": "FASTA of circRNA sequence(s). Upload via `file_upload` first, then pass the returned platform path here"
         }
       }
     },
@@ -36,21 +38,23 @@
       "source": "operator-confirmed 2026-09-12",
       "files": {
         "input_path": {
-          "required": true,
           "formats": [
             "pdb",
             "zip"
           ],
           "member_formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded file: `.pdb`, `.zip`"
         },
         "reference_path": {
-          "required": true,
           "formats": [
             "pdb"
           ],
-          "residues_field": "active_sites"
+          "residues_field": "active_sites",
+          "header_case_sensitive": true,
+          "notes": "Uploaded file: `.pdb`"
         }
       }
     },
@@ -58,7 +62,6 @@
       "source": "operator-confirmed 2026-09-12: helper parses chain A regardless of H/L mode",
       "files": {
         "dataPath": {
-          "required": true,
           "formats": [
             "zip"
           ],
@@ -67,7 +70,35 @@
           ],
           "required_chains": [
             "A"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "ZIP containing PDB backbone files; each must contain chain A, which the helper parses for both H/L modes."
+        }
+      }
+    },
+    "Cat_Pred": {
+      "source": "operator-confirmed 2026-10-13; modules/protein-toolbox.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "csv"
+          ],
+          "extra_columns": true,
+          "csv_variants": [
+            {
+              "columns": [
+                "sequences",
+                "smiles"
+              ],
+              "aliases": {},
+              "values": {
+                "sequences": "protein",
+                "smiles": "smiles"
+              }
+            }
+          ],
+          "header_case_sensitive": false,
+          "notes": "Required CSV storage path returned by `file_upload`. Headers are case-insensitive, but the singular aliases `sequence` and `smile` are rejected; `seq_id` is not required. Sequence and SMILES values retain their case. CatPred automatically predicts kcat, Km, and Ki for every row and has no user-selectable mode or `prediction_type` field."
         }
       }
     },
@@ -75,19 +106,21 @@
       "source": "operator-confirmed 2026-09-12",
       "files": {
         "ligand_path": {
-          "required": true,
           "formats": [
             "zip"
           ],
           "member_formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "ZIP containing ligand PDB structures."
         },
         "receptor_path": {
-          "required": true,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "One receptor PDB structure."
         }
       }
     },
@@ -95,7 +128,6 @@
       "source": "operator-confirmed 2026-09-12: empty chain selects first chain",
       "files": {
         "zip_path": {
-          "required": true,
           "formats": [
             "zip"
           ],
@@ -103,7 +135,17 @@
             "pdb"
           ],
           "chains_field": "chain",
-          "chain_scalar": true
+          "chain_scalar": true,
+          "header_case_sensitive": true,
+          "notes": "Remote ZIP containing PDB files, including nested directories (not nested ZIPs)."
+        },
+        "model_path": {
+          "execution_blocked": true,
+          "formats": [
+            "pt"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Omit to use the platform default ${PRODUCT_BASE}/models/thermompnn/models/thermoMPNN_default.pt. Custom model PT inspection is not supported; do not fabricate or submit the placeholder path."
         }
       }
     },
@@ -111,20 +153,22 @@
       "source": "operator-confirmed 2026-09-12: first chain used per structure",
       "files": {
         "input_path": {
-          "required": true,
           "formats": [
             "pdb",
             "zip"
           ],
           "member_formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "At least one design PDB, directly or inside a ZIP; first chain is used from each structure."
         },
         "wt_path": {
-          "required": true,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Exactly one wild-type/reference PDB; first chain is used."
         }
       }
     },
@@ -132,7 +176,6 @@
       "source": "operator-confirmed 2026-09-12: UTF-8 or UTF-8-sig, exactly one data column",
       "files": {
         "input_path": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -165,7 +208,9 @@
                 "smiles": "smiles"
               }
             }
-          ]
+          ],
+          "header_case_sensitive": false,
+          "notes": "Exactly one UTF-8/UTF-8-sig data column: sequences (aliases sequence/seq) OR smiles (alias smile); no extra columns. Named pasted data can be built into this CSV."
         }
       }
     },
@@ -173,32 +218,37 @@
       "source": "operator-confirmed 2026-09-12; prepared PT contents remain blocked pending a safe feature validator",
       "files": {
         "input_path": {
-          "required": false,
+          "execution_blocked": true,
           "formats": [
             "pt",
             "zip"
           ],
           "member_formats": [
             "pt"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Prepared-feature mode: .pt or ZIP of .pt. Content validation is not implemented, so this route currently blocks submission."
         },
         "antigen_pdb_path": {
-          "required": false,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": ""
         },
         "antibody_pdb_path": {
-          "required": false,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": ""
         },
         "complex_pdb_path": {
-          "required": false,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Optional for one prepared feature lacking Atom14 labels."
         }
       }
     },
@@ -206,7 +256,6 @@
       "source": "modules/small-molecule-qspr.md",
       "files": {
         "smiles": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -216,7 +265,9 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "S3 path to CSV (upload first). A bare SMILES string is **rejected** (`\"smiles file must be a uploaded .csv file containing smiles\"`); it MUST be an uploaded CSV. All rows are predicted in one call."
         }
       }
     },
@@ -224,7 +275,6 @@
       "source": "modules/small-molecule-qspr.md",
       "files": {
         "filepath": {
-          "required": false,
           "formats": [
             "csv"
           ],
@@ -236,7 +286,9 @@
             "SMILES": "smiles",
             "SEQUENCES": "protein"
           },
-          "extra_columns": false
+          "extra_columns": false,
+          "header_case_sensitive": true,
+          "notes": "Upload a CSV containing paired SMILES and protein sequences; this is an alternative to the scalar smiles + sequence mode."
         }
       }
     },
@@ -244,7 +296,6 @@
       "source": "modules/small-molecule-qspr.md: Custom Property Model Classification Input Contract",
       "files": {
         "filepath": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -266,7 +317,9 @@
                 "ACTIVITY": "number"
               }
             }
-          }
+          },
+          "header_case_sensitive": true,
+          "notes": "Path to the CSV file containing ligand data with 'SMILES' and 'ACTIVITY' columns."
         }
       }
     },
@@ -274,7 +327,6 @@
       "source": "modules/small-molecule-qspr.md: Custom Property Model Regression Input Contract",
       "files": {
         "filepath": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -296,7 +348,9 @@
                 "ACTIVITY": "number"
               }
             }
-          }
+          },
+          "header_case_sensitive": true,
+          "notes": "Path to the CSV file containing ligand data with 'SMILES' and 'ACTIVITY' columns."
         }
       }
     },
@@ -304,11 +358,12 @@
       "source": "modules/small-molecule-toolbox.md: Binding Site Prediction Input Contract",
       "files": {
         "pdb_path": {
-          "required": true,
           "formats": [
             "pdb"
           ],
-          "allow_pdb_id": true
+          "allow_pdb_id": true,
+          "header_case_sensitive": true,
+          "notes": "Paste a bare four-character RCSB PDB ID such as `1AKE`, or upload a `.pdb` file; no SMILES input is used."
         }
       }
     },
@@ -316,10 +371,11 @@
       "source": "modules/small-molecule-structure-generation.md",
       "files": {
         "protein_Path": {
-          "required": true,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded binding-pocket or protein `.pdb` path. Raw sequence, local paths, PDB text, and HTTP URLs are invalid."
         }
       }
     },
@@ -327,7 +383,6 @@
       "source": "modules/small-molecule-screening.md: Butina Clustering",
       "files": {
         "Path": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -337,7 +392,9 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "Uploaded CSV containing `SMILES`. Capital `P` is required."
         }
       }
     },
@@ -345,7 +402,6 @@
       "source": "modules/small-molecule-screening.md: K-means verified user packet",
       "files": {
         "Path": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -355,7 +411,9 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "S3 path to CSV (upload first) — capital P"
         }
       }
     },
@@ -363,7 +421,6 @@
       "source": "modules/small-molecule-screening.md: Similarity Screening user packet",
       "files": {
         "lib_mols_path": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -373,10 +430,11 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "S3 path to CSV (upload first)"
         },
         "ref_mols_path": {
-          "required": false,
           "formats": [
             "csv"
           ],
@@ -386,7 +444,9 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": ""
         }
       }
     },
@@ -394,7 +454,6 @@
       "source": "modules/small-molecule-screening.md: Novelty",
       "files": {
         "path": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -404,7 +463,9 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "Uploaded CSV containing a case-sensitive `SMILES` column."
         }
       }
     },
@@ -412,7 +473,6 @@
       "source": "modules/small-molecule-screening.md: QSPR Screening",
       "files": {
         "path": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -422,7 +482,92 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "Uploaded CSV containing a case-sensitive `SMILES` column. Use lowercase `path`."
+        }
+      }
+    },
+    "Fragment_Based_Optimization": {
+      "source": "modules/small-molecule-optimization.md: supplied Fragment-Based Optimization schema",
+      "files": {
+        "library_path": {
+          "formats": [
+            "csv"
+          ],
+          "columns": [
+            "SMILES"
+          ],
+          "values": {
+            "SMILES": "smiles"
+          },
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "Upload a CSV with a `SMILES` header and use the returned platform storage path."
+        }
+      }
+    },
+    "MDS_openMM": {
+      "source": "modules/molecular-dynamics.md: supplied MDS OpenMM schema",
+      "files": {
+        "Complex_pdb": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Optional uploaded complex PDB. Supply this, or supply both separate protein and ligand PDBs; use the returned platform storage path."
+        },
+        "Protein_PDB_file_name": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Optional uploaded protein `.pdb`; required together with `Ligand_PDB_file_name` when `Complex_pdb` is absent."
+        },
+        "Ligand_PDB_file_name": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Optional uploaded ligand `.pdb`; required together with `Protein_PDB_file_name` when `Complex_pdb` is absent."
+        }
+      }
+    },
+    "MDS_Gromacs": {
+      "source": "modules/molecular-dynamics.md: supplied MDS Gromacs schema",
+      "files": {
+        "Protein_PDB_file": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload the protein `.pdb` and use the returned platform storage path."
+        },
+        "Ligand_PDB_file": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload the ligand `.pdb` and use the returned platform storage path."
+        },
+        "Stream_str_file": {
+          "formats": [
+            "str"
+          ],
+          "header_case_sensitive": true,
+          "notes": "STR file required when `force_field` is `charmm36`."
+        }
+      }
+    },
+    "Vina_Flexible_Docking": {
+      "source": "modules/small-molecule-toolbox.md: supplied Flexible Docking schema",
+      "files": {
+        "processed_pdb": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload the processed receptor PDB and use the returned platform storage path."
         }
       }
     },
@@ -430,28 +575,32 @@
       "source": "modules/small-molecule-toolbox.md: Vina score-only + user verified inputparams",
       "files": {
         "processed_pdb": {
-          "required": true,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": ""
         },
         "sdf_file": {
-          "required": true,
           "formats": [
             "sdf"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Platform path to ligand SDF"
         },
         "pdb_file": {
-          "required": false,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": ""
         },
         "smiles": {
-          "required": false,
           "formats": [
             "sdf"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": ""
         }
       }
     },
@@ -459,13 +608,13 @@
       "source": "modules/small-molecule-toolbox.md: Molecular Docking mode matrix",
       "files": {
         "processed_pdb": {
-          "required": true,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload the required file and use the returned cloud path; text pasting is not accepted."
         },
         "smiles": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -476,7 +625,9 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": false
+          "extra_columns": false,
+          "header_case_sensitive": true,
+          "notes": "Upload the required file and use the returned cloud path; text pasting is not accepted."
         }
       }
     },
@@ -484,13 +635,13 @@
       "source": "modules/small-molecule-toolbox.md: Molecular Docking mode matrix",
       "files": {
         "processed_pdb": {
-          "required": true,
           "formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "S3 path to PDB (upload first)"
         },
         "input_csv": {
-          "required": true,
           "formats": [
             "csv"
           ],
@@ -500,7 +651,9 @@
           "values": {
             "SMILES": "smiles"
           },
-          "extra_columns": true
+          "extra_columns": true,
+          "header_case_sensitive": true,
+          "notes": "S3 path to CSV (upload first)"
         }
       }
     },
@@ -508,7 +661,6 @@
       "source": "boltpro-clarification-catalog.v1.json and modules/protein-toolbox.md",
       "files": {
         "input_path": {
-          "required": true,
           "formats": [
             "pdb",
             "zip"
@@ -516,18 +668,21 @@
           "member_formats": [
             "pdb"
           ],
-          "chains_field": "chain_list"
+          "chains_field": "chain_list",
+          "header_case_sensitive": true,
+          "notes": "Platform path to one `.pdb` or a `.zip` of PDB structures."
         }
       }
     },
     "Evobind": {
       "files": {
         "a3m_file_path": {
-          "required": true,
           "formats": [
             "a3m"
           ],
-          "alphabet": "protein"
+          "alphabet": "protein",
+          "header_case_sensitive": true,
+          "notes": "Upload the corresponding A3M alignment."
         }
       },
       "source": "Public submit-job EvoBind and prompts.ipynb cell 100: corresponding target-protein A3M."
@@ -535,14 +690,15 @@
     "AntiBMPNN": {
       "files": {
         "input_path": {
-          "required": true,
           "formats": [
             "pdb",
             "zip"
           ],
           "member_formats": [
             "pdb"
-          ]
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded single `.pdb` antibody/complex structure or one `.zip` containing PDB structures. Raw sequences and local paths are invalid."
         }
       },
       "source": "Public API and prompts.ipynb cell 38: single PDB or ZIP of PDB structures."
@@ -551,12 +707,751 @@
       "source": "Operator recording 2026-09-25 045410; public submit-job form",
       "files": {
         "pdb_path": {
-          "required": false,
           "formats": [
             "pdb"
           ],
           "chains_field": "chain",
-          "chain_scalar": true
+          "chain_scalar": true,
+          "header_case_sensitive": true,
+          "notes": "Upload a PDB structure. Raw sequences, SMILES and PDB IDs are not structure uploads."
+        }
+      }
+    },
+    "Antibody_Numbering": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "dataPath": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "Heavy_chain",
+            "Light_chain"
+          ],
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "Antibody_Prediction": {
+      "source": "modules/protein-property-prediction.md",
+      "files": {
+        "dataPath": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "Heavy_chain",
+            "Light_chain"
+          ],
+          "notes": "S3 path to CSV (upload first)"
+        }
+      }
+    },
+    "agcdr_diff": {
+      "source": "modules/protein-target-aware-antibody.md",
+      "files": {
+        "antibody_pdb_path": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        },
+        "antigen_pdb_path": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "boltzgen": {
+      "source": "modules/protein-generative-design.md",
+      "files": {
+        "file_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload PDB File."
+        }
+      }
+    },
+    "CodonRLBERTPropPred": {
+      "source": "modules/rna-property-prediction.md",
+      "files": {
+        "fasta_file": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Uploaded file: `.fasta`, `.fa`"
+        }
+      }
+    },
+    "Clean": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "Seq_id",
+            "sequences"
+          ],
+          "notes": "S3 path to CSV (upload first)"
+        }
+      }
+    },
+    "CodonRLBERT": {
+      "source": "modules/rna-translation-codon.md",
+      "files": {
+        "fasta_file": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "FASTA of protein sequence(s). Upload via `file_upload` first, then pass the returned platform path here"
+        }
+      }
+    },
+    "BE_bystander_prediction": {
+      "source": "modules/rna-grna-design.md",
+      "files": {
+        "fasta": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Uploaded FASTA. Use this exact field; not `input_fasta`."
+        }
+      }
+    },
+    "BE_efficacy_pred": {
+      "source": "modules/rna-grna-design.md",
+      "files": {
+        "fasta": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Uploaded FASTA. Use this exact field; not `input_fasta`."
+        }
+      }
+    },
+    "crispr_fs_score": {
+      "source": "modules/rna-grna-design.md",
+      "files": {
+        "input_csv": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "CSV of guide RNAs. Upload via `file_upload` first, then pass the returned platform path. Headers MUST be exactly: `grna_id, chromosome, genomic_position, strand, protospacer, pam`"
+        }
+      }
+    },
+    "crispr_score": {
+      "source": "modules/rna-grna-design.md",
+      "files": {
+        "input_csv": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "CSV of guide RNAs. Upload via `file_upload` first, then pass the returned platform path. Headers MUST be exactly: `grna_id, chromosome, genomic_position, strand, protospacer, pam`"
+        }
+      }
+    },
+    "cyclic_binder": {
+      "source": "modules/protein-peptide-generation.md",
+      "files": {
+        "pdb_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded file: `.pdb`"
+        }
+      }
+    },
+    "Insilico_Directed_Evolution": {
+      "source": "modules/protein-optimization.md",
+      "files": {
+        "fasta_path": {
+          "formats": [
+            "fa",
+            "fasta"
+          ]
+        }
+      }
+    },
+    "Enzymes": {
+      "source": "modules/protein-property-prediction.md",
+      "files": {
+        "dataPath": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "notes": "The first group accepts either exact Sequence_ID or Seq_id; Sequences is also required. Column-group semantics require review."
+        }
+      }
+    },
+    "Geometry_Optimization": {
+      "source": "modules/quantum-chemistry.md",
+      "files": {
+        "molecule_path": {
+          "formats": [
+            "xyz",
+            "cif",
+            "sdf",
+            "gjf",
+            "mol"
+          ]
+        }
+      }
+    },
+    "Reactivity_Descriptors_Combined": {
+      "source": "modules/quantum-chemistry.md",
+      "files": {
+        "molecule_path": {
+          "formats": [
+            "xyz",
+            "cif",
+            "sdf",
+            "gjf"
+          ]
+        }
+      }
+    },
+    "igdesign": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "pdb_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded file: `.pdb`"
+        }
+      }
+    },
+    "kcatnet": {
+      "source": "modules/protein-property-prediction.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "notes": "One header from each group is required; aliases are source-documented, not invented. Column-group semantics require review."
+        }
+      }
+    },
+    "kcat_km": {
+      "source": "modules/protein-property-prediction.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "seq_id",
+            "sequence",
+            "smiles"
+          ],
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "Lead_Generation_Augmented": {
+      "source": "modules/small-molecule-optimization.md",
+      "files": {
+        "data_path": {
+          "formats": [
+            "csv"
+          ],
+          "columns": [
+            "SMILES"
+          ]
+        }
+      }
+    },
+    "Lead_Generation_Reinvent": {
+      "source": "modules/small-molecule-optimization.md",
+      "files": {
+        "data_path": {
+          "formats": [
+            "csv"
+          ],
+          "columns": [
+            "SMILES"
+          ]
+        }
+      }
+    },
+    "Ligand_MPNN": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "S3 path to PDB (upload first)"
+        }
+      }
+    },
+    "Protein_Structure_Prediction": {
+      "source": "modules/protein-structure-prediction.md",
+      "files": {
+        "input_csv": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "notes": "The identifier column may be sequence_id or seq_id; sequences is required. Column-group semantics require review."
+        }
+      }
+    },
+    "Motiff_Scaffolding": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "pdb_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "S3 path to PDB (upload first)"
+        }
+      }
+    },
+    "rna_property_calculation": {
+      "source": "modules/rna-property-prediction.md",
+      "files": {
+        "input_fasta": {
+          "formats": [
+            "fa",
+            "fasta"
+          ]
+        }
+      }
+    },
+    "Netsolp": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "csv",
+            "fasta"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "Sequence_ID",
+            "Sequences"
+          ],
+          "notes": "S3 path to CSV or FASTA (upload first)"
+        }
+      }
+    },
+    "Pep_Patch": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "S3 path to PDB (upload first)"
+        }
+      }
+    },
+    "Peptide_Property_Prediction": {
+      "source": "modules/protein-property-prediction.md",
+      "files": {
+        "dataPath": {
+          "formats": [
+            "csv"
+          ]
+        }
+      }
+    },
+    "Pharmacophore_Hypothesis": {
+      "source": "modules/small-molecule-pharmacophore-generation.md",
+      "files": {
+        "pdb_path": {
+          "formats": [
+            "pdb"
+          ]
+        }
+      }
+    },
+    "Pharmacophore_Screening": {
+      "source": "modules/small-molecule-screening.md",
+      "files": {
+        "library": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "SMILES",
+            "QED",
+            "SA",
+            "TPSA",
+            "NUM_HDONORS",
+            "NUM_HACCEPTORS",
+            "Molecular Weight"
+          ],
+          "notes": "Upload the ligand library CSV; do not paste a path or inline molecule list."
+        }
+      }
+    },
+    "Placer": {
+      "source": "modules/protein-docking.md",
+      "files": {
+        "input_file_path": {
+          "formats": [
+            "pdb",
+            "cif"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Platform path returned by `file_upload`; filename must end in `.pdb` or `.cif`."
+        }
+      }
+    },
+    "ppiflowmonomer": {
+      "source": "modules/protein-generative-design.md",
+      "files": {
+        "motif_csv": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "target",
+            "motif_path",
+            "contig",
+            "length"
+          ],
+          "notes": "Required only for motif scaffolding; not used for unconditional monomer generation."
+        }
+      }
+    },
+    "ppiflowantibody": {
+      "source": "modules/protein-generative-design.md",
+      "files": {
+        "antigen_pdb": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded antigen PDB."
+        },
+        "framework_pdb": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded antibody framework PDB."
+        }
+      }
+    },
+    "Rna_Inter_Pred": {
+      "source": "modules/rna-binding.md",
+      "files": {
+        "rna_file": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        },
+        "protein_file": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "pxdesigninfer": {
+      "source": "modules/protein-generative-design.md",
+      "files": {
+        "cif_path": {
+          "formats": [
+            "cif"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded target CIF path"
+        }
+      }
+    },
+    "Molecule_Enumeration": {
+      "source": "modules/small-molecule-enumeration.md",
+      "files": {
+        "building_blocks_file": {
+          "formats": [
+            "csv"
+          ]
+        }
+      }
+    },
+    "Random_based_generation_training": {
+      "source": "modules/small-molecule-random-generation.md",
+      "files": {
+        "dataPath": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "SMILES"
+          ],
+          "notes": "Upload a molecule CSV for fine-tuning. The file must contain a non-empty `SMILES` column."
+        }
+      }
+    },
+    "RC_Plot": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "dataPath": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "rfdiffusion_proteinmpnn": {
+      "source": "modules/protein-target-aware-antibody.md",
+      "files": {
+        "antibody_pdb_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Antibody PDB or PDB ID."
+        },
+        "antigen_pdb_path": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Antigen PDB or PDB ID."
+        }
+      }
+    },
+    "rna_pocket_pred": {
+      "source": "modules/rna-binding.md",
+      "files": {
+        "input_pdb": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "rna_property_prediction_incell_stabilty": {
+      "source": "modules/rna-property-prediction.md",
+      "files": {
+        "csv_file": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "CSV containing one or more **3'UTR** sequences with a header column named exactly **`Sequence`**. Upload via `file_upload` first, then pass the returned platform path here"
+        }
+      }
+    },
+    "rna_property_prediction_mean_ribosomal_load": {
+      "source": "modules/rna-property-prediction.md",
+      "files": {
+        "csv_file": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "CSV containing one or more **5'UTR** sequences with a header column named exactly **`Sequence`**. Upload via `file_upload` first, then pass the returned platform path here"
+        }
+      }
+    },
+    "rna_structure_prediction": {
+      "source": "modules/rna-structure-prediction.md",
+      "files": {
+        "input_fasta": {
+          "formats": [
+            "fa",
+            "fasta"
+          ]
+        }
+      }
+    },
+    "RNA_Translation": {
+      "source": "modules/rna-translation-codon.md",
+      "files": {
+        "fasta_file": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "CDS FASTA to predict translation for. Upload via `file_upload` first, then pass the returned platform path here"
+        }
+      }
+    },
+    "transla_score": {
+      "source": "modules/rna-translation-codon.md",
+      "files": {
+        "input_csv": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "Sequence"
+          ],
+          "notes": "CSV input for the prediction. Upload via `file_upload` first, then pass the returned platform path. The source requires a `Sequence` header."
+        }
+      }
+    },
+    "rna_bind_specificity_pred": {
+      "source": "modules/rna-binding.md",
+      "files": {
+        "ligand_csv": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "Single_Point_Energy": {
+      "source": "modules/quantum-chemistry.md",
+      "files": {
+        "molecule_path": {
+          "formats": [
+            "xyz",
+            "gjf",
+            "cif",
+            "sdf"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Platform path to the fixed input geometry. Proven input is an uploaded XYZ path. UI-supported file extensions: `.xyz`, `.gjf`, `.cif`, and `.sdf`. Upload a local file first and pass the returned platform path."
+        }
+      }
+    },
+    "rna_siRNA_efficacy_pred": {
+      "source": "modules/rna-property-prediction.md",
+      "files": {
+        "sirna_fa": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Uploaded `.fa` or `.fasta` containing one or more candidate siRNA records."
+        },
+        "mrna_fa": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Uploaded `.fa` or `.fasta` containing the target mRNA record."
+        }
+      }
+    },
+    "rna_siRNA_gen": {
+      "source": "modules/rna-generation.md",
+      "files": {
+        "input_fasta": {
+          "formats": [
+            "fa",
+            "fasta"
+          ]
+        }
+      }
+    },
+    "siRNA_obj_pred": {
+      "source": "modules/rna-property-prediction.md",
+      "files": {
+        "input_csv": {
+          "formats": [],
+          "header_case_sensitive": true,
+          "notes": "Uploaded CSV with the exact columns below."
+        }
+      }
+    },
+    "Solublempnn": {
+      "source": "modules/protein-toolbox.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "zip"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Use the exact source field."
+        }
+      }
+    },
+    "Substructure_Screening": {
+      "source": "modules/small-molecule-screening.md",
+      "files": {
+        "library_path": {
+          "formats": [
+            "csv"
+          ]
+        },
+        "substructures_path": {
+          "formats": [
+            "csv"
+          ]
+        }
+      }
+    },
+    "Vaccines": {
+      "source": "modules/protein-property-prediction.md",
+      "files": {
+        "dataPath": {
+          "formats": [
+            "csv"
+          ],
+          "header_case_sensitive": true,
+          "columns": [
+            "Sequences"
+          ],
+          "notes": "Uploaded CSV containing a `Sequences` column"
+        }
+      }
+    },
+    "ipsae-protein": {
+      "source": "modules/protein-structure-prediction.md",
+      "files": {
+        "input_path": {
+          "formats": [
+            "zip"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Uploaded ZIP containing compatible prediction structures and their matching confidence/PAE files. A lone PDB is insufficient."
+        }
+      }
+    },
+    "ppiflowprotein": {
+      "source": "modules/protein-generative-design.md",
+      "files": {
+        "input_pdb": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload target/complex PDB."
+        }
+      }
+    },
+    "ppiflownanobody": {
+      "source": "modules/protein-generative-design.md",
+      "files": {
+        "antigen_pdb": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload antigen PDB."
+        },
+        "framework_pdb": {
+          "formats": [
+            "pdb"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload nanobody framework PDB."
+        }
+      }
+    },
+    "pxdesignpipeline": {
+      "source": "modules/protein-generative-design.md",
+      "files": {
+        "cif_path": {
+          "formats": [
+            "cif"
+          ],
+          "header_case_sensitive": true,
+          "notes": "Upload the target CIF structure."
         }
       }
     }

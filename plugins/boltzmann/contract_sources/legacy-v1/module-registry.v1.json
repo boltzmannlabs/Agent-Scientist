@@ -249,6 +249,18 @@
       ]
     },
     {
+      "id": "molecular-dynamics",
+      "domain": "Molecular Dynamics",
+      "title": "Molecular Dynamics",
+      "path": "modules/molecular-dynamics.md",
+      "intents": [
+        "molecular dynamics",
+        "md simulation",
+        "openmm",
+        "mds openmm"
+      ]
+    },
+    {
       "id": "synthetic-retrosynthesis",
       "domain": "Synthetic Chemistry",
       "title": "Retrosynthesis",
@@ -378,6 +390,8 @@
       "title": "Quantum Chemistry",
       "path": "modules/quantum-chemistry.md",
       "intents": [
+        "geometry optimization",
+        "optimize molecular geometry",
         "single point energy",
         "density functional theory",
         "dft calculation"
@@ -779,25 +793,16 @@
       "status": "active"
     },
     {
-      "display_name": "Fragment-Based Generation Inference (gflowinf)",
-      "job_name": "Fragment_based_generation_Inference",
-      "aliases": [
-        "Fragment-Based Generation Inference",
-        "Fragment-Based Generation Inference (gflowinf)",
-        "Fragment_based_generation_Inference"
-      ],
-      "module_id": "small-molecule-structure-generation",
-      "status": "active"
-    },
-    {
       "display_name": "Fragment-Based Optimization",
-      "job_name": null,
+      "job_name": "Fragment_Based_Optimization",
       "aliases": [
         "Fragment-Based Optimization",
+        "Fragment Based Optimization",
+        "Fragment_Based_Optimization",
         "fragment based optimization"
       ],
-      "module_id": null,
-      "status": "removed"
+      "module_id": "small-molecule-optimization",
+      "status": "active"
     },
     {
       "display_name": "Fragments",
@@ -831,13 +836,15 @@
     },
     {
       "display_name": "Geometry Optimization",
-      "job_name": null,
+      "job_name": "Geometry_Optimization",
       "aliases": [
         "Geometry Optimization",
-        "geometry optimisation"
+        "Geometry_Optimization",
+        "geometry optimisation",
+        "molecular geometry optimization"
       ],
-      "module_id": null,
-      "status": "removed"
+      "module_id": "quantum-chemistry",
+      "status": "active"
     },
     {
       "display_name": "global_ic50",
@@ -850,23 +857,28 @@
     },
     {
       "display_name": "Graph GA",
-      "job_name": null,
+      "job_name": "Lead_Generation_Graph_GA",
       "aliases": [
         "Graph GA",
+        "Lead Generation Graph GA",
+        "Lead_Generation_Graph_GA",
         "graph genetic algorithm"
       ],
-      "module_id": null,
-      "status": "removed"
+      "module_id": "small-molecule-optimization",
+      "status": "active"
     },
     {
-      "display_name": "HOMO-LUMO and Reactivity Descriptors",
-      "job_name": null,
+      "display_name": "HOMO-LUMO & Reactivity Descriptors",
+      "job_name": "Reactivity_Descriptors_Combined",
       "aliases": [
+        "HOMO-LUMO & Reactivity Descriptors",
         "HOMO-LUMO and Reactivity Descriptors",
+        "Reactivity Descriptors Combined",
+        "Reactivity_Descriptors_Combined",
         "homo lumo"
       ],
-      "module_id": null,
-      "status": "removed"
+      "module_id": "quantum-chemistry",
+      "status": "active"
     },
     {
       "display_name": "IG Design",
@@ -950,15 +962,28 @@
     },
     {
       "display_name": "Lead Optimization MCTS",
-      "job_name": null,
+      "job_name": "Lead_Optimization_Mcts",
       "aliases": [
         "Lead Optimization MCTS",
+        "Lead Optimization Mcts",
+        "Lead_Optimization_Mcts",
         "lead optimization",
-        "mars optimization",
-        "mars plus"
+        "mcts lead optimization"
       ],
-      "module_id": null,
-      "status": "removed"
+      "module_id": "small-molecule-optimization",
+      "status": "active"
+    },
+    {
+      "display_name": "Mars Plus",
+      "job_name": "Lead_Generation_Mars_Plus",
+      "aliases": [
+        "Mars Plus",
+        "Lead Generation Mars Plus",
+        "Lead_Generation_Mars_Plus",
+        "mars plus lead generation"
+      ],
+      "module_id": "small-molecule-optimization",
+      "status": "active"
     },
     {
       "display_name": "Ligand MPNN",
@@ -981,24 +1006,24 @@
       "status": "active"
     },
     {
-      "display_name": "Merge Substructure",
-      "job_name": "Merge_Substructure",
-      "aliases": [
-        "Merge Substructure",
-        "Merge_Substructure"
-      ],
-      "module_id": "small-molecule-structure-generation",
-      "status": "active"
-    },
-    {
       "display_name": "Molecular Docking",
       "job_name": "Vina_basic_docking",
       "aliases": [
         "Molecular Docking",
         "Vina_basic_docking",
         "basic docking",
-        "flexible docking",
         "vina basic docking"
+      ],
+      "module_id": "small-molecule-toolbox",
+      "status": "active"
+    },
+    {
+      "display_name": "Flexible Docking",
+      "job_name": "Vina_Flexible_Docking",
+      "aliases": [
+        "Flexible Docking",
+        "Vina Flexible Docking",
+        "Vina_Flexible_Docking"
       ],
       "module_id": "small-molecule-toolbox",
       "status": "active"
@@ -1027,16 +1052,29 @@
       "status": "active"
     },
     {
-      "display_name": "Molecular Dynamics",
-      "job_name": null,
+      "display_name": "MDS OpenMM",
+      "job_name": "MDS_openMM",
       "aliases": [
-        "Molecular Dynamics",
-        "mds",
-        "openmm",
+        "MDS OpenMM",
+        "MDS openMM",
+        "MDS_openMM",
+        "OpenMM molecular dynamics",
+        "openmm"
+      ],
+      "module_id": "molecular-dynamics",
+      "status": "active"
+    },
+    {
+      "display_name": "MDS Gromacs",
+      "job_name": "MDS_Gromacs",
+      "aliases": [
+        "MDS Gromacs",
+        "MDS_Gromacs",
+        "Gromacs molecular dynamics",
         "gromacs"
       ],
-      "module_id": null,
-      "status": "removed"
+      "module_id": "molecular-dynamics",
+      "status": "active"
     },
     {
       "display_name": "Monomer Structure Prediction",
@@ -1596,27 +1634,6 @@
         "Substructure_Screening"
       ],
       "module_id": "small-molecule-screening",
-      "status": "active"
-    },
-    {
-      "display_name": "Substructure-Based Generation (subgen)",
-      "job_name": "Substructures",
-      "aliases": [
-        "Substructure-Based Generation",
-        "Substructure-Based Generation (subgen)",
-        "Substructures"
-      ],
-      "module_id": "small-molecule-structure-generation",
-      "status": "active"
-    },
-    {
-      "display_name": "Synergy Prediction",
-      "job_name": "Synergy_Prediction",
-      "aliases": [
-        "Synergy Prediction",
-        "Synergy_Prediction"
-      ],
-      "module_id": "small-molecule-qspr",
       "status": "active"
     },
     {

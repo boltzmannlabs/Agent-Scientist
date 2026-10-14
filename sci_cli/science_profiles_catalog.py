@@ -39,9 +39,9 @@ def select_service_tools(ui, server, tools, *, selected=None, verified=False):
     return [*required, *extras]
 
 
-def science_skills(home: Path):
+def science_skills(home: Path, *, root=None):
     from agent.skill_utils import iter_skill_index_files, parse_frontmatter
-    root = home / "skills"
+    root = root if root is not None else home / "skills"
     result = {}
     for skill in sorted(iter_skill_index_files(root, "SKILL.md")):
         if skill.is_symlink() or not skill.resolve().is_relative_to(root.resolve()):
@@ -61,19 +61,40 @@ def science_skills(home: Path):
     return result
 
 
-def select_science_items(ui, title, options):
+def science_skill_choices(*homes):
+    """Local versions override packaged defaults; listing never enables a skill."""
+    from sci_constants import get_bundled_skills_dir
+    bundled = get_bundled_skills_dir(Path(__file__).resolve().parents[1] / "skills")
+    roots = [(bundled, "bundled default")]
+    roots.extend((home / "skills", "profile-local" if i == len(homes) - 1 else "main available")
+                 for i, home in enumerate(homes))
+    labels, paths = {}, {}
+    for root, origin in roots:
+        for name, description in science_skills(root.parent, root=root).items():
+            labels[name] = description + f" [{origin}]"
+            paths[name] = root / name
+    return labels, paths
+
+
+def skill_identifiers(name, source):
+    from agent.skill_utils import parse_frontmatter
+    metadata, _ = parse_frontmatter((source / "SKILL.md").read_text(encoding="utf-8-sig"))
+    return {name, Path(name).name, str(metadata.get("name") or source.name)}
+
+
+def select_science_items(ui, title, options, *, selected=None):
     """Bounded toggle picker: Done is first even when there are thousands of tools."""
     if not options:
         ui.show(f"{title}: none available here. You can still create the profile.")
         return []
-    selected, query, page = [], "", 0
+    selected, query, page = list(dict.fromkeys(selected or [])), "", 0
     while True:
         matches = [key for key, desc in options.items() if query in (key + " " + desc).lower()]
         pages = max(1, (len(matches) + 3) // 4)
         page = min(page, pages - 1)
         rows = matches[page * 4:page * 4 + 4]
         labels = {f"{'[selected] ' if key in selected else ''}{key} — {options[key][:100]}".strip(): key for key in rows}
-        controls = ["Done", *labels, "Search"]
+        controls = ["Done", *labels, "Select all", "Clear selection", "Search"]
         if query:
             controls.append("Clear search")
         if page + 1 < pages:
@@ -81,9 +102,16 @@ def select_science_items(ui, title, options):
         if page:
             controls.append("Previous page")
         controls.append("Cancel")
-        choice = ui.choose(f"{title}: {len(selected)} selected; page {page + 1}/{pages}. Done continues.", controls)
+        choice = ui.choose(f"{title}: {len(selected)} selected; page {page + 1}/{pages}. "
+                           "Select all/Clear selection apply to the entire section, including hidden search results.", controls)
         if choice == "Done":
             return selected
+        if choice == "Select all":
+            selected = list(dict.fromkeys([*selected, *options]))
+            continue
+        if choice == "Clear selection":
+            selected = []
+            continue
         if choice in labels:
             key = labels[choice]
             if key in selected:

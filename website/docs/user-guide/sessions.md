@@ -196,27 +196,33 @@ sci sessions list --workspace my-project
 sci sessions list --workspace ~/code/sci-agent
 ```
 
-### Conversation Recap on Resume
+### Conversation restoration on resume
 
-When you resume a session, Sci displays a compact recap of the previous conversation in a styled panel before the input prompt:
+Resume replays the retained conversation directly into normal terminal scrollback:
+user messages and assistant replies in full, without tool calls, results or internal activity,
+in their original order. Assistant replies use the normal chat Markdown setting.
+Scroll up to review and continue at the input prompt below it. The current theme is preserved.
 
-<img className="docs-terminal-figure" src={useBaseUrl('/img/docs/session-recap.svg')} alt="Stylized preview of the Previous Conversation recap panel shown when resuming a Sci session." />
-<p className="docs-figure-caption">Resume mode shows a compact recap panel with recent user and assistant turns before returning you to the live prompt.</p>
+Press **Ctrl+O** (or **F8**) while idle to open the read-only conversation viewer:
 
-The recap:
-- Shows **user messages** (gold `●`) and **assistant responses** (green `◆`)
-- **Truncates** long messages (300 chars for user, 200 chars / 3 lines for assistant)
-- **Collapses tool calls** to a count with tool names (e.g., `[3 tool calls: terminal, web_search]`)
-- **Hides** system messages, tool results, and internal reasoning
-- **Caps** at the last 10 exchanges with a "... N earlier messages ..." indicator
-- Uses **dim styling** to distinguish from the active conversation
+- Arrow keys and Page Up/Down scroll; Ctrl+Home/End go to the beginning/end.
+- Tab/Shift+Tab select the next/previous tool entry; Enter expands or collapses its saved details.
+- Ctrl+E expands/collapses all tool details. `/` or Ctrl+F searches the visible text.
+- Escape or `q` returns to the unchanged chat prompt.
 
-To disable the recap and keep the minimal one-liner behavior, set in `~/.sci/config.yaml`:
+The viewer reads the active profile's current saved session, including retained
+pre-compression history, independently of terminal scrollback limits. It does not
+automatically read referenced spillover files: a saved preview remains a preview,
+with its original file reference shown in the expanded details.
 
-```yaml
-display:
-  resume_display: minimal   # default: full
-```
+System instructions, hidden internal events and reasoning are excluded; detected
+credentials are masked. Stored tool activity is only displayed, never executed again.
+Retained pre-compression messages are visible without being re-added to the model's
+compressed working context. Deleted/unrecorded messages cannot be recovered.
+
+The former `display.resume_*` recap limits no longer hide messages, and `/history`
+has been removed. Your terminal's configured scrollback capacity still applies;
+`/save` can export a retained conversation for viewing outside the terminal.
 
 :::tip
 Session IDs follow the format `YYYYMMDD_HHMMSS_<hex>` — CLI/TUI sessions use a 6-char hex suffix (e.g. `20250305_091523_a1b2c3`), gateway sessions use an 8-char suffix (e.g. `20250305_091523_a1b2c3d4`). You can resume by ID (full or unique prefix) or by title — both work with `-c` and `-r`.

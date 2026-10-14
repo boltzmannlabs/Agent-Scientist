@@ -17,7 +17,7 @@ conversation's tools, skills, or prompt. Existing `--now` explicitly opts into i
 for native profiles. Legacy isolated science profiles always defer activation until the next
 session; their reviewed policy adds only the five Boltzmann operations, with per-call external
 access approval. Local sandbox restrictions and pending local setup remain unchanged.
-Missing, changed, removed, rejected, or revoked credentials block execution, including cached
+Missing, changed, removed, rejected, or revoked credentials block execution, including
 status reads and signed-file downloads. Service outages also fail closed. A saved key alone
 does not authorize the connector: `/Add_boltz` must complete in each owning profile.
 
@@ -35,8 +35,8 @@ updated. No private `.env`, configuration, API keys, results, or local sample da
 
 ## Packaged workflow knowledge
 
-The authorized `boltzmann:tools` skill includes the module registry, scientific
-references, clarification/file/limit contracts, collection mappings and the
+The authorized `boltzmann:tools` skill includes the canonical job catalog,
+request/file/limit definitions, generated scientific modules, diagnostic mappings and the
 optional peptide conversion script. These files ship with Git checkouts and
 Python package data; no private local plugin directory is needed. They are
 instructions and contracts, not additional model tools or installed scientific
@@ -50,10 +50,10 @@ and-key-bound, and every operation revalidates against the service.
 ## Scientific execution routing
 
 Inventory questions such as "what Boltzmann tools do we have" use the installed
-module registry through `boltzmann:tools`, showing scientific display names by
+job catalog through `boltzmann:tools`, showing scientific display names by
 domain and module rather than the five connector operations. All-tools requests
-list active catalog entries; removed/ignored entries are excluded and on-hold
-entries are labeled separately. Listing requires no scientific job or upload.
+list active catalog entries; entries without an established executable request
+are listed separately with their missing information. Listing requires no scientific job or upload.
 Catalog membership does not establish account entitlement or execution readiness.
 This guidance is loaded in a fresh conversation; existing cached prompts remain
 unchanged. Helper descriptions are reserved for explicit integration questions.

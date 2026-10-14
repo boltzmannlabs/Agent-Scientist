@@ -1,8 +1,7 @@
 """Tests for session resume history display — _display_resumed_history() and
 _preload_resumed_session().
 
-Verifies that resuming a session shows a compact recap of the previous
-conversation with correct formatting, truncation, and config behavior.
+Verifies that resuming restores the retained transcript without recap truncation.
 """
 
 from io import StringIO
@@ -114,7 +113,7 @@ def _multimodal_history():
 
 
 class TestDisplayResumedHistory:
-    """_display_resumed_history() renders a Rich panel with conversation recap."""
+    """_display_resumed_history() replays a conversation into terminal scrollback."""
 
     def _capture_display(self, cli_obj):
         """Run _display_resumed_history and capture the Rich console output."""
@@ -135,7 +134,7 @@ class TestDisplayResumedHistory:
         assert "How do I install it?" in output
 
 
-    def test_timeline_markers_render_as_events_not_user_input(self):
+    def test_timeline_markers_are_not_printed_in_resumed_chat(self):
         cli = _make_cli()
         cli.conversation_history = [
             {"role": "user", "content": "opaque model context", "display_kind": "model_switch"},
@@ -145,24 +144,22 @@ class TestDisplayResumedHistory:
 
         output = self._capture_display(cli)
 
-        assert "◈ model changed" in output
-        assert "◈ background delegation completed" in output
+        assert "◈ model changed" not in output
+        assert "◈ background delegation completed" not in output
         assert "You:" not in output
         assert "opaque" not in output
 
 
 
-    def test_tool_only_message_skipped_by_default(self):
-        """Assistant messages with only tool_calls (no text) are skipped when
-        resume_skip_tool_only=True (the default). The summary line is hidden.
-        """
+    def test_resume_shows_messages_without_tool_activity(self):
         cli = _make_cli()
         cli.conversation_history = _tool_call_history()
         output = self._capture_display(cli)
 
-        # The tool-only assistant entry should be skipped
-        assert "2 tool calls" not in output
-        # The final text reply should still appear
+        assert "Call web_search" not in output and "Result web_search" not in output
+        assert "Search for Python tutorials" in output
+        assert "Found 5 results" not in output and "Page content" not in output
+        assert "Ctrl+O" in output
         assert "Here are some great Python tutorials" in output
 
 
@@ -204,14 +201,12 @@ class TestDisplayResumedHistory:
         # Should render without error
         assert "You:" in output
 
-    def test_minimal_config_suppresses_display(self):
+    def test_legacy_minimal_config_does_not_hide_resumed_conversation(self):
         cli = _make_cli(config_overrides={"display": {"resume_display": "minimal"}})
-        # resume_display is captured as an instance variable during __init__
-        assert cli.resume_display == "minimal"
         cli.conversation_history = _simple_history()
         output = self._capture_display(cli)
 
-        assert output.strip() == ""
+        assert "What is Python?" in output and "How do I install it?" in output
 
 
 

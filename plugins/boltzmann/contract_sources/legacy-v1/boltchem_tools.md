@@ -1882,22 +1882,30 @@ Single-field tool. No other parameters.
 
 
 
-## Tool 30 — MDS - gromacs (`MDS_Gromacs`) — BLOCKED (worker bug)
+## Tool 30 — MDS - Gromacs (`MDS_Gromacs`) — INPUT CONTRACT DOCUMENTED; PRIOR WORKER FAILURE
 
 ### Identity
 - Route: `/v4/mds/gromacs` · job_name `MDS_Gromacs` · task `gromacs`
 
-### Input Contract — VERIFIED_LIVE (yup layer)
+### Current supplied input contract
 ```json
 {
+  "force_field": "amber",
   "Protein_PDB_file": "<cloud path, protein PDB>",
-  "Ligand_PDB_file":  "<cloud path, ligand PDB>",   // REQUIRED (v1 400 without it)
-  "Time": 1, "xtc_file": "YES",                     // trajectory on/off
-  "temparature": 298, "pressure": 1,                // NOTE the typo 'temparature'
-  "water_type": "TIP3P", "force_field": "amber",    // enums observed: amber | charmm
-  "snaptime": 10                                    // snapshot interval
+  "Ligand_PDB_file": "<cloud path, ligand PDB>",
+  "Time": "<production time in ps>",
+  "XTC Trajectory File": "YES",
+  "temparature": "<temperature>",
+  "pressure": "<pressure>",
+  "water_type": "TIP3P",
+  "snaptime": "<snapshot interval in ps>"
 }
 ```
+- Exact force-field values: `amber`, `charmm36`.
+- `Stream_str_file` is conditionally required when `force_field` is `charmm36`.
+- Exact water-model values: `TIP3P`, `SPC`, `TIP4P`, `TIP5P`, `TIP4PEW`.
+- The current supplied wire key is exactly `XTC Trajectory File`, including spaces and
+  capitalization; do not substitute the legacy `xtc_file` key.
 - Discovery: v1 (no ligand) → 400 `Ligand_PDB_file` required; adding the DUE ligand extract
   (40 HETATM from 6FMC, `line[17:20]=='DUE'`) was accepted.
 
@@ -1917,27 +1925,34 @@ Single-field tool. No other parameters.
   worker bugs. 60 credits burned across the two accepted runs.
 
 ### Sci Execution Instructions
-1. Use MDS-openMM (Tool 29) for platform MD; treat this tool as unavailable until fixed.
-2. If probing a fix: drug-like ligand + `force_field:"charmm"` are the untried variables.
+1. Use the active exact contract in `modules/molecular-dynamics.md`. Warn that earlier accepted
+   runs reached a worker failure; do not retry automatically or claim the worker is repaired.
+2. If the user still approves a new run, submit once and verify terminal artifacts before
+   reporting completion.
 
 ### Verified Quirks
-- `temparature` typo is the real field name; `force_field` enum `amber|charmm`.
+- `temparature` typo is the real field name; current `force_field` enum is
+  `amber|charmm36`.
 - Ligand PDB mandatory even for apo-style runs (untested whether an empty/dummy file passes yup).
 
 ---
 
 
 
-## MDS — OpenMM (`MDS_openMM`) — PARKED
+## MDS — OpenMM (`MDS_openMM`) — INPUT CONTRACT DOCUMENTED
 
 ### Status
-- The live verification matrix records this job as accepted and pending server-side; its document ID is retained for on-demand fetching.
-- No terminal output schema was available during the verification campaign.
-- Do not submit or claim a result until a complete input contract and terminal output are verified.
+- The exact supplied input fields and enums are documented in
+  `modules/molecular-dynamics.md`, and the route is active in the module registry.
+- The live verification matrix records an earlier job as accepted and pending
+  server-side, but no terminal output schema was available during that campaign.
+- A submission may be made only after the complete reviewed input contract is
+  satisfied. Do not claim a result until terminal status and returned artifacts
+  have been inspected.
 
 ### Known identity
 - Job name: `MDS_openMM`
-- The molecular-dynamics module is currently removed from the active module registry, so this entry is documentation-only until the route is re-enabled.
+- Authoritative contract: `modules/molecular-dynamics.md`
 
 ## Molecular Docking mode matrix (active scope)
 
@@ -1948,16 +1963,18 @@ Flexible docking and Score only select their corresponding Vina routes.
 | User mode | Exact job name | Status | Required contract |
 |---|---|---|---|
 | Vina basic | `Vina_basic_docking` | Schema verified; worker blocked | `target_name`, `processed_pdb`, `center_x`, `center_y`, `center_z`, `max_radius_size`, `exhaustivness`, `upload_sdf`, and ligand CSV cloud path in `smiles` |
-| Vina flexible | Not live-confirmed | Do not guess or submit | Requires the common receptor/search-box fields; `flexible_residues` is optional; exact submit job name remains unverified |
+| Vina flexible | `Vina_Flexible_Docking` | Exact supplied input schema; result unverified | `target_name`, uploaded `processed_pdb`, numeric-string pocket center/diameter, `exhaustivness`, `upload_sdf`, required `flexible_residues`, and one literal ligand `smiles` |
 | Vina score-only | `Vina_Score_only_docking` | Submission verified; terminal output unverified | Common receptor/search-box fields plus `sdf_file` and string `upload_sdf` |
 | DiffDock | `Diffdock` | Verified end-to-end | `processed_pdb`, `input_csv`, and string `upload_sdf` |
 
-For Vina, all numeric search-box fields are strings, the field spelling is
-`exhaustivness`, and the ligand CSV must contain `SMILES,NAMES`. For DiffDock,
-the ligand field is `input_csv`, `NAMES` is not required, and the verified
-result is `user_download.csv` with pose/ranking fields. Identify ligands by
-`SMILES`, not `Ligand_no`.
+For Vina, all numeric search-box fields are strings and the field spelling is
+`exhaustivness`. Basic docking uses a ligand CSV containing `SMILES,NAMES`;
+flexible docking instead uses one literal ligand `smiles`. For DiffDock, the
+ligand field is `input_csv`, `NAMES` is not required, and the verified result
+is `user_download.csv` with pose/ranking fields. Identify ligands by `SMILES`,
+not `Ligand_no`.
 
 Do not submit Vina basic or Gromacs while their worker failures remain active.
-DiffDock is the currently verified docking path. Do not claim Vina flexible or
+DiffDock is the currently verified docking path. The supplied schema authorizes
+the exact flexible-docking input contract, but do not claim Vina flexible or
 score-only terminal output until its artifacts have been fetched and inspected.

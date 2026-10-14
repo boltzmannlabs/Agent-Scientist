@@ -69,7 +69,7 @@ def test_completion_display_keeps_payload_separate_across_surfaces(monkeypatch, 
             db.append_messages_batch(cli.session_id, cli.conversation_history)
             restored = db.get_messages(cli.session_id)
         assert restored[0]["content"] == payload
-        entries, _, _ = _collect_resume_entries(restored, {}, lambda text: text)
+        entries = _collect_resume_entries(restored, lambda text: text)
         assert entries == [("event", expected)]
         emitted, dispatched = [], []
         monkeypatch.setattr(server, "_emit", lambda *args: emitted.append(args))

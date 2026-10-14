@@ -112,7 +112,7 @@ def test_process_completion_display_keeps_payload_separate_across_surfaces(monke
     assert staged["display_metadata"]["display_text"] == expected
 
     from sci_cli.cli_agent_setup_mixin import _collect_resume_entries
-    entries, _, _ = _collect_resume_entries(cli.conversation_history, {}, lambda text: text)
+    entries = _collect_resume_entries(cli.conversation_history, lambda text: text)
     assert entries == [("event", expected)]
 
     # TUI gateway: the status line and the persisted turn carry the same compact title.

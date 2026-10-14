@@ -2235,8 +2235,8 @@
             ".csv"
           ],
           "required_columns": [
-            "Sequences",
-            "SMILES"
+            "sequences",
+            "smiles"
           ]
         }
       ],
@@ -2246,7 +2246,11 @@
         "user_id",
         "experiment_id"
       ],
-      "notes": [],
+      "notes": [
+        "CSV header names are case-insensitive, but the singular aliases `sequence` and `smile` are rejected; `seq_id` is not required.",
+        "Sequence and SMILES values retain their case.",
+        "CatPred automatically predicts kcat, Km, and Ki for every row and has no user-selectable mode or `prediction_type` field."
+      ],
       "inventory_name": "Cat Pred",
       "clarification_controls": {
         "input_path": "file_or_text"

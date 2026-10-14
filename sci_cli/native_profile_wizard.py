@@ -7,7 +7,7 @@ import threading
 
 from sci_cli.skill_add import WizardUI, Cancelled
 from sci_cli.science_profiles_ui import PERSONA
-from sci_cli.science_profiles_catalog import science_skills, select_science_items
+from sci_cli.science_profiles_catalog import science_skill_choices, select_science_items
 
 
 def choose_sources(ui, initial=()):
@@ -15,9 +15,14 @@ def choose_sources(ui, initial=()):
     from urllib.parse import urlsplit
     result = list(initial)
     while True:
-        choice = ui.choose(f"Optional sources: {len(result)} added", ["Done", "Add file/folder", "Add URL", "Cancel"])
+        choices = ["Done", "Add file/folder", "Add URL"] + (["Remove a source"] if result else []) + ["Cancel"]
+        choice = ui.choose(f"Optional sources: {len(result)} added", choices)
         if choice == "Done":
             return result
+        if choice == "Remove a source":
+            labels = {f"{i + 1}. {s['location']} [{s['access']}]": i for i, s in enumerate(result)}
+            result.pop(labels[ui.choose("Remove reference/access (original files stay untouched)", [*labels, "Cancel"])])
+            continue
         raw = ui.ask("Source path or public HTTPS URL:").strip().strip('"').strip("'")
         source = Source(raw)
         path = local_source(source)
@@ -78,7 +83,8 @@ def create_wizard(cli, command, ui=None, source_home=None):
                 raise ValueError("Choose a new name, not main/default.")
         ui.show(f"Source profile: {home}. Only reviewed skills, services and approved credentials will be copied. "
                 "LLM login uses the existing shared authentication mechanism.")
-        skills = select_science_items(ui, "Scientific skills", science_skills(home))
+        labels, skill_sources = science_skill_choices(home)
+        skills = select_science_items(ui, "Scientific skills", labels)
         with tempfile.TemporaryDirectory(prefix="sci-profile-review-") as scratch_dir:
             scratch = Path(scratch_dir)
             services = choose_services(cli, ui, service_home, service_config, scratch)
@@ -98,7 +104,8 @@ def create_wizard(cli, command, ui=None, source_home=None):
                 raise ValueError("Source configuration changed during review; retry with the current settings.")
             if read_user_config_raw(service_home / "config.yaml") != service_config:
                 raise ValueError("Service configuration changed during review; retry with the current settings.")
-            saved = create_native(name, home, skills, services, sources, terminal, PERSONA)
+            saved = create_native(name, home, skills, services, sources, terminal, PERSONA,
+                                  skill_sources=skill_sources)
         ui.show(f"Created {name}: {saved}. Selected capabilities enabled; no --prepare command needed. "
                 "Scientific software requirements still apply. No research jobs ran during setup.")
         if ui.choose("Activate the new profile now?", ["Stay in current profile", "Activate now", "Cancel"]) == "Activate now":

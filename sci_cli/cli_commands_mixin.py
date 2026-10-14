@@ -33,6 +33,7 @@ from agent.i18n import t
 from agent.message_metadata import message_identity
 from agent.turn_context import extract_api_content_sidecar
 from sci_cli.cli_agent_setup_mixin import _retire_agent
+from sci_cli.science_workspace_commands import ScienceWorkspaceCommandsMixin
 from sci_cli.browser_connect import (
     DEFAULT_BROWSER_CDP_URL, discover_local_cdp_url, find_free_debug_port, is_browser_debug_ready,
     launch_chrome_debug, local_port_in_use, manual_chrome_debug_command)
@@ -318,9 +319,14 @@ def _parse_cron_flags(tokens):
 
 
 # Session-switch plumbing shared by /resume and /branch.
-def _end_current_session(cli, reason: str) -> None:
+def _end_current_session(cli, reason: str, *, strict: bool = False) -> None:
     """Flush un-persisted messages, then end the current session row with ``reason``.
-    Best-effort on both steps (the switch proceeds even if the DB write fails)."""
+    ``strict`` switches refuse a failed save; branch callers retain best-effort behavior."""
+    if strict:
+        from sci_cli.session_browser import flush_before_switch
+        flush_before_switch(cli)
+        cli._session_db.end_session(cli.session_id, reason)
+        return
     if cli.agent:
         with suppress(Exception):
             cli.agent._flush_messages_to_session_db(
@@ -623,7 +629,7 @@ _BROWSER_SUBCOMMANDS = {
 }
 
 
-class CLICommandsMixin:
+class CLICommandsMixin(ScienceWorkspaceCommandsMixin):
     """Mixin holding the interactive-CLI slash-command handlers."""
 
     # ---- /rollback ------------------------------------------------------------------------
@@ -1281,6 +1287,12 @@ class CLICommandsMixin:
         if len(target) >= 2 and target[0] + target[-1] in {"<>", "[]", '""', "''"}:
             target = target[1:-1].strip()
         if not target:
+            if getattr(getattr(self, "_app", None), "is_running", False):
+                from sci_cli.session_browser import pick_session
+                selected = pick_session(self)
+                if selected:
+                    self._handle_resume_command(f"/resume {selected}")
+                return
             _cp(f"  {_t('resume.usage')}")
             if self._show_recent_sessions(reason="resume"):
                 # Arm a one-shot bare-number selection; must be the same list the table showed
@@ -1302,8 +1314,19 @@ class CLICommandsMixin:
         target_id, session_meta = resolved
         if target_id == self.session_id:
             return _cp(f"  {_t('resume.already_on')}")
+        if getattr(getattr(self, "_app", None), "is_running", False):
+            from sci_cli.native_profile_session import request_resume
+            from sci_cli.skill_add import WizardUI
+            try:
+                request_resume(self, target_id, WizardUI(self))
+            except Exception:
+                _cp("Could not prepare a safe resume. Current session unchanged; check the session store.")
+            return
         old_session_id = self.session_id
-        _end_current_session(self, "resumed_other")
+        try:
+            _end_current_session(self, "resumed_other", strict=True)
+        except Exception:
+            return _cp("Could not save the departing conversation. Resume stopped; current session unchanged.")
         self.session_id, self._resumed, self._pending_title = target_id, True, None
         _sync_process_session_id(target_id)
         # One lineage SELECT, two projections: model_history is alternation-repaired for live
@@ -1314,6 +1337,10 @@ class CLICommandsMixin:
         with suppress(Exception):  # re-open the target session so it's not marked as ended
             self._session_db.reopen_session(target_id)
         _sync_agent_to_session(self, target_id, parent_session_id=old_session_id, reason="resume")
+        if self.agent and session_meta.get("system_prompt"):
+            from agent.system_prompt import restore_plugin_prompt_sections
+            self.agent._cached_system_prompt = session_meta["system_prompt"]
+            restore_plugin_prompt_sections(self.agent, session_meta["system_prompt"])
         title_part = f" \"{session_meta['title']}\"" if session_meta.get("title") else ""
         from agent.context_compressor import is_user_originated_turn
         # Count only user-originated turns: legacy compaction handoffs are durable role=user rows
@@ -1335,6 +1362,7 @@ class CLICommandsMixin:
         self._restore_session_cwd(session_meta)
         self._restore_session_yolo(session_meta)
         self._restore_session_model(session_meta)
+        _cp("Retained conversation restored above. Model context remains compressed as saved.")
 
     def _resolve_resume_target(self, target: str):
         """``(session_id, meta)`` for a numbered selection, title, or id; None after printing why
@@ -1368,6 +1396,8 @@ class CLICommandsMixin:
         """Handle /sessions [list|<id_or_title>] — bare/``list`` prints the recent-sessions table;
         an explicit target delegates to /resume so both spellings behave identically."""
         arg = _command_arg(cmd_original)
+        if (not arg or arg.lower() in {"list", "ls", "browse"}) and getattr(getattr(self, "_app", None), "is_running", False):
+            return self._handle_resume_command("/resume")
         if arg and arg.lower() not in {"list", "ls", "browse"}:
             self._handle_resume_command(f"/resume {arg}")
         elif not self._session_db:
@@ -2591,7 +2621,7 @@ class CLICommandsMixin:
 
     def _handle_timestamps_command(self, cmd_original: str) -> None:
         """Toggle or inspect ``display.timestamps`` (``/timestamps [on|off|status]``). When on,
-        message labels carry an ``[HH:MM]`` suffix and ``/history`` prefixes stored-timestamp turns."""
+        message labels carry an ``[HH:MM]`` suffix."""
         arg = _command_arg(cmd_original, lower=True)
         current = bool(getattr(self, "show_timestamps", False))
         new_state = _toggle_target(arg, current)

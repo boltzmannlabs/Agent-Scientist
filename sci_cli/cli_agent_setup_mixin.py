@@ -123,19 +123,6 @@ def _user_display_text(content) -> str:
     return "" if content is None else str(content)
 
 
-def _tool_calls_summary(tool_calls) -> str:
-    """``[N tool call(s): name, ...]`` with up to 4 distinct names."""
-    names = []
-    for tc in tool_calls:
-        fn = tc.get("function", {})
-        name = fn.get("name", "unknown") if isinstance(fn, dict) else "unknown"
-        if name not in names:
-            names.append(name)
-    names_str = ", ".join(names[:4]) + (", ..." if len(names) > 4 else "")
-    key = "cli.resume.tool_calls_one" if len(tool_calls) == 1 else "cli.resume.tool_calls_other"
-    return t(key, count=len(tool_calls), names=names_str)
-
-
 # display_kind -> catalog key of the recap event line (resolved at call time); ``hidden`` rows
 # are skipped before this lookup.
 _RESUME_EVENT_KEYS = {
@@ -144,23 +131,20 @@ _RESUME_EVENT_KEYS = {
     "process_complete": "cli.resume.event_process_finished",
     "auto_continue": "cli.resume.event_resumed_interrupted"}
 
-def _collect_resume_entries(display_history, disp: dict, clean_assistant):
-    """Displayable ``(role, text)`` recap entries from stored history, truncated per the
-    ``display.resume_*`` config; system and tool-result rows are skipped. Returns
-    ``(entries, index of last assistant entry, its un-truncated text)``.
-
-    Stored history is untrusted for display: text is sanitized so replay can't clear the
-    screen, retitle the window or restyle the panel. Pure-reasoning assistant rows with no
-    visible output are skipped, as are tool-call-only rows when ``resume_skip_tool_only``.
+def _collect_resume_entries(display_history, clean_assistant):
+    """Retained transcript entries, never the model projection. Legacy recap limits
+    are intentionally ignored: they must not silently hide saved conversation activity.
+    System/hidden rows and private reasoning are not user-visible transcript content.
     """
+    import json
+    from agent.redact import redact_sensitive_text
     from tools.ansi_strip import sanitize_display_text as _sanitize_display_text
-    max_user_len = int(disp.get("resume_max_user_chars", 300))
-    max_asst_len = int(disp.get("resume_max_assistant_chars", 200))
-    max_asst_lines = int(disp.get("resume_max_assistant_lines", 3))
-    skip_tool_only = disp.get("resume_skip_tool_only", True)
+
+    def safe(value):
+        return redact_sensitive_text(_sanitize_display_text(str(value)))
+
     entries: list = []
-    last_asst_idx = None
-    last_asst_full = None
+    call_names = {}
     for msg in display_history:
         role = msg.get("role", "")
         display_kind = msg.get("display_kind")
@@ -171,36 +155,31 @@ def _collect_resume_entries(display_history, disp: dict, clean_assistant):
         if display_kind in _RESUME_EVENT_KEYS:
             metadata = msg.get("display_metadata") or {}
             label = metadata.get("display_text") if display_kind in ("async_delegation_complete", "process_complete") else None
-            entries.append(("event", _sanitize_display_text(label or t(_RESUME_EVENT_KEYS[display_kind]))))
+            entries.append(("event", safe(label or t(_RESUME_EVENT_KEYS[display_kind]))))
             continue
         if role == "user":
-            text = _sanitize_display_text(_user_display_text(content))
-            if len(text) > max_user_len:
-                text = text[:max_user_len] + "..."
+            text = safe(_user_display_text(content))
             entries.append(("user", text))
         elif role == "assistant":
-            text = clean_assistant("" if content is None else str(content))
-            parts, full_parts = [], []
+            text = safe(clean_assistant(_user_display_text(content)))
             if text:
-                full_parts.append(text)
-                lines = text.splitlines()
-                if len(lines) > max_asst_lines:
-                    text = "\n".join(lines[:max_asst_lines]) + " ..."
-                if len(text) > max_asst_len:
-                    text = text[:max_asst_len] + "..."
-                parts.append(text)
-            if tool_calls:
-                parts.append(_tool_calls_summary(tool_calls))
-                full_parts.append(parts[-1])
-            if not text and (skip_tool_only or not tool_calls):
-                continue
-            entries.append(("assistant", " ".join(parts)))
-            last_asst_idx = len(entries) - 1
-            last_asst_full = " ".join(full_parts)
-    return entries, last_asst_idx, last_asst_full
+                entries.append(("assistant", text))
+            for call in tool_calls:
+                fn = call.get("function") or {}
+                name = fn.get("name") or "unknown"
+                call_names[call.get("id")] = name
+                args = fn.get("arguments", "")
+                if not isinstance(args, str):
+                    args = json.dumps(args, ensure_ascii=False, indent=2)
+                entries.append(("tool", safe(f"Call {name}\n{args}")))
+        elif role == "tool":
+            name = msg.get("name") or msg.get("tool_name") or call_names.get(msg.get("tool_call_id"), "tool")
+            body = content if isinstance(content, str) else json.dumps(content, ensure_ascii=False, indent=2)
+            entries.append(("tool", safe(f"Result {name}\n{body if content is not None else '[No retained output]'}")))
+    return entries
 
 
-# (skin key, fallback) for recap panel colors: body text, session label, border, assistant label.
+# (skin key, fallback) for transcript colors: body text, user label, border, assistant label.
 _RESUME_SKIN_COLORS = (
     ("banner_text", "#FFE3ED"), ("session_label", "#FF8FB6"), ("session_border", "#853053"),
     ("ui_ok", "#D1F2CD"))
@@ -823,56 +802,9 @@ class CLIAgentSetupMixin:
         return True
 
     def _display_resumed_history(self):
-        """Render a dim Rich-panel recap of the previous conversation, capped at the last
-        ``resume_exchanges`` user/assistant exchanges with a hidden-count indicator."""
-        from cli import CLI_CONFIG, _record_output_history_entry, _strip_reasoning_tags, _suspend_output_history
-        from tools.ansi_strip import sanitize_display_text as _sanitize_display_text
+        """Replay retained conversation into ordinary scrollback, not a recap panel."""
+        from cli import _strip_reasoning_tags
+        from sci_cli.resume_transcript import render_transcript
         display_history = getattr(self, "_resume_display_history", self.conversation_history)
-        if not display_history or self.resume_display == "minimal":
-            return
-        _disp = CLI_CONFIG.get("display", {})
-        entries, _last_asst_idx, _last_asst_full = _collect_resume_entries(
-            display_history, _disp, lambda t: _sanitize_display_text(_strip_reasoning_tags(t)))
-        if not entries:
-            return
-        skipped = max(0, len(entries) - int(_disp.get("resume_exchanges", 10)) * 2)
-        entries = entries[skipped:]
-        # Show the last assistant entry in full so the user sees where they left off.
-        if _last_asst_idx is not None and _last_asst_full:
-            adj_idx = _last_asst_idx - skipped
-            if 0 <= adj_idx < len(entries):
-                entries[adj_idx] = ("assistant_last", _last_asst_full)
-        from rich.panel import Panel
-        from rich.text import Text
-        _history_text_c, _session_label_c, _session_border_c, _assistant_label_c = (
-            _resume_panel_colors())
-
-        # role -> (label, label style, body style, continuation indent)
-        you_label = f"  {t('cli.resume.label_you')} "
-        assistant_label = f"  {t('cli.resume.label_assistant', agent_name='Sci')} "
-        role_styles = {
-            "user": (you_label, f"dim bold {_session_label_c}", "dim", " " * len(you_label)),
-            "assistant": (assistant_label, f"dim bold {_assistant_label_c}", "dim", " " * len(assistant_label)),
-            "assistant_last": (assistant_label, f"bold {_assistant_label_c}", "", " " * len(assistant_label)),  # full, non-dim
-        }
-        lines = Text()
-        if skipped:
-            lines.append(f"  {t('cli.resume.earlier_messages', count=skipped)}\n\n", style="dim italic")
-        for i, (role, text) in enumerate(entries):
-            if role == "event":
-                lines.append(f"  ◈ {text}\n", style="dim italic")
-            else:
-                label, label_style, body_style, indent = role_styles[role]
-                lines.append(label, style=label_style)
-                first, *rest = text.splitlines() or [""]  # first line inline, rest indented
-                lines.append(first + "\n", style=body_style)
-                for ml in rest:
-                    lines.append(f"{indent}{ml}\n", style=body_style)
-            if i < len(entries) - 1:
-                lines.append("")  # small gap
-        panel = Panel(
-            lines, title=f"[dim {_session_label_c}]{_escape(t('cli.resume.panel_title'))}[/]",
-            border_style=f"dim {_session_border_c}", padding=(0, 1), style=_history_text_c)
-        _record_output_history_entry(lambda: self._render_resume_history_panel_lines(panel))
-        with _suspend_output_history():
-            self._console_print(panel)
+        entries = _collect_resume_entries(display_history, _strip_reasoning_tags)
+        render_transcript(self, entries)

@@ -185,7 +185,7 @@ class CLISessionMixin:
         _dim_notice(self, t("cli.session.yolo_restored"), quiet)
 
     def _render_resume_history_panel_lines(self, panel) -> list[str]:
-        """Render the resume panel at the current terminal width for resize replay."""
+        """Render a retained transcript entry at the current width for resize replay."""
         from cli import _suspend_output_history
         from io import StringIO
 

@@ -649,7 +649,7 @@ The product surface is one **Molecular Docking** tool with two top-level modes:
 | UI selection | Effective backend behavior | Evidence |
 |---|---|---|
 | Vina selected; neither feature box checked | Basic docking via `Vina_basic_docking` and route `/v4/DModule/basic_docking` | Payload live-verified; worker currently fails after parsing |
-| Vina + Flexible docking | Product route `/v4/3DModule/flexible_docking`, task `flexible_docking` | Product CSV only; registered helper `job_name` not live-verified |
+| Vina + Flexible docking | `Vina_Flexible_Docking`; product route `/v4/3DModule/flexible_docking`, task `flexible_docking` | Exact supplied input schema; result not live-verified |
 | Vina + Score only | Product route `/v4/3DModule/vina_score_only_docking`, collection `equidock`, task `vina_score_only` | Durable collection verified from Mongo document |
 | DiffDock selected | DiffDock via `Diffdock` and route `/v4/3DModule/diffdock` | Live-verified end to end in the parent skill |
 
@@ -669,15 +669,23 @@ is repaired. Do not describe the product-CSV output columns as a live result.
 
 ### Vina flexible docking
 
-The product CSV documents the basic fields plus:
+Use exact `job_name="Vina_Flexible_Docking"`. Its supplied schema is separate
+from basic docking: `smiles` is one literal ligand SMILES, not a ligand CSV
+path.
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
-| `flexible_residues` | array[string] | yes | Flexible receptor residues such as `ASN140`, `TYR62` |
-| `smiles` | string | yes | Ligand input described by the product CSV |
+| `target_name` | string | yes | User-supplied target/receptor label |
+| `processed_pdb` | string | yes | Uploaded processed receptor PDB path |
+| `center_x` / `center_y` / `center_z` | string | yes | Validated binding-pocket coordinates as numeric strings |
+| `max_radius_size` | string | yes | Positive binding-pocket diameter as a numeric string |
+| `exhaustivness` | string | yes | Exact choices `"8"`, `"16"`, or `"32"`; preserve misspelling |
+| `upload_sdf` | string | yes | Exact choices `"True"` or `"False"` |
+| `flexible_residues` | array[string] | yes | User-confirmed residues present in the processed receptor |
+| `smiles` | string | yes | One validated ligand SMILES |
 
-The product route and task are known, but the registered `job_name` for
-`submit_request` is not proven. Do not guess it from the route or task name.
+Screenshot values are not defaults. Never fabricate pocket coordinates,
+residues, or ligand data. The result contract remains unverified.
 
 ### Vina score-only docking
 

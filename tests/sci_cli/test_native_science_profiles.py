@@ -60,7 +60,8 @@ def test_publish_real_profiles_and_switch_a_b_a_without_leaking_state(root, tmp_
             assert "PRIVATE_SERVICE_TOKEN" not in (homes[name] / ".env").read_text()
             assert (homes[name] / "skills/science/evidence/reference.md").read_text() == "A supporting reference."
             list_profiles(ui)
-    agent = SimpleNamespace(_cached_system_prompt="frozen", tools=[{"original": True}])
+    agent = SimpleNamespace(_cached_system_prompt="frozen", tools=[{"original": True}],
+                            _flush_messages_to_session_db=Mock())
     cli = SimpleNamespace(agent=agent, conversation_history=[{"role": "user", "content": "private-main"}],
                           _app=SimpleNamespace(is_running=True, loop=Mock(), exit=Mock()))
     ui.choose.return_value = "a"
@@ -113,7 +114,7 @@ def test_wizard_existing_new_keys_cancel_invalid_key_and_duplicate_are_transacti
     assert setup_boltzmann(cli, ui, root, manifest) is None
     # A controlled terminal walkthrough: scientific skills, no services,
     # no sources, native local environment, review, save, stay.
-    ui.choose = Mock(side_effect=["Done", "Done", "Done", "Create profile", "Stay in current profile"])
+    ui.choose = Mock(side_effect=["Done", "Done", "Done", "Done", "Create profile", "Stay in current profile"])
     create_wizard(cli, '/Create_profile "omics"', ui)
     saved = get_profile_dir("omics")
     assert saved.is_dir(), ui.show.call_args_list

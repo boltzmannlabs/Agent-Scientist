@@ -23,6 +23,10 @@ SCHEMAS = [
                     "type": "string",
                     "description": "User-supplied or explicitly confirmed experiment name.",
                 },
+                "allow_partial_validation": {
+                    "type": "boolean", "default": False,
+                    "description": "Set true only after the user explicitly approves the reported unchecked aspects and possible service charges. Never overrides invalid inputs or authorization.",
+                },
             },
             "required": ["job_name", "experiment_data", "experiment_name"],
             "additionalProperties": False,
@@ -76,9 +80,14 @@ SCHEMAS = [
                 "local_path": {
                     "type": "string",
                     "description": "Absolute path to the already validated input file.",
-                }
+                },
+                "job_name": {"type": "string", "description": "Exact scientific job name from tool-contracts.v1.json."},
+                "input_field": {"type": "string", "description": "Exact payload field this file will populate."},
+                "experiment_data": {"type": "object", "description": "Reviewed values needed for mode-dependent file validation; never include credentials."},
+                "allow_partial_validation": {"type": "boolean", "default": False,
+                    "description": "True only after explicit user approval of the returned partial-validation warnings."}
             },
-            "required": ["local_path"],
+            "required": ["local_path", "job_name", "input_field"],
             "additionalProperties": False,
         },
     },
@@ -105,3 +114,7 @@ SCHEMAS = [
         },
     },
 ]
+
+# Native SCI registration consumes `parameters`, not the MCP `input_schema` key.
+for _schema in SCHEMAS:
+    _schema["parameters"] = _schema.pop("input_schema")

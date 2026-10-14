@@ -145,7 +145,7 @@ def mcp_credentials(cli, ui, home, name, config):
     return secrets, ", ".join(sorted(set(decisions))) or "none"
 
 
-def setup_mcp(cli, ui, home, name, raw, scratch):
+def setup_mcp(cli, ui, home, name, raw, scratch, *, selected=None):
     from sci_cli.mcp_security import validate_mcp_server_entry
     from sci_cli.mcp_config import _probe_single_server, redact_mcp_probe_text
     config = deepcopy(raw)
@@ -193,7 +193,10 @@ def setup_mcp(cli, ui, home, name, raw, scratch):
     found = {k: v for k, v in found.items()
              if (include is None or any(fnmatch.fnmatchcase(k, p) for p in include))
              and not any(fnmatch.fnmatchcase(k, p) for p in exclude)}
-    selected = select_science_items(ui, f"{name}: allowed tools (none selected initially)", found)
+    if any(any(char in name for char in "*?[]") for name in found):
+        raise ValueError("Server returned tool names containing wildcard characters. An exact allowlist cannot safely represent them; nothing enabled.")
+    selected = select_science_items(ui, f"{name}: allowed tools (individually selectable; explicit allowlist)", found,
+                                    selected=[n for n in (selected or []) if n in found])
     if not selected:
         ui.show(f"{name}: no tools selected; connection omitted.")
         return None
@@ -234,18 +237,54 @@ def setup_plugin(cli, ui, home, name, manifest, config):
                    toolsets=toolsets)
 
 
-def choose_services(cli, ui, home, config, scratch):
+def choose_services(cli, ui, home, config, scratch, *, existing=None, additional_home=None):
+    from sci_cli.science_integrations import missing_defaults, prepare_default
+    from sci_cli.config import read_user_config_raw
+    existing = existing or {}
     options = catalog(home, config)
+    origins = {key: (home, config) for key in options}
+    if additional_home is not None and additional_home != home:
+        extra_config = read_user_config_raw(additional_home / "config.yaml")
+        for key, value in catalog(additional_home, extra_config).items():
+            if key not in options:
+                options[key] = value
+                origins[key] = (additional_home, extra_config)
+    defaults = missing_defaults({"mcp_servers": {v[1]: v[2] for v in options.values() if v[0] == "mcp"}})
+    for name, value in defaults.items():
+        options["mcp:" + name] = ("mcp", name, value)
+        origins["mcp:" + name] = (home, config)
+    for key, service in existing.items():
+        if key not in options:
+            options[key] = (service.kind, service.name, None)
+            origins[key] = (home, config)
     labels = {key: ("MCP: explicit tool selection after approved discovery" if kind == "mcp" else
-                   f"Plugin-wide access: {value.description}") for key, (kind, name, value) in options.items()}
-    chosen = select_science_items(ui, "Tools and integrations", labels)
+                   f"Plugin-wide access: {value.description if value else 'preserved custom integration'}")
+              + (" [profile-local]" if key in existing else " [default setup]" if name in defaults else " [source available]")
+              for key, (kind, name, value) in options.items()}
+    chosen = []
+    for kind, title in (("mcp", "MCP connections"), ("plugin", "Plugins (plugin-wide permissions)")):
+        section = {key: text for key, text in labels.items() if options[key][0] == kind}
+        chosen.extend(select_science_items(ui, title, section, selected=[k for k in existing if k in section]))
     result = []
     for key in chosen:
         kind, name, value = options[key]
+        source_home, source_config = origins[key]
+        if key in existing:
+            prior = existing[key]
+            action = ui.choose(f"{name}: keep existing credentials/access or review changes?",
+                               ["Keep existing access", "Review connection/credentials", "Cancel"])
+            if action == "Keep existing access":
+                result.append(prior)
+                continue
+            if value is None:
+                raise ValueError(f"{name}: custom integration has no discoverable manifest; keep existing access or use its native setup.")
         while True:
             try:
-                service = (setup_mcp(cli, ui, home, name, value, scratch) if kind == "mcp" else
-                           setup_plugin(cli, ui, home, name, value, config))
+                if name in defaults and kind == "mcp":
+                    value = prepare_default(name, ui)
+                initial = existing[key].tools if key in existing else None
+                service = (setup_mcp(cli, ui, source_home, name, value, scratch, selected=initial) if kind == "mcp" else
+                           setup_plugin(cli, ui, source_home, name, value, source_config))
                 if getattr(cli, "_science_cancel", None) is not None and cli._science_cancel.is_set():
                     raise Cancelled()
                 if service:

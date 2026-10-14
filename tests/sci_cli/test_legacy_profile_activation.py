@@ -41,11 +41,13 @@ def test_picker_switches_saved_profiles_and_resumes_without_reconfiguration(save
     for source, target in (("main", "a"), ("a", "b"), ("b", "a"), ("a", "main")):
         with profile_scope(saved_profiles[source]):
             assert profile_label() == source
-            cli = SimpleNamespace(agent=object(), conversation_history=[{"role": "user", "content": source}],
+            cli = SimpleNamespace(agent=SimpleNamespace(_flush_messages_to_session_db=Mock()),
+                                  conversation_history=[{"role": "user", "content": source}],
                                   _app=SimpleNamespace(is_running=True, loop=Mock(), exit=Mock()))
             agent, history = cli.agent, list(cli.conversation_history)
             ui = SimpleNamespace(show=Mock(), choose=Mock(return_value=target))
             activate(cli, "/activate", ui)
+            agent._flush_messages_to_session_db.assert_called_once()
             ui.choose.assert_called_once()
             assert f"{source} — currently active" in ui.choose.call_args.args[1]
             assert cli._pending_profile_home == str(saved_profiles[target])

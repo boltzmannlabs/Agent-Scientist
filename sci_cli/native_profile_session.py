@@ -43,6 +43,8 @@ def request_switch(cli, name, ui):
     app = getattr(cli, "_app", None)
     if app is None or not app.is_running:
         raise ValueError("Profile activation requires the interactive CLI.")
+    from sci_cli.session_browser import flush_before_switch
+    flush_before_switch(cli)
     # Startup will resolve the target's model, tools, secret scope and previous
     # conversation. No globals or toolsets of this conversation are rewritten.
     args = ["--cli", "-p", name]
@@ -58,7 +60,8 @@ def request_switch(cli, name, ui):
     cli._pending_profile_home = str(home.resolve())
     cli._pending_relaunch = args
     ui.show(f"Switching to {'main' if name == 'default' else name}. Saving this conversation; "
-            "the native CLI will resume that profile's latest conversation, or start a new one.")
+            "the native CLI will resume that profile's latest conversation, or start a new one. "
+            "Its retained transcript will appear in scrollback. Use /resume to choose another conversation.")
     cli._should_exit = True
     app.loop.call_soon_threadsafe(app.exit)
 
@@ -88,3 +91,22 @@ def relaunch_profile(cli):
     from sci_cli.observability.shared_metrics_startup import mark_in_place_relaunch
     mark_in_place_relaunch()
     os.execvpe(argv[0], argv, env)
+
+
+def request_resume(cli, session_id, ui):
+    """A fresh runtime re-reads current permissions, while the target keeps its cached prompt."""
+    from sci_constants import get_sci_home
+    from sci_cli.profiles import get_active_profile_name
+    from sci_cli.session_browser import flush_before_switch
+    flush_before_switch(cli)
+    if session_id and not cli._session_db.get_session(session_id):
+        raise ValueError("Conversation is not in this profile's store.")
+    app = cli._app
+    cli._pending_profile_home = str(get_sci_home().resolve())
+    cli._pending_relaunch = ["--cli", "-p", get_active_profile_name()]
+    if session_id:
+        cli._pending_relaunch.extend(["--resume", session_id])
+    ui.show(f"Opening [{profile_label()}] conversation {session_id or '(new)'}. Current permissions will be re-read; "
+            "saved model context remains compressed; its retained transcript will appear in scrollback.")
+    cli._should_exit = True
+    app.loop.call_soon_threadsafe(app.exit)

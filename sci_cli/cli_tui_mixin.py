@@ -1966,6 +1966,8 @@ class CLITuiMixin:
             lambda event: toggle_dock(self))
         kb.add('f7', filter=Condition(lambda: not modal_prompt_active(self)))(
             lambda event: toggle_dock(self))
+        from sci_cli.transcript_viewer import bind_transcript_keys
+        bind_transcript_keys(self, kb)
         return kb
 
     def _tui_bind_editor_and_stash(self, kb) -> None:

@@ -31,12 +31,14 @@ def boltzmann_submit(
     job_name: str,
     experiment_data: dict[str, Any],
     experiment_name: str,
+    allow_partial_validation: bool = False,
 ) -> str:
     """Submit one fully specified Boltzmann platform-tools job."""
     return handle_boltzmann_submit(
         job_name=job_name,
         experiment_data=experiment_data,
         experiment_name=experiment_name,
+        allow_partial_validation=allow_partial_validation,
     )
 
 
@@ -64,9 +66,13 @@ def boltzmann_download(download_url: str, output_folder: str) -> str:
 
 
 @mcp.tool()
-def boltzmann_upload(local_path: str) -> str:
+def boltzmann_upload(local_path: str, job_name: str, input_field: str,
+                     experiment_data: dict[str, Any] | None = None,
+                     allow_partial_validation: bool = False) -> str:
     """Upload one validated local input file to Boltzmann platform storage."""
-    return handle_boltzmann_upload(local_path=local_path)
+    return handle_boltzmann_upload(local_path=local_path, job_name=job_name,
+                                  input_field=input_field, experiment_data=experiment_data,
+                                  allow_partial_validation=allow_partial_validation)
 
 
 @mcp.tool()

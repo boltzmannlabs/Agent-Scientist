@@ -37,7 +37,7 @@ class Service:
     toolsets: list[str] = field(default_factory=list)
 
 
-def create_native(name, source_home, skills, services, sources, terminal, persona):
+def create_native(name, source_home, skills, services, sources, terminal, persona, *, skill_sources=None):
     from sci_cli.profiles import create_profile, get_profile_dir, launch_model_seed
     from sci_cli.config import read_user_config_raw, atomic_config_replace, save_env_value_secure
     from sci_cli.science_profiles import copy_source, regular_files, Source, local_source
@@ -60,9 +60,16 @@ def create_native(name, source_home, skills, services, sources, terminal, person
             raise ValueError("Source access must be explicitly reviewed.")
         local_source(Source(source["location"]))
     for selected in skills:
-        path = (source_home / "skills" / selected).resolve(strict=True)
-        if not path.is_relative_to((source_home / "skills").resolve()) or not (path / "SKILL.md").is_file():
-            raise ValueError("Select an installed skill inside the source profile.")
+        if Path(selected).is_absolute() or ".." in Path(selected).parts:
+            raise ValueError("Invalid skill destination.")
+        if skill_sources is None:
+            path = (source_home / "skills" / selected).resolve(strict=True)
+            if not path.is_relative_to((source_home / "skills").resolve()):
+                raise ValueError("Select an installed skill inside the source profile.")
+        else:
+            path = skill_sources[selected].resolve(strict=True)
+        if not (path / "SKILL.md").is_file():
+            raise ValueError("Selected skill has no SKILL.md.")
         regular_files(path)
         skill_paths.append((selected, path))
 

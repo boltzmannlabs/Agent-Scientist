@@ -228,18 +228,6 @@ def _tool_timeout(job_name: str, experiment_data: dict | None = None) -> float:
         n = int(data.get("no_of_shapes", 1000))
         return _apply_buffer(0.00000001 * n * n + 0.00024 * n + 18)
 
-    # (26) Substructure-Based Generation – no formula; conservative 600 s
-    if job_name == "Substructures":
-        return _apply_buffer(600)
-
-    # (27) Merge Substructure – no formula; conservative 600 s
-    if job_name == "Merge_Substructure":
-        return _apply_buffer(600)
-
-    # (28) Fragment-Based Generation Inference – no formula; conservative 600 s
-    if job_name == "Fragment_based_generation_Inference":
-        return _apply_buffer(600)
-
     # (29) Pharmacophore Hypothesis – no formula; conservative 600 s
     if job_name == "Pharmacophore_Hypothesis":
         return _apply_buffer(600)
@@ -300,6 +288,10 @@ def _tool_timeout(job_name: str, experiment_data: dict | None = None) -> float:
         n = int(data.get("n_mols", 100))
         return _apply_buffer(20 + 2.9 * max(1, n // 9) + 0.0075 * n)
 
+    # Mars Plus – no measured formula; use the conservative generator timeout.
+    if job_name == "Lead_Generation_Mars_Plus":
+        return _apply_buffer(600)
+
     # (39) Lead Generation Reinvent
     #      21 + 7.7×max(1, n_mols÷100) + 0.036×n_mols
     if job_name == "Lead_Generation_Reinvent":
@@ -314,6 +306,10 @@ def _tool_timeout(job_name: str, experiment_data: dict | None = None) -> float:
         hours = (M / 500) * 0.20 * (1 + max(attrs - 3, 0) * 0.616) + 0.5
         return _apply_buffer(hours * 3600)
 
+    # Graph GA – no measured formula; use a conservative generator timeout.
+    if job_name == "Lead_Generation_Graph_GA":
+        return _apply_buffer(600)
+
     # (41) Fragment-Based Optimisation – 32 + n_unique_estimate×0.81
     if job_name == "Fragment_Based_Optimization":
         n = int(data.get("n_unique_estimate", 100))
@@ -324,9 +320,9 @@ def _tool_timeout(job_name: str, experiment_data: dict | None = None) -> float:
         n = int(data.get("n_smiles", 1))
         return _apply_buffer(n * 330)
 
-    # (43) Synergy Prediction – 20-30 min
-    if job_name == "Synergy_Prediction":
-        return _apply_buffer(1_800)
+    # Vina Flexible Docking – no measured formula; use a conservative timeout.
+    if job_name == "Vina_Flexible_Docking":
+        return _apply_buffer(600)
 
     # (44) MD OpenMM – conservative 1 hr
     if job_name == "MDS_openMM":
@@ -377,9 +373,13 @@ def _is_auth_error(response: requests.Response) -> str | None:
             detail = payload.get("message") or payload.get("detail") or payload.get("error") or ""
     except Exception:
         detail = response.text[:200]
+    from .results import safe_detail
+    # Do not echo credentials even when the server includes its request headers.
+    authorization = getattr(getattr(response, "request", None), "headers", {}).get("Authorization", "")
+    token = authorization.removeprefix("Bearer ")
+    detail = safe_detail(detail, token)
     suffix = f" Backend said: {detail}" if detail else ""
-    operation = response.url.split("/")[-1] or "request"
-    return f"Boltzmann API key failed during {operation}.{suffix}"
+    return f"Boltzmann service rejected authentication.{suffix}"
 
 
 # ───────────────────────────────────────────────
@@ -442,10 +442,14 @@ def file_upload(input_path, token: str | None = None):
     auth_err = _is_auth_error(response)
     if auth_err:
         return {"error": auth_err}
-    result = response.json()
-    if response.status_code == 200 and result["status"]:
+    try:
+        result = response.json()
+    except ValueError:
+        result = {}
+    if response.status_code == 200 and isinstance(result, dict) and result.get("status") and result.get("fileDetails", {}).get("folderPath"):
         return result["fileDetails"]["folderPath"]
-    raise RuntimeError(f"file_upload failed: {result}")
+    from .results import service_error
+    return service_error("upload", response, active_token)
 
 
 def submit_request(experiment_data, job_name, experiment_name, token: str | None = None, conv_id: str | None = None):
@@ -486,19 +490,22 @@ def submit_request(experiment_data, job_name, experiment_name, token: str | None
             "safe_to_retry": False,
         }
     except requests.exceptions.ConnectionError:
-        # DNS failure, connection refused, etc. — server was never reached.
+        # A connection can break after the request body was delivered.
         return {
             "error": (
-                f"Could not connect to Boltzmann server. "
-                f"The job was NOT submitted. You may retry once."
+                "The Boltzmann connection failed; submission outcome is unknown. "
+                "Reconcile the existing job before considering another submission."
             ),
-            "safe_to_retry": True,
+            "stage": "submit", "status": "unknown", "safe_to_retry": False,
         }
     auth_err = _is_auth_error(response)
     if auth_err:
         return {"error": auth_err}
-    result = response.json()
-    if response.status_code == 200 and result["success"]:
+    try:
+        result = response.json()
+    except ValueError:
+        result = {}
+    if response.status_code == 200 and isinstance(result, dict) and result.get("success") and result.get("docId"):
         doc_id = result["docId"]
         conv_id = conv_id or os.getenv("conv_id") or ""
         if conv_id:
@@ -518,20 +525,8 @@ def submit_request(experiment_data, job_name, experiment_name, token: str | None
             except Exception as exc:
                 print(f"[submit_request] log failed: {exc}")
         return doc_id
-    raise RuntimeError(f"submit_request failed: {result}")
-
-
-def _normalize_links(result: dict) -> dict:
-    """Normalize download_link from list to string in Boltzmann API results."""
-    output_data = result.get("OutputData")
-    if not isinstance(output_data, dict):
-        return result
-    for _key, val in output_data.items():
-        if isinstance(val, dict) and "download_link" in val:
-            dl = val["download_link"]
-            if isinstance(dl, list) and len(dl) >= 1:
-                val["download_link"] = dl[0]
-    return result
+    from .results import service_error
+    return service_error("submit", response, active_token)
 
 
 def _log_platform_terminal(collection_name, doc_id, status, conv_id, token):
@@ -588,69 +583,67 @@ def fetch_status(
     payload = {"docId": doc_id, "job_name": collection_name}
     deadline = time.monotonic() + max_wait
     consecutive_errors = 0
+    last_result = {"status": "unknown"}
 
     while True:
         if time.monotonic() >= deadline:
-            try:
-                response = requests.get(_FETCH_URL, headers=headers, json=payload, timeout=60)
-                result = response.json()
-                if isinstance(result, dict):
-                    status = str(result.get("status", "")).lower().strip()
-                    if status in ("completed", "success", "100%completed"):
-                        _log_platform_terminal(collection_name, doc_id, status, conv_id, active_token)
-                        return _normalize_links(result)
-            except Exception:
-                pass
-            raise TimeoutError(
-                f"fetch_status: job {collection_name}/{doc_id} did not complete "
-                f"within {max_wait}s"
-            )
+            return {**last_result, "stage": "status", "job_name": collection_name, "doc_id": doc_id,
+                    "timeout": True, "safe_to_retry": False,
+                    "message": "Polling window ended. The job may still be running; poll this same job, never resubmit."}
 
         try:
-            response = requests.get(_FETCH_URL, headers=headers, json=payload, timeout=60)
+            response = requests.get(_FETCH_URL, headers=headers, json=payload,
+                                    timeout=max(0.1, min(60, deadline - time.monotonic())), allow_redirects=False)
             auth_err = _is_auth_error(response)
             if auth_err:
-                # Log a terminal entry so a pending step isn't left dangling.
-                # The job was submitted but we can't check its status — the
-                # platform may still complete it, but from our side it's failed.
-                _log_platform_terminal(collection_name, doc_id, "failed", conv_id, active_token)
-                return {"error": auth_err}
+                return {"error": auth_err, "stage": "status", "status": "unknown",
+                        "authorization_required": True, "job_name": collection_name,
+                        "doc_id": doc_id, "safe_to_retry": False}
+            if not 200 <= response.status_code < 300:
+                from .results import service_error
+                return {**service_error("status", response, active_token),
+                        "job_name": collection_name, "doc_id": doc_id}
             consecutive_errors = 0
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             consecutive_errors += 1
             backoff = min(watch_time * (2 ** min(consecutive_errors - 1, 4)), 120)
-            print(f"[fetch_status] Network error (attempt {consecutive_errors}): {e}")
+            print(f"[fetch_status] Network error (attempt {consecutive_errors}); job outcome is unknown.")
             print(f"[fetch_status] Retrying in {backoff}s...")
-            time.sleep(backoff)
+            time.sleep(max(0, min(backoff, deadline - time.monotonic())))
             continue
 
         try:
             result = response.json()
         except Exception:
             print(f"[fetch_status] JSON parse failed (HTTP {response.status_code})")
-            print(f"[fetch_status] Raw: {response.text[:300]}")
-            time.sleep(watch_time)
-            continue
+            return {"error": "Status response was not valid JSON; job outcome is unknown.",
+                    "stage": "status", "status": "unknown", "job_name": collection_name,
+                    "doc_id": doc_id, "safe_to_retry": False}
 
         if not isinstance(result, dict) or "status" not in result:
-            print(f"[fetch_status] Unexpected response: {result}")
-            time.sleep(watch_time)
-            continue
+            return {"error": "Status response omitted the job status; no completion is confirmed.",
+                    "stage": "status", "status": "unknown", "job_name": collection_name,
+                    "doc_id": doc_id, "safe_to_retry": False}
 
         status = str(result["status"]).lower().strip()
+        last_result = {**result, "job_name": collection_name, "doc_id": doc_id}
 
         if status in ("completed", "success", "100%completed"):
             _log_platform_terminal(collection_name, doc_id, status, conv_id, active_token)
-            return _normalize_links(result)
+            return last_result
 
-        if status == "failed":
-            _log_platform_terminal(collection_name, doc_id, status, conv_id, active_token)
-            return _normalize_links(result)
+        if status in {"failed", "error", "cancelled", "canceled"}:
+            from .results import safe_detail
+            result = {"status": status, "stage": "status", "job_name": collection_name, "doc_id": doc_id,
+                      "error": safe_detail(result, active_token) or "The service reported a terminal failure without a diagnostic.",
+                      "safe_to_retry": False}
+            _log_platform_terminal(collection_name, doc_id, "failed", conv_id, active_token)
+            return result
 
         elapsed = int(time.monotonic() - (deadline - max_wait))
         remaining = int(deadline - time.monotonic())
         print(f"[fetch_status] status={status}  elapsed={elapsed}s  remaining={remaining}s")
-        time.sleep(watch_time)
+        time.sleep(max(0, min(watch_time, deadline - time.monotonic())))
 
 
 def download_from_signed_url(urls, output_folder: str, token: str | None = None):
@@ -671,30 +664,47 @@ def download_from_signed_url(urls, output_folder: str, token: str | None = None)
 
     for url in urls:
         if not isinstance(url, str) or not url.startswith("http"):
-            errors.append(f"Skipping non-URL value: {str(url)[:100]}")
+            errors.append("Download reference is not a supported URL.")
             continue
         try:
-            response = requests.get(url, stream=True, timeout=120)
-            auth_err = _is_auth_error(response)
-            if auth_err:
-                errors.append(auth_err)
-                continue
-            response.raise_for_status()
+            with requests.get(url, stream=True, timeout=120) as response:
+                auth_err = _is_auth_error(response)
+                if auth_err:
+                    errors.append(auth_err)
+                    continue
+                response.raise_for_status()
 
-            filename = os.path.basename(urlparse(url).path) or "res_file"
-            output_path = os.path.join(output_folder, filename)
-
-            with open(output_path, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
+                filename = os.path.basename(urlparse(url).path) or "res_file"
+                if filename in {".", ".."}:
+                    filename = "res_file"
+                destination = Path(output_folder) / filename
+                output_path = destination
+                counter = 0
+                while True:
+                    try:
+                        handle = output_path.open("xb")
+                        break
+                    except FileExistsError:
+                        counter += 1
+                        output_path = destination.with_name(f"{destination.stem}-{counter}{destination.suffix}")
+                try:
+                    with handle:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            handle.write(chunk)
+                except BaseException:
+                    # Only this call's exclusively created, incomplete artifact.
+                    output_path.unlink(missing_ok=True)
+                    raise
 
             print(f"Downloaded: {output_path}")
-            output_files.append(output_path)
+            output_files.append(str(output_path))
         except Exception as e:
-            errors.append(f"Failed to download {str(url)[:80]}: {e}")
-            print(f"[download_from_signed_url] Error: {e}")
+            from .results import safe_detail
+            errors.append("Artifact download failed: " + safe_detail(str(e), token or ""))
+            print("[download_from_signed_url] Artifact download failed; inspect the sanitized errors.")
 
-    return {"output_paths": output_files, "errors": errors}
+    return {"output_paths": output_files, "errors": errors, "stage": "download",
+            "status": "partial" if errors and output_files else "failed" if errors else "downloaded"}
 
 def download_input_files(input_files: list[str], output_dir: str, token: str | None = None):
     """Return GCP file paths for use as tool dataPath inputs.

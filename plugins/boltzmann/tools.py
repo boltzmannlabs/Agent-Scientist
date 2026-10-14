@@ -13,11 +13,18 @@ from .nodeapi_helpers import (
     file_upload,
     fetch_tool_log,
 )
-from .auth import current_key, fingerprint, require_authorized
+from .auth import current_key, require_authorized
+from .preflight import decision, preflight_submission, validated_upload
 
-# In-memory cache for completed job results: (job_name, doc_id) -> (timestamp, result)
-_status_cache: dict[tuple[str, str, str], tuple[float, dict]] = {}
-_STATUS_CACHE_TTL = 3600  # 1 hour
+# Permanently retired platform jobs. Keep this enforcement at the submission
+# boundary so stale conversations or manually supplied job names cannot invoke
+# tools that are no longer part of Agent Scientist.
+_RETIRED_JOB_NAMES = frozenset({
+    "Fragment_based_generation_Inference",
+    "Merge_Substructure",
+    "Substructures",
+    "Synergy_Prediction",
+})
 
 # ───────────────────────────────────────────────
 # Tool-level timeouts (env var override, sensible defaults)
@@ -60,13 +67,22 @@ def _run_with_timeout(fn, tool_name: str, kwargs: dict):
         # Thread is still running — it timed out
         print(f"[{tool_name}] Timed out after {timeout}s")
         return json.dumps({
-            "error": f"{tool_name} timed out after {timeout}s. The operation may still be running on the server. Try again or check status separately.",
+            "error": f"{tool_name} timed out after {timeout}s. Its request may still be running. Do not repeat a submission or upload; check the existing job or ask the user to reconcile its outcome.",
+            "stage": tool_name.removeprefix("boltzmann_"),
+            "status": "unknown",
+            "job_name": kwargs.get("job_name"),
+            "doc_id": kwargs.get("doc_id"),
+            "safe_to_retry": False,
             "timeout": True,
             "timeout_seconds": timeout,
         })
 
     if error_holder[0] is not None:
-        raise error_holder[0]
+        from .results import safe_detail
+        exc = error_holder[0]
+        return json.dumps({"error": safe_detail(str(exc), current_key()) or "Boltzmann operation failed.",
+                           "stage": tool_name.removeprefix("boltzmann_"), "status": "unknown",
+                           "safe_to_retry": False})
 
     return result_holder[0]
 
@@ -78,27 +94,6 @@ def _get_api_key():
 
 def _get_conv_id(kwargs):
     return kwargs.get("conv_id") or ""
-
-
-def _cache_key(job_name, doc_id):
-    return (fingerprint(current_key()), job_name, doc_id)
-
-
-def _check_cache(job_name, doc_id):
-    entry = _status_cache.get(_cache_key(job_name, doc_id))
-    if entry is None:
-        return None
-    ts, result = entry
-    if time.monotonic() - ts > _STATUS_CACHE_TTL:
-        del _status_cache[_cache_key(job_name, doc_id)]
-        return None
-    return result
-
-
-def _store_cache(job_name, doc_id, result):
-    status = str(result.get("status", "")).lower().strip()
-    if status in ("completed", "success", "100%completed", "failed"):
-        _status_cache[_cache_key(job_name, doc_id)] = (time.monotonic(), result)
 
 
 # ───────────────────────────────────────────────
@@ -118,6 +113,7 @@ def _handle_boltzmann_submit_inner(**kwargs):
             return json.dumps({"error": "experiment_data must be an object, not a JSON string"})
 
     if isinstance(experiment_data, dict) and not experiment_name:
+        experiment_data = dict(experiment_data)
         experiment_name = experiment_data.pop("experiment_name", None)
 
     missing = []
@@ -129,6 +125,18 @@ def _handle_boltzmann_submit_inner(**kwargs):
         missing.append("experiment_name")
     if missing:
         return json.dumps({"error": f"Missing required arguments: {', '.join(missing)}"})
+
+    if job_name in _RETIRED_JOB_NAMES:
+        return json.dumps({
+            "error": f"The Boltzmann tool `{job_name}` has been permanently removed and cannot be submitted.",
+            "removed_tool": True,
+            "job_name": job_name,
+        })
+
+    report = preflight_submission(job_name, experiment_data)
+    blocked = decision(report, kwargs.get("allow_partial_validation"))
+    if blocked:
+        return json.dumps(blocked)
 
     conv_id = _get_conv_id(kwargs)
     token = _get_api_key()
@@ -143,7 +151,9 @@ def _handle_boltzmann_submit_inner(**kwargs):
     if isinstance(doc_id, dict) and "error" in doc_id:
         return json.dumps(doc_id)
 
-    return json.dumps({"doc_id": doc_id, "job_name": job_name, "experiment_name": experiment_name})
+    return json.dumps({"doc_id": doc_id, "job_name": job_name, "experiment_name": experiment_name,
+                       "stage": "submit", "status": "accepted", "validation": report.as_dict(),
+                       "message": "Job accepted, not completed. Poll this job; do not submit again."})
 
 
 def handle_boltzmann_submit(**kwargs):
@@ -162,11 +172,8 @@ def _handle_boltzmann_status_inner(**kwargs):
     token = _get_api_key()
     output_folder = kwargs.get("output_folder") or os.getenv("output_folder") or None
 
-    cached = _check_cache(job_name, doc_id)
-    if cached is not None:
-        print(f"[boltzmann_status] Returning cached result for {job_name}/{doc_id}")
-        return json.dumps(cached) if isinstance(cached, dict) else cached
-
+    # Always refresh from the service: completed responses may contain expiring
+    # signed artifact URLs. A terminal-state cache is not an artifact URL cache.
     result = fetch_status(job_name, doc_id, token=token, conv_id=conv_id, output_folder=output_folder)
 
     # Allow the auto-logged terminal write to propagate before the next tool
@@ -176,8 +183,6 @@ def _handle_boltzmann_status_inner(**kwargs):
     # fetch_status now returns an error dict on auth failures instead of raising
     if isinstance(result, dict) and "error" in result:
         return json.dumps(result)
-
-    _store_cache(job_name, doc_id, result)
 
     if isinstance(result, dict):
         return json.dumps(result)
@@ -213,12 +218,15 @@ def _handle_boltzmann_upload_inner(**kwargs):
     local_path = kwargs.get("local_path")
     if not local_path:
         return json.dumps({"error": "Missing required argument: local_path"})
+    job, field = kwargs.get("job_name"), kwargs.get("input_field")
+    if not job or not field:
+        return json.dumps({"error": "Provide job_name and input_field so the actual upload can be checked against its intended use.",
+                           "stage": "validation", "status": "not_started"})
     token = _get_api_key()
-    s3_path = file_upload(os.path.expanduser(local_path), token=token)
-    # file_upload now returns an error dict on auth failures
-    if isinstance(s3_path, dict) and "error" in s3_path:
-        return json.dumps(s3_path)
-    return json.dumps({"s3_path": s3_path})
+    result = validated_upload(local_path, job, field, kwargs.get("experiment_data") or {},
+                              kwargs.get("allow_partial_validation"),
+                              lambda snapshot: file_upload(snapshot, token=token))
+    return json.dumps(result)
 
 
 def handle_boltzmann_upload(**kwargs):

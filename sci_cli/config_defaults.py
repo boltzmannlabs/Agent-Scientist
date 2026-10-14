@@ -823,15 +823,6 @@ DEFAULT_CONFIG = {
     "display": {
         "compact": False,
         "personality": "",
-        "resume_display": "full",
-        # Recap tuning for /resume and startup resume.
-        "resume_exchanges": 10,            # max user+assistant pairs to show
-        "resume_max_user_chars": 300,      # truncate user message text
-        "resume_max_assistant_chars": 200, # truncate non-last assistant text
-        "resume_max_assistant_lines": 3,   # truncate non-last assistant lines
-        # Skip tool-call-only assistant entries in the recap so it isn't dominated by `[2 tool
-        # calls: ...]` lines; False shows them inline.
-        "resume_skip_tool_only": True,
         "busy_input_mode": "interrupt",  # interrupt | queue | steer
         # steer mode: false hides only the "Steered into current run" bubble; steering itself still
         # happens.

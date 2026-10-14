@@ -13,10 +13,8 @@ def _make_cli():
     cli_obj.agent = None
     cli_obj._session_db = MagicMock()
     cli_obj._pending_resume_sessions = None
-    # _handle_resume_command now triggers _display_resumed_history (#31695),
-    # which reads self.resume_display. "minimal" short-circuits the recap so
-    # the test only exercises session-switch behavior.
-    cli_obj.resume_display = "minimal"
+    # Display has dedicated coverage; these tests exercise session-switch behavior.
+    cli_obj._display_resumed_history = MagicMock()
     return cli_obj
 
 
