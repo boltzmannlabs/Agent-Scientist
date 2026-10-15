@@ -22,6 +22,14 @@ arm_source_redirect() {
   [ "$(git -C "$repo" remote get-url origin)" = "file://$serve" ] \
     || fail 'git URL redirect did not reach the staged repository'
 
+  # This fork's install.sh ships no default repository (nothing may bootstrap
+  # the upstream product under a SCI name) and refuses to run until the
+  # operator names a source via SCI_REPO_URL. Name the official URL: the
+  # insteadOf rules above rewrite its TRANSPORT to serve.git, while the
+  # clone's configured origin stays official — exactly what the drivers'
+  # transport-only assertion requires.
+  export SCI_REPO_URL="$https"
+
   # Transport is local, but fork detection must still see the official origin.
   mkdir -p "$shim"
   cat > "$shim/git" <<EOF
