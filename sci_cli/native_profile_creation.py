@@ -37,19 +37,90 @@ class Service:
     toolsets: list[str] = field(default_factory=list)
 
 
-def reviewed_model_seed(original):
+def _model_key_reference(value):
+    from sci_cli.config import _ENV_REF_RE, _ENV_VAR_NAME_RE, _env_ref_var_name
+
+    match = _ENV_REF_RE.fullmatch(value.strip()) if isinstance(value, str) else None
+    name = _env_ref_var_name(match[1]) if match else None
+    return name if name and _ENV_VAR_NAME_RE.fullmatch(name) else None
+
+
+def _use_shared_model_credential(config, original, source_home, references):
+    """Drop redundant refs only when main owns the same named endpoint and credential.
+
+    Copying a provider's key_env into a child would shadow the shared catalog and
+    resolve against the child's (usually empty) secret scope instead of main's.
+    Never persist the expanded shared-provider view to work around that isolation.
+    """
+    from agent.secret_scope import build_profile_secret_scope
+    from sci_constants import get_default_sci_root
+    from sci_cli.auth import has_usable_secret
+    from sci_cli.config import get_compatible_custom_providers, is_provider_enabled, read_user_config_raw
+    from sci_cli.providers import custom_provider_aliases
+    from sci_cli.route_identity import normalize_route_base_url
+
+    model = config.get('model') or {}
+    requested = str(model.get('provider') or '').strip().lower()
+    main = get_default_sci_root(home=source_home)
+
+    def matching_entries(raw):
+        # Runtime checks keyed providers before the legacy list. Do not let
+        # legacy deduplication hide a different key or a disabled local override.
+        keyed = {name: entry for name, entry in (raw.get('providers') or {}).items()
+                 if isinstance(entry, dict) and requested in custom_provider_aliases(entry.get('name', ''), name)}
+        if keyed:
+            if any(not is_provider_enabled(entry) for entry in keyed.values()):
+                raise ValueError('The selected model provider is disabled. Review its access before creating a profile.')
+            return get_compatible_custom_providers({'providers': keyed})
+        return [entry for entry in get_compatible_custom_providers({'custom_providers': raw.get('custom_providers', [])})
+                if requested in custom_provider_aliases(entry['name'], entry.get('provider_key', ''))]
+
+    shared = matching_entries(read_user_config_raw(main / 'config.yaml'))
+    local = matching_entries(original)
+    if len(shared) != 1 or (local and local != shared):
+        raise ValueError("The model credential reference needs a matching named provider in main's shared "
+                         "catalog. Configure that provider in main, or review the source profile's override first.")
+    entry = shared[0]
+    if entry.get('key_cmd'):
+        raise ValueError('Review model credential commands separately; use the shared LLM login store.')
+    if model.get('base_url') and normalize_route_base_url(model['base_url']) != normalize_route_base_url(entry['base_url']):
+        raise ValueError('The model endpoint differs from its shared provider. Review the endpoint before creating a profile; '
+                         'the credential reference was not discarded or redirected.')
+    key_ref = _model_key_reference(entry.get('api_key'))
+    key_env = entry.get('key_env') or entry.get('api_key_env') or key_ref
+    if references != {key_env} or (entry.get('api_key') and key_ref != key_env):
+        raise ValueError("The model credential reference does not match main's shared provider credential. "
+                         "Review the provider's key_env/API-key reference; no credential was copied or changed.")
+    if not has_usable_secret(build_profile_secret_scope(main).get(key_env)):
+        raise ValueError("The shared model credential reference is not available in main's credential storage. "
+                         "Save the referenced key in main before creating this profile; no credential was copied or changed.")
+    for key in ('api_key', 'key_env', 'api_key_env'):
+        model.pop(key, None)
+    config.pop('providers', None)
+
+
+def reviewed_model_seed(original, *, source_home):
     """Check model credential portability before collecting project selections."""
     from sci_cli.profiles import launch_model_seed
 
     config = deepcopy(launch_model_seed(original))
+    references = set()
     for block in [config.get("model"), *config.get("providers", {}).values()]:
         if isinstance(block, dict):
             if block.get("api_key"):
-                raise ValueError("The selected model has an inline API key. Save its credential once in main's "
-                                 "shared provider store using sci auth add, then remove the inline key and retry. "
-                                 "It will not be silently discarded or copied into profile configuration.")
+                reference = _model_key_reference(block['api_key'])
+                if reference is None:
+                    raise ValueError("The selected model has an inline API key. Save its credential once in main's "
+                                     "shared provider store using sci auth add, then remove the inline key and retry. "
+                                     "It will not be silently discarded or copied into profile configuration.")
+                references.add(reference)
+            for key in ('key_env', 'api_key_env'):
+                if block.get(key):
+                    references.add(block[key])
             if block.get("api_key_cmd") or block.get("key_cmd"):
                 raise ValueError("Review model credential commands separately; use the shared LLM login store.")
+    if references:
+        _use_shared_model_credential(config, original, source_home, references)
     return config
 
 
@@ -61,7 +132,7 @@ def create_native(name, source_home, skills, services, sources, terminal, person
     import hashlib
 
     original = read_user_config_raw(source_home / "config.yaml")
-    model_seed = reviewed_model_seed(original)
+    model_seed = reviewed_model_seed(original, source_home=source_home)
     final = get_profile_dir(name)
     if any(not service.verified for service in services):
         raise ValueError("All selected services must complete their supported setup checks before saving.")

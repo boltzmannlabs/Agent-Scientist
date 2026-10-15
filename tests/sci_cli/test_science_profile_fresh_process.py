@@ -10,13 +10,13 @@ import pytest
 from tests.fakes.fake_llm_provider import FakeLLMServer, Text, write_sci_home
 
 
-@pytest.mark.parametrize("mode", ["legacy-worker", "native", "legacy-cli"])
+@pytest.mark.parametrize("mode", ["legacy-worker", "native", "native-reference", "legacy-cli"])
 def test_fresh_profile_worker_turns_restart_and_a_b_a_isolation(tmp_path, monkeypatch, mode):
     from sci_cli.science_profiles import ProfileSpec, create
     from sci_cli.science_profile_commands import activate
     from types import SimpleNamespace
     from unittest.mock import Mock
-    native = mode == "native"
+    native = mode in {"native", "native-reference"}
 
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
@@ -31,10 +31,16 @@ def test_fresh_profile_worker_turns_restart_and_a_b_a_isolation(tmp_path, monkey
             cfg = read_user_config_raw(home / "config.yaml")
             cfg["model"]["provider"] = "fixture-provider"
             cfg["providers"] = {"fixture-provider": {"api": server.base_url}}
+            if mode == "native-reference":
+                cfg["model"]["api_key"] = "${SCI_FIXTURE_LLM_KEY}"
+                cfg["providers"]["fixture-provider"]["key_env"] = "SCI_FIXTURE_LLM_KEY"
+                with (home / ".env").open("a") as env_file:
+                    env_file.write("\nSCI_FIXTURE_LLM_KEY=sk-shared-profile-test\n")
             atomic_config_replace(home / "config.yaml", cfg)
-            (home / "auth.json").write_text(json.dumps({"version": 1, "credential_pool": {
-                "fixture-provider": [{"id": "fixture", "label": "shared fixture", "auth_type": "api_key",
-                    "priority": 0, "source": "manual", "access_token": "sk-shared-profile-test"}]}}))
+            if mode == "native":
+                (home / "auth.json").write_text(json.dumps({"version": 1, "credential_pool": {
+                    "fixture-provider": [{"id": "fixture", "label": "shared fixture", "auth_type": "api_key",
+                        "priority": 0, "source": "manual", "access_token": "sk-shared-profile-test"}]}}))
         skill = home / "skills/science/fixture"
         skill.mkdir(parents=True)
         (skill / "SKILL.md").write_text("---\nname: fixture\ndescription: Review scientific evidence\n---\nSeparate evidence from hypotheses.\n")
@@ -48,7 +54,8 @@ def test_fresh_profile_worker_turns_restart_and_a_b_a_isolation(tmp_path, monkey
             else:
                 profiles.append(create(ProfileSpec(name, purpose, "Cite evidence", "", setup_pending=True,
                                                    skills=["science/fixture"]), home))
-        parent = SimpleNamespace(agent=SimpleNamespace(system_prompt="cached", tools=["unchanged"]),
+        parent = SimpleNamespace(agent=SimpleNamespace(system_prompt="cached", tools=["unchanged"],
+                                                      _flush_messages_to_session_db=Mock()),
                                  conversation_history=[{"role": "user", "content": "main only"}],
                                  _app=SimpleNamespace(is_running=True, loop=Mock(), exit=Mock()))
         before = (home / "config.yaml").read_bytes()

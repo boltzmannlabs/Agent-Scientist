@@ -59,7 +59,7 @@ def create_wizard(cli, command, ui=None, source_home=None):
             raise ValueError('Usage: /Create_profile ["profile-name"]')
         home = Path(source_home) if source_home else _get_default_sci_home()
         original = read_user_config_raw(home / "config.yaml")
-        reviewed_model_seed(original)
+        reviewed_model_seed(original, source_home=home)
         from sci_cli.science_profiles import MANIFEST, read_spec
         legacy = (home / MANIFEST).is_file()
         service_home = _get_default_sci_home() if legacy else home
