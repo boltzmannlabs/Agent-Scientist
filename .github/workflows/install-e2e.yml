@@ -211,6 +211,14 @@ jobs:
             tags="$(jq -cn --arg ref "$INSTALL_REF" '[$ref]')"
           elif [ "$RELEASE_MODE" = true ]; then
             tags="$(python3 -m scripts.releases.pick_tags --count "$TAG_COUNT" --exclude-ref "$EXCLUDE_REF")"
+          # A repository with no published releases has nothing to update FROM:
+          # emit an empty list (the matrix keeps its synthetic HEAD -> NEXT legs)
+          # instead of going red on every scheduled run. Ask the REMOTE, not the
+          # checkout: tags existing upstream but missing locally is a fetch
+          # misconfiguration, and the pick script still fails on it.
+          elif [ -z "$(git ls-remote --tags origin 'v[0-9]*')" ]; then
+            echo "::notice::No release tags published yet; update-from-release legs are skipped."
+            tags='[]'
           else
             tags="$(scripts/sandbox/pick-release-tags.sh --count "$TAG_COUNT")"
           fi
@@ -279,6 +287,12 @@ jobs:
       macos-arch: ${{ steps.inputs.outputs.macos-arch }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      # The runner image's preinstalled npm drifts (its npm 10 computes a
+      # different ideal tree for workspaces under root overrides and rejects
+      # the lock); npm ci must run on the repo's pinned toolchain.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
       - id: inputs
         env:
           BUNDLE_WINDOWS_MANIFEST: ${{ inputs.windows-bundle-manifest }}
@@ -493,6 +507,6 @@ jobs:
             echo 'Legend: ✅ upgrade passed · known [n] = exact historical failure, see footnote · ❌ unexpected failure · pre-desktop / TODO = why a leg skipped · 📼 opens the leg player (recording + synced logs)'
             echo
             node scripts/sandbox/generate-e2e-matrix.mjs --format results \
-              --tags '${{ needs.pick-releases.outputs.tags }}' \
+              --tags '${{ needs.pick-releases.outputs.tags || '[]' }}' \
               --artifacts /tmp/e2e-artifacts.ndjson < /tmp/e2e-jobs.ndjson
           } >> "$GITHUB_STEP_SUMMARY"
