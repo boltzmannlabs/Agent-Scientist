@@ -2,7 +2,7 @@
 
 SCI uses the model provider selected with `sci model`. Authenticate through
 that provider's supported flow. A model login is not authorization to unrelated
-scientific services; Boltzmann access requires `/Add_boltz` in the active profile.
+scientific services; Boltzmann access requires `/add_boltzmann` in the active profile.
 
 Do not copy browser tokens or local credential-store contents into another
 application. Do not infer that another application's subscription accepts SCI

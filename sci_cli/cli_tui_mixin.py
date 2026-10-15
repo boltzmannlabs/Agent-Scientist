@@ -592,7 +592,7 @@ class CLITuiMixin:
                 if p.get("is_current"):
                     label += t("cli.tui.picker_current_marker")
                 choices.append(label)
-            choices.append(t("cli.shared.cancel"))
+            choices.extend(["Remove provider…", t("cli.shared.cancel")])
             _unknown = t("cli.shared.unknown")
             hint = t("cli.tui.picker_current_hint",
                      model=state.get('current_model', _unknown),
@@ -1225,7 +1225,7 @@ class CLITuiMixin:
         if not state:
             return
         if state.get("stage") == "provider":
-            max_idx = len(state.get("providers") or [])
+            max_idx = len(state.get("providers") or []) + 1  # Remove provider + Cancel
         elif state.get("stage") == "reasoning":
             from sci_cli.cli_model_switch_mixin import _picker_reasoning_rows
             max_idx = len(_picker_reasoning_rows(state.get("switch_result"))) + 1  # + Back + Cancel

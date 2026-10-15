@@ -8,7 +8,7 @@ import pytest
 
 
 def test_command_is_available_without_plugin_and_routes_case_insensitively(monkeypatch):
-    from sci_cli.commands import resolve_command, COMMANDS, is_gateway_known_command
+    from sci_cli.commands import resolve_command, COMMANDS, COMMANDS_BY_CATEGORY, is_gateway_known_command
     from sci_cli.commands_completion import SlashCommandCompleter
     from prompt_toolkit.document import Document
     from prompt_toolkit.completion import CompleteEvent
@@ -16,16 +16,23 @@ def test_command_is_available_without_plugin_and_routes_case_insensitively(monke
     run = Mock(return_value="setup fixture")
     monkeypatch.setattr("sci_cli.boltzmann_setup.run", run)
     cli = SciCLI.__new__(SciCLI)
-    for text in ("/Add_boltz", "/add_boltz", "/ADD_BOLTZ"):
+    for text in ("/add_boltzmann", "/Add_boltzmann", "/ADD_BOLTZMANN"):
         definition = resolve_command(text)
+        assert definition is not None
         handler, with_arg = cli._slash_handler(definition.name)
         assert with_arg
         getattr(cli, handler)(text)
         run.assert_called_with(cli, "")
-    assert "/Add_boltz" in COMMANDS
-    assert not is_gateway_known_command("add_boltz")
-    completions = list(SlashCommandCompleter().get_completions(Document("/Add_"), CompleteEvent()))
-    assert any("boltz" in c.text.lower() for c in completions)
+    getattr(cli, handler)("/add_boltzmann --replace --now")
+    run.assert_called_with(cli, "--replace --now")
+    assert "/add_boltzmann" in COMMANDS
+    assert "/add_boltzmann" in dict(COMMANDS_BY_CATEGORY["Tools & Skills"])
+    assert resolve_command("/add_boltz") is None
+    assert not is_gateway_known_command("add_boltzmann")
+    for prefix in ("/add_", "/Add_"):
+        completions = list(SlashCommandCompleter().get_completions(Document(prefix), CompleteEvent()))
+        completed = [prefix[:len(prefix) + c.start_position] + c.text for c in completions]
+        assert "/add_boltzmann" in [text.lower() for text in completed]
 
 
 @pytest.mark.parametrize("legacy", [False, True])

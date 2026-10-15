@@ -199,7 +199,17 @@ profile. The multiplex gateway and the Desktop/dashboard `serve` backend instead
 profile per activity via a contextvar override while `os.environ["SCI_HOME"]` keeps the launch
 profile — a module constant or import-time read there freezes to the launch profile (rules in
 root). Profiles are independent
-islands by design — no live config inheritance; `--clone` copies at creation, minus messaging
+islands by design — no general live config inheritance. The explicit exception is the LLM-only
+read view in `shared_llm.py`: model inventory and runtime resolution reuse main's provider
+definitions and inference credentials. Local provider overrides/exclusions win; selected models,
+research-service secrets, tools, execution settings and conversations remain profile-specific.
+Never persist that merged view to a profile or merge main's entire `.env` into its secret scope.
+`provider_removal.py` backs the CLI `/model` → Remove provider action and `/model remove [provider]`.
+It reviews profile scope and saved references before atomic config edits; main's catalog exclusions
+are shared, while a named profile's exclusions stay local. Removing definitions leaves disabled
+identity records to prevent retained logins from reintroducing the provider. `.env`, `auth.json`,
+external login files and active conversations are not purged or reloaded by this operation.
+`--clone` copies at creation, minus messaging
 channels (`profile_channels.py`: ownership-based inventory evaluated in the SOURCE's plugin scope —
 adapter-declared keys + canonical/alias prefixes + `GATEWAY_ALLOW*`/`GATEWAY_RELAY_*`; prefixes shared
 with tools (`HASS_`/`TWILIO_`/`EMAIL_`) are stripped only when the source runs that adapter; never a hand

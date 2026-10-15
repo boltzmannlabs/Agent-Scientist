@@ -2,10 +2,10 @@
 
 The custom Agent Scientist distribution includes this connector, **not a credential or a subscription**.
 The CLI setup command is available even when this plugin is not enabled in a profile.
-Seeing `/Add_boltz` does not authorize any scientific tools. Successful explicit setup enables
+Seeing `/add_boltzmann` does not authorize any scientific tools. Successful explicit setup enables
 only Boltzmann, preserving unrelated plugin selections.
 
-In the interactive CLI, run `/Add_boltz` (case-insensitive). Enter the key in the masked prompt,
+In the interactive CLI, run `/add_boltzmann` (case-insensitive). Enter the key in the masked prompt,
 not as an argument or a chat message. Validation makes one read-only request to
 `https://nodeapis.boltzmann.co/api/get-projects`, with a 15-second timeout and no redirects.
 On success the key is saved through Sci credential storage in the active profile; a
@@ -19,7 +19,7 @@ session; their reviewed policy adds only the five Boltzmann operations, with per
 access approval. Local sandbox restrictions and pending local setup remain unchanged.
 Missing, changed, removed, rejected, or revoked credentials block execution, including
 status reads and signed-file downloads. Service outages also fail closed. A saved key alone
-does not authorize the connector: `/Add_boltz` must complete in each owning profile.
+does not authorize the connector: `/add_boltzmann` must complete in each owning profile.
 
 The optional stdio MCP adapter uses the same gate. It must run with the owning profile's
 `SCI_HOME` and the Sci runtime with MCP support. Nothing here creates a remote MCP

@@ -26,6 +26,28 @@ def shape_fixture(schema):
     return "1" if schema.get("x-numeric-string") else "fixture"
 
 
+def test_solublempnn_requires_numeric_string_count_in_distributed_contract(tmp_path):
+    """The reported backend accepts a string count, not a JSON number."""
+    import shutil
+
+    from plugins.boltzmann.contracts import ContractStore
+
+    installed = tmp_path / "installed-references"
+    installed.mkdir()
+    for filename in ("tool-contracts.v1.json", "file-input-contracts.v1.json", "input-limits.v1.json"):
+        shutil.copy2(ROOT / filename, installed / filename)
+    for root in (ROOT, installed):
+        store = ContractStore(root)
+        for count in ("1", "20"):
+            payload = {"input_path": "fixture/already-uploaded.zip", "num_seq": count}
+            assert not store.validate_payload("Solublempnn", payload).errors
+            assert payload["num_seq"] == count  # Validation never coerces the wire value.
+        for count in (20, 20.0, True, None, "", "twenty", "NaN", "Infinity"):
+            report = store.validate_payload("Solublempnn", {
+                "input_path": "fixture/already-uploaded.zip", "num_seq": count})
+            assert any("num_seq" in error for error in report.errors), count
+
+
 @pytest.mark.parametrize("job", sorted(CATALOG["tools"]))
 def test_every_job_has_one_input_definition_and_accepts_its_documented_shape(job):
     from plugins.boltzmann.contracts import ContractStore

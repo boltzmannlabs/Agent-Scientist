@@ -46,24 +46,24 @@ def enable_toolset(*, expected_config=None, after_save=None):
             after_save(read_user_config_raw())
 
 
-def add_boltz(ctx, raw_args, *, complete_setup=None):
+def add_boltzmann(ctx, raw_args, *, complete_setup=None):
     words = raw_args.strip().split()
     if any(word not in {"--now", "--replace"} for word in words):
-        return "Usage: /Add_boltz [--now] [--replace]. Never paste a key in the command; use the masked prompt."
+        return "Usage: /add_boltzmann [--now] [--replace]. Never paste a key in the command; use the masked prompt."
     if is_managed():
         return "Boltzmann setup is unavailable in a managed installation. Contact your administrator."
-    print("[Add_boltz] Enter a key securely. Validation sends it only to "
+    print("[add_boltzmann] Enter a key securely. Validation sends it only to "
           "https://nodeapis.boltzmann.co/api/get-projects (read-only, 15s timeout). "
           "No scientific job will run. Empty Enter cancels.")
     try:
         result = ctx.prompt_secret(KEY_NAME, "Enter your Boltzmann API key",
                                    validator=validate_api_key)
         if result.get("skipped"):
-            return "[Add_boltz] CANCELLED. Existing authorization is unchanged. " + result["message"]
+            return "[add_boltzmann] CANCELLED. Existing authorization is unchanged. " + result["message"]
         if not result.get("success") or not result.get("validated"):
-            return "[Add_boltz] FAILED. No new authorization granted. " + result.get("message", "Key not validated.")
+            return "[add_boltzmann] FAILED. No new authorization granted. " + result.get("message", "Key not validated.")
     except Exception:
-        return "[Add_boltz] FAILED during credential capture/storage. No new authorization granted. Check credential storage permissions."
+        return "[add_boltzmann] FAILED during credential capture/storage. No new authorization granted. Check credential storage permissions."
     try:
         if complete_setup is None:
             enable_toolset()
@@ -71,14 +71,14 @@ def add_boltz(ctx, raw_args, *, complete_setup=None):
             complete_setup()
         authorize_saved_key()
     except Exception:
-        return ("[Add_boltz] FAILED while enabling. The validated key was saved; settings may be partially updated. "
-                "Activation was not confirmed. Check profile write permissions and run /Add_boltz again.")
+        return ("[add_boltzmann] FAILED while enabling. The validated key was saved; settings may be partially updated. "
+                "Activation was not confirmed. Check profile write permissions and run /add_boltzmann again.")
     if "--now" in words:
         from sci_cli.plugins import discover_plugins
         discover_plugins(force=True)
         register_skills(ctx)
         if ctx.refresh_tools(now=True):
-            return "[Add_boltz] SAVED. Boltzmann enabled now by explicit request; the prompt cache may be rebuilt."
-    return ("[Add_boltz] SAVED. All five Boltzmann operations authorized for this profile. "
+            return "[add_boltzmann] SAVED. Boltzmann enabled now by explicit request; the prompt cache may be rebuilt."
+    return ("[add_boltzmann] SAVED. All five Boltzmann operations authorized for this profile. "
             "Enabled. Available automatically in your next session. Restart agent-sci to load them. "
             "The current conversation is unchanged.")

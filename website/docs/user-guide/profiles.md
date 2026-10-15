@@ -51,7 +51,7 @@ installation, main reads `~/.sci/.env`; it does **not** read
 their configured SCI root.
 
 Boltzmann does not fall back to main's key when a named profile has no key. Each
-profile needs its own `/Add_boltz` authorization record. An existing key that fails
+profile needs its own `/add_boltzmann` authorization record. An existing key that fails
 remote validation is not a missing key: the connector reports the resolved profile
 home and distinguishes missing credentials, missing/mismatched local authorization,
 and an unsuccessful service credential check. Credential values are never shown.

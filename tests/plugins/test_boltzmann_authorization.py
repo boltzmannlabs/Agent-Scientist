@@ -112,7 +112,7 @@ def capture(manager, monkeypatch, value):
     from sci_cli.plugins import PluginContext
     loaded = manager._plugins["boltzmann"]
     onboarding = loaded.module.onboarding
-    return onboarding.add_boltz(PluginContext(loaded.manifest, manager), ""), cli
+    return onboarding.add_boltzmann(PluginContext(loaded.manifest, manager), ""), cli
 
 
 def test_main_and_named_profile_credentials_resolve_without_fallback(tmp_path, monkeypatch, auth_server):
@@ -184,10 +184,10 @@ def test_command_is_required_and_activation_is_deferred_and_profile_local(tmp_pa
         try:
             from sci_cli.commands import is_gateway_known_command
             from sci_cli.commands_platforms import telegram_bot_commands
-            assert not is_gateway_known_command("add_boltz")
-            assert "add_boltz" not in dict(telegram_bot_commands())
+            assert not is_gateway_known_command("add_boltzmann")
+            assert "add_boltzmann" not in dict(telegram_bot_commands())
             from sci_cli.commands import resolve_command
-            assert resolve_command("/Add_boltz").cli_only
+            assert resolve_command("/add_boltzmann").cli_only
             assert not module.available()  # a preexisting key is not command approval
             assert not state["calls"]  # discovery never contacts the service
             assert not manager._plugin_skills

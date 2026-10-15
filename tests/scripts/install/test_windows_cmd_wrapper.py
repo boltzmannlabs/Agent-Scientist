@@ -1,4 +1,4 @@
-"""The Windows CMD entry point uses the checked-out SCI setup, not a remote script."""
+"""The Windows CMD entry point uses the checked-out SCI user installer, not a remote script."""
 
 import os
 from pathlib import Path
@@ -19,7 +19,7 @@ def test_local_setup_path_arguments_and_exit_code(tmp_path, exit_code):
     scripts.mkdir(parents=True)
     shutil.copy2(ROOT / "scripts/install.cmd", scripts)
     log = tmp_path / "called.txt"
-    (checkout / "setup-sci.ps1").write_text(
+    (checkout / "install-sci.ps1").write_text(
         'param([string]$Marker)\n'
         'Set-Content -LiteralPath $env:SETUP_CALL_LOG -Value $Marker\n'
         f'exit {exit_code}\n')

@@ -734,7 +734,11 @@ function Stage-Prerequisites {
 }
 
 function Stage-Repository {
-    if (-not $RepoUrl) {
+    # Updating an existing checkout needs no SCI_REPO_URL: its origin remote
+    # already names the reviewed source (an explicit URL re-points it below).
+    # Only a fresh clone must be told where to download from, and that refusal
+    # runs before any external action.
+    if (-not $RepoUrl -and -not (Test-Path (Join-Path $InstallDir ".git"))) {
         Fail "SCI release repository is not configured. Use '. .\activate.ps1' from your reviewed SCI checkout, or set SCI_REPO_URL to your approved SCI repository. Nothing was downloaded."
     }
     # Refuse an occupied non-checkout before provisioning Git. This check
@@ -845,6 +849,11 @@ function Stage-Repository {
             Write-Warn "not fast-forwardable; reset to origin/$Branch"
         }
     } else {
+        # A broken clone moved aside above reaches here with the entry check
+        # skipped; a fresh clone still needs a configured source.
+        if (-not $RepoUrl) {
+            Fail "SCI release repository is not configured. Use '. .\activate.ps1' from your reviewed SCI checkout, or set SCI_REPO_URL to your approved SCI repository. Nothing was downloaded."
+        }
         # Moving a clone onto an existing directory would nest it. The
         # preflight above already refused nonempty or linked destinations.
         if (Test-Path -LiteralPath $InstallDir) {

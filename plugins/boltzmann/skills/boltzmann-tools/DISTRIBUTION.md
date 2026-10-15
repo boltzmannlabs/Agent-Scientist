@@ -38,7 +38,7 @@ or establishes scientific correctness.
 
 ## Authorization and activation
 
-Successful `/Add_boltz` setup records profile-and-key-bound authorization.
+Successful `/add_boltzmann` setup records profile-and-key-bound authorization.
 Another profile does not inherit that receipt merely by possessing the same key.
 Every connector operation checks authorization; failed authentication does not
 permit a silent provider fallback.

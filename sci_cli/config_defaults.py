@@ -1706,7 +1706,7 @@ DEFAULT_CONFIG = {
     "platform_hints": {},
     # Plugin system. Explicit enabled/disabled lists override this distribution default.
     "plugins": {
-        # Agent Scientist ships the connector, not access. /Add_boltz authorizes it per profile.
+        # Agent Scientist ships the connector, not access. /add_boltzmann authorizes it per profile.
         "enabled": ["boltzmann"],
         # Deadline (seconds) for one plugin Git clone, fetch or checkout. Slow repositories may
         # need more time; each network operation is capped at one hour.

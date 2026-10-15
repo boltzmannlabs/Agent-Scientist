@@ -67,7 +67,7 @@ The main state directory defaults to `~/.sci`; an active profile or explicit
 - `sci model`: select the provider/model; authentication is provider-specific.
 - `sci doctor`: diagnose the installation.
 - `/help`: inspect commands available on this surface.
-- `/Add_boltz`: authorize the included Boltzmann connector using masked key entry.
+- `/add_boltzmann`: authorize the included Boltzmann connector using masked key entry.
 - `/Add_skill`: import or draft a skill for review and explicit saving.
 - `/Add_tool <request or URL>`: pass a tool-addition request to the ordinary agent.
 - `/Add_mcp <request or URL>`: pass an MCP-connection request to the ordinary agent.

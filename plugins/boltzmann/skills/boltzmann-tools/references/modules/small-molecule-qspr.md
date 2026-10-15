@@ -307,7 +307,9 @@ Report actual service errors and incomplete outputs. Refresh status for expired 
 
 ## global_ic50
 
-Predict IC50 from a molecule, protein sequence, or uploaded batch.
+Predict inhibitory potency for compound–protein pairs from direct SMILES and protein-sequence input or a CSV of paired inputs. The product describes pIC50, IC50 in nanomolar units and an activity label; confirm the columns actually returned. Higher pIC50 and lower IC50 indicate greater predicted inhibitory potency, not necessarily binding affinity or experimentally established activity.
+
+[Product description and result interpretation](../boltchem-product-guide.md#ic50)
 
 Exact job name: `global_ic50`.
 

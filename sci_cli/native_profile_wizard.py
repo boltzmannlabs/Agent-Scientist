@@ -44,7 +44,7 @@ def choose_sources(ui, initial=()):
 def create_wizard(cli, command, ui=None, source_home=None):
     from sci_cli.profiles import _get_default_sci_home, validate_profile_name, get_profile_dir
     from sci_cli.config import read_user_config_raw, is_managed
-    from sci_cli.native_profile_creation import create_native
+    from sci_cli.native_profile_creation import create_native, reviewed_model_seed
     from sci_cli.native_profile_environment import prepare_environment
     from sci_cli.native_profile_services import choose_services
     from sci_cli.native_profile_session import request_switch
@@ -59,6 +59,7 @@ def create_wizard(cli, command, ui=None, source_home=None):
             raise ValueError('Usage: /Create_profile ["profile-name"]')
         home = Path(source_home) if source_home else _get_default_sci_home()
         original = read_user_config_raw(home / "config.yaml")
+        reviewed_model_seed(original)
         from sci_cli.science_profiles import MANIFEST, read_spec
         legacy = (home / MANIFEST).is_file()
         service_home = _get_default_sci_home() if legacy else home

@@ -1,5 +1,15 @@
 # Boltzmann contract standardization — 2026-10-14
 
+## Follow-up correction — 2026-10-15
+
+`Solublempnn.num_seq` now uses `type: string` with `x-numeric-string: true`.
+The owner reported a successful run with a numeric string after a JSON integer
+failed. The repository contract and installed module documentation now agree;
+local regression checks accept numeric strings and reject JSON numbers and
+non-numeric strings. No production experiment was repeated for this correction.
+The dated CSV/JSON and hashes below describe the October 14 snapshot, not this
+subsequently corrected definition. Historical source snapshots remain unchanged.
+
 This report supersedes the earlier 19/10/68/25 classification. The earlier
 classification is not a current executable-tool readiness score.
 

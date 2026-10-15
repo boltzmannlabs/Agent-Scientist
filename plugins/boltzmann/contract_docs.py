@@ -14,8 +14,10 @@ def render_module(module, catalog, files, limits):
     for tool in entries:
         job = tool["job_name"]
         schema = tool["request_schema"]
-        lines += [f"## {tool['display_name']}", "", tool["description"], "",
-                  f"Exact job name: `{job}`.", "", "### Inputs", "",
+        lines += [f"## {tool['display_name']}", "", tool["description"], ""]
+        if tool.get("product_documentation"):
+            lines += [f"[Product description and result interpretation](../{tool['product_documentation']})", ""]
+        lines += [f"Exact job name: `{job}`.", "", "### Inputs", "",
                   "Fields below belong in `experiment_data`; `experiment_name` is supplied separately.", "",
                   "| Field | Type | Required | Input kind | Description |", "|---|---|---|---|---|"]
         for name, prop in schema["properties"].items():

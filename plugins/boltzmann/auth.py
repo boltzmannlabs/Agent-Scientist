@@ -1,4 +1,4 @@
-"""Profile-local authorization granted only by the reviewed /Add_boltz flow."""
+"""Profile-local authorization granted only by the reviewed /add_boltzmann flow."""
 
 import hashlib
 import hmac
@@ -10,7 +10,7 @@ from sci_cli.plugins_state import PluginState
 from .nodeapi_helpers import validate_api_key
 
 KEY_NAME = "BOLTZMANN_API_KEY"
-AUTH_MESSAGE = "Boltzmann is locked. Run /Add_boltz in this profile and enter a valid API key."
+AUTH_MESSAGE = "Boltzmann is locked. Run /add_boltzmann in this profile and enter a valid API key."
 
 
 def _profile_context():

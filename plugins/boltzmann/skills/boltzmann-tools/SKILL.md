@@ -13,7 +13,7 @@ Use the authorized Boltzmann plugin for matching platform-tools workflows.
 No Omics mode, direct HTTP calls, imported internal helpers, automatic provider
 fallback, or credential capture in chat. Authorization and profile restrictions
 are enforced independently of catalog visibility. Missing authorization requires
-`/Add_boltz` in the active profile; deferred activation may require a new session.
+`/add_boltzmann` in the active profile; deferred activation may require a new session.
 
 ## Three authoritative contracts
 
@@ -31,6 +31,12 @@ Each request field declares its input kind: inline `value`, uploaded `file`,
 `file_or_value`, or upstream `artifact`. Use that declaration, not the field name,
 to decide whether an upload is needed. Missing extra file rules or limits do not
 make a documented request unavailable.
+
+For BoltChem feature descriptions and result interpretation, read
+`references/boltchem-product-guide.md`. It covers Create Dataset, IC50,
+Binding Affinity Energy, Molecular Docking and FEP. Product navigation paths
+are not API endpoints, and documented product features without an established
+job/schema must not be presented as executable connector tools.
 
 Historical worker failures are not permanent prohibitions: disclose the recorded
 failure and possible charges, obtain approval, and allow an otherwise valid

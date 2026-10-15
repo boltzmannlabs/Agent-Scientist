@@ -77,16 +77,29 @@ From a complete checkout in PowerShell:
 ```powershell
 git clone https://github.com/boltzmannlabs/Agent-Scientist.git
 cd Agent-Scientist
-.\setup-sci.ps1
-sci setup
+.\install-sci.ps1
 agent-sci
 ```
 
-The Bash installer does not target native Windows. Native installers and desktop
-packaging are separate build products; source support is not a claim that signed
-Windows/macOS release packages have been produced or tested on this Linux host.
-From CMD in a complete checkout, `scripts\install.cmd` runs the same local
-`setup-sci.ps1` script. It does not download another application's installer.
+`install-sci.ps1` is the Windows counterpart of `install-sci.sh`: it checks the
+checkout, runs the local `setup-sci.ps1` engine in user mode (managed runtime
+and locked dependencies without the developer/test groups), publishes the `sci`
+and `agent-sci` launchers into `%LOCALAPPDATA%\sci\bin` (or `%SCI_HOME%\bin`),
+synchronizes bundled skills, verifies that the CLI starts, and then opens the
+provider setup wizard in an interactive terminal. Use
+`.\install-sci.ps1 -NonInteractive` on unattended machines and run `sci setup`
+later. If `agent-sci` is not found afterwards, open a new terminal or add the
+launcher directory above to `PATH`. An error stops the installation and names
+the failed stage; rerun the installer after an interruption.
+
+Developers working on the source keep using `.\setup-sci.ps1` directly with
+`.\activate.ps1`, which additionally prepares the test environment and `.env`
+template. The Bash installer does not target native Windows. Native installers
+and desktop packaging are separate build products; source support is not a
+claim that signed Windows/macOS release packages have been produced or tested
+on this Linux host. From CMD in a complete checkout, `scripts\install.cmd` runs
+the same local `install-sci.ps1` script. It does not download another
+application's installer.
 
 ## Check the installation
 
@@ -167,7 +180,7 @@ references/scripts are shipped; optional skills remain opt-in. Existing users'
 activation choices are preserved. External services use their own credentials.
 
 ```text
-/Add_boltz
+/add_boltzmann
 /Add_skill
 /Add_tool <request or official URL>
 /Add_mcp <request or documented MCP endpoint/configuration>
@@ -175,7 +188,7 @@ activation choices are preserved. External services use their own credentials.
 ```
 
 Boltzmann tools remain locked until a valid API key is authorized through
-`/Add_boltz`. Use `/capabilities setup` for the optional portable ToolUniverse
+`/add_boltzmann`. Use `/capabilities setup` for the optional portable ToolUniverse
 and PubMed definitions. ToolUniverse requires approved managed dependency installation
 and separate execution approval; PubMed uses a reviewed third-party HTTPS MCP.
 Both require handshake verification and explicit tool selection before saving.

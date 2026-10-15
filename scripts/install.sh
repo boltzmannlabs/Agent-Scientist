@@ -449,7 +449,11 @@ stage_prerequisites() {
 }
 
 stage_repository() {
-    require_source_repository
+    # Updating an existing checkout needs no SCI_REPO_URL: its origin remote
+    # already names the reviewed source (an explicit URL re-points it below).
+    # Only a fresh clone must be told where to download from, and that refusal
+    # runs before any external action.
+    [ -d "$INSTALL_DIR/.git" ] || require_source_repository
     # An interrupted clone from an older installer can leave a .git with no
     # initial commit, where stash/checkout abort ("You do not have the
     # initial commit yet", #40998). Move it aside -- never delete it, it may
@@ -540,6 +544,9 @@ stage_repository() {
             log_warn "not fast-forwardable; reset to origin/$BRANCH"
         fi
     else
+        # A broken clone moved aside above reaches here with the entry check
+        # skipped; a fresh clone still needs a configured source.
+        require_source_repository
         # `mv <clone> <existing dir>` nests the checkout INSIDE it as
         # <dir>/tree, so a pre-existing destination must be empty (we take
         # the empty dir over) or we refuse: whatever lives there is not ours.

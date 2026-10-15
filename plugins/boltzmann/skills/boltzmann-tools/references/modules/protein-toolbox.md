@@ -863,7 +863,7 @@ Fields below belong in `experiment_data`; `experiment_name` is supplied separate
 |---|---|---|---|---|
 | `input_path` | string | yes | file | Use the exact source field. |
 | `model_type` | string | no / mode-dependent | value | Use the exact source field. |
-| `num_seq` | integer | yes | value | Use the exact source field. |
+| `num_seq` | string | yes | value | Number of sequences to design, supplied as a finite numeric string, not a JSON integer. |
 | `fixed_residues` | string | no / mode-dependent | value | Use the exact source field. |
 | `invert_selection` | integer | no / mode-dependent | value | Use the exact source field. |
 
@@ -891,9 +891,10 @@ Only local files require a new upload. Never infer input mode from a field name.
       "x-input-kind": "value"
     },
     "num_seq": {
-      "description": "Use the exact source field.",
-      "type": "integer",
-      "x-input-kind": "value"
+      "description": "Number of sequences to design, supplied as a finite numeric string, not a JSON integer.",
+      "type": "string",
+      "x-input-kind": "value",
+      "x-numeric-string": true
     },
     "fixed_residues": {
       "description": "Use the exact source field.",

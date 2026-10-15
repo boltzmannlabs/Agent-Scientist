@@ -20,6 +20,34 @@ def test_every_catalog_tool_has_explicit_contract_coverage():
         for prop in contract["request_schema"]["properties"].values():
             assert prop["x-input-kind"] in {"file", "value", "file_or_value", "artifact"}
         assert (store.root / contract["source"]).is_file() or contract["status"] != "active"
+        if contract.get("product_documentation"):
+            document, anchor = contract["product_documentation"].split("#", 1)
+            guide = store.root / document
+            assert guide.is_file()
+            headings = {line[3:].strip().lower().replace(" ", "-") for line in guide.read_text().splitlines()
+                        if line.startswith("## ")}
+            assert anchor in headings
+
+
+def test_product_documentation_is_rendered_without_modifying_execution_schema():
+    import copy
+
+    from plugins.boltzmann.contract_docs import render_module
+
+    module = {"id": "example", "title": "Example"}
+    tool = {"job_name": "fixture", "display_name": "Fixture", "module_id": "example",
+            "description": "Fixture product copy.",
+            "request_schema": {"type": "object", "properties": {}, "required": []}}
+    catalog = {"tools": {"fixture": tool}}
+    files = limits = {"tools": {}}
+    without_guide = render_module(module, catalog, files, limits)
+    tool["product_documentation"] = "guide.md#example"
+    before = copy.deepcopy(catalog)
+    with_guide = render_module(module, catalog, files, limits)
+    assert catalog == before
+    link = "[Product description and result interpretation](../guide.md#example)\n\n"
+    assert link in with_guide
+    assert with_guide.replace(link, "") == without_guide
 
 
 def test_known_invalid_is_blocked_but_missing_detailed_file_rules_are_partial(tmp_path):

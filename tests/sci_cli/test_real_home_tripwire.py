@@ -198,6 +198,34 @@ def test_checkout_inside_a_guarded_root_is_not_sci_state():
         guard.check(PROJECT_ROOT.parent / "config.yaml")
 
 
+def test_symlinked_interpreter_prefix_inside_the_home_is_exempt(tmp_path, monkeypatch):
+    """A PM install reached through a symlink (~/.sci/installs/<hash> -> another
+    disk) names the running interpreter's files by the symlinked spelling, which
+    sits lexically inside the guarded home. Traceback/linecache reads of those
+    files are the interpreter's installation, not Sci state; siblings under the
+    home stay refused."""
+    from tests import home_io_guard
+    from tests.home_io_guard import HomeIOGuard
+
+    real_install = tmp_path / "disk" / "install"
+    (real_install / "venv").mkdir(parents=True)
+    home = tmp_path / "home"
+    (home / "installs").mkdir(parents=True)
+    link = home / "installs" / "abc"
+    try:  # Windows without Developer Mode cannot create symlinks
+        link.symlink_to(real_install, target_is_directory=True)
+    except OSError:
+        pytest.skip("cannot create symlinks on this host")
+    prefix = link / "venv"
+    monkeypatch.setattr(home_io_guard, "_INTERPRETER_PREFIX_STRS",
+                        home_io_guard._interpreter_prefix_strings((prefix,)))
+    guard = HomeIOGuard(lambda: [home])
+    guard.check(prefix / "lib" / "site-packages" / "_pytest" / "main.py", metadata=True)
+    guard.check(prefix / "lib" / "runner.py")
+    with pytest.raises(AssertionError, match="REAL sci home"):
+        guard.check(home / "config.yaml")
+
+
 def test_sci_exported_scratch_tmp_is_not_the_test_temp_root(tmp_path):
     """A Sci-launched shell hands pytest TMPDIR=<home>/cache/scratch (tagged by
     SCI_SCRATCH_DIR). With that home guarded, honoring it would put the session

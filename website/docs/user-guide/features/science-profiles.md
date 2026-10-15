@@ -183,7 +183,7 @@ marked; a name activates it directly. The status bar's left label shows `[main]`
 
 Switching hands off to a fresh native CLI process after normal shutdown. It resumes
 the destination's latest CLI session when one exists, otherwise starts a new one.
-This switches slash commands as well as messages: `/Add_boltz`, `/Add_tool`,
+This switches slash commands as well as messages: `/add_boltzmann`, `/Add_tool`,
 `/Add_mcp`, and skill commands affect the selected profile. Finish or cancel running
 work first. No live agent/toolset is transplanted between profiles, and activation
 does not rewrite an existing cached system prompt.
@@ -210,7 +210,7 @@ turns. A profile whose local setup was never completed still has no local execut
 activation neither prepares it nor grants new access. Invalid or changed legacy sandbox
 configuration blocks execution with an error, not a setup wizard or host fallback.
 
-`/Add_boltz` is always offered in the interactive CLI, including profiles that did
+`/add_boltzmann` is always offered in the interactive CLI, including profiles that did
 not select Boltzmann during creation. The command itself grants no tool access.
 Successful masked-key validation enables the connector in the active profile for
 the next session. Legacy isolated profiles add only the five Boltzmann operations

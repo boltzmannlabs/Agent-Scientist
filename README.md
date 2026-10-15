@@ -1,230 +1,280 @@
+![Agent Scientist — autonomous scientific agents for life sciences](assets/agent-scientist-banner.png)
+
 # AGENT-SCIENTIST
 
-Agent Scientist (SCI), built by **Boltzmann Labs**, is a scientific assistant
-for literature research, data analysis, and approved computational workflows.
+**A scientific AI assistant by Boltzmann Labs.**
 
-Start it with **`agent-sci`**. Application state defaults to **`~/.sci`**.
-This README and the local `sci-agent` operating-manual skill describe this
-customized application. No external product website is needed for SCI help.
+Research literature, analyze data, and run approved computational workflows from
+your terminal. Connect scientific services, add reusable skills, and organize
+work in named research profiles.
 
-## Install from this repository
+[Installation](#installation) · [First steps](#first-steps) · [Features](#features) ·
+[Commands](#command-reference) · [Updates](#updates) · [Documentation](#documentation)
 
-Repository: https://github.com/boltzmannlabs/Agent-Scientist
+## Features
 
-After the initial source commit is pushed, obtain the complete checkout below.
-Native release installers and SCI update feeds are not published yet. Do not
-use another product's installer or update channel: it will not contain SCI's
-customizations.
+- **Scientific tools:** API-key-gated Boltzmann, plus optional ToolUniverse,
+  PubMed, and other MCP services.
+- **Reusable skills:** instructions for bioinformatics, chemistry, statistics,
+  literature research, and visualization.
+- **Research profiles:** separate conversations, permissions, settings, and workspaces.
+- **Flexible models:** supported providers and compatible custom endpoints.
+- **Persistent conversations:** saved chats and inspectable tool activity.
+- **Extensible workflows:** add skills, tools, and service connections.
 
-On Linux/macOS, from the checkout:
+Skills are instructions—not installed software or proof of scientific validity.
+External services may require credentials, credits, and additional dependencies.
+
+## Installation
+
+Install from this repository as your normal user. The installers prepare a managed
+runtime, locked application dependencies, CLI launchers, and bundled skills, then
+open provider setup in an interactive terminal. No manual system-Python package
+installation is required.
+
+Internet access and free disk space are required. Scientific model weights,
+datasets, Docker images, and optional tool dependencies are **not** included.
+
+### Ubuntu
+
+Prerequisites: Git, Bash, curl, tar, awk, and a SHA256 verifier. If missing, install
+the standard utilities through your system administrator or Ubuntu's package manager:
 
 ```bash
-git clone https://github.com/boltzmannlabs/Agent-Scientist.git
-cd Agent-Scientist
+sudo apt update
+sudo apt install -y git curl ca-certificates tar gawk coreutils
+```
+
+Clone, install, and launch **without sudo**:
+
+```bash
+git clone https://github.com/boltzmannlabs/agent-scientist.git
+cd agent-scientist
 bash ./install-sci.sh
 export PATH="$HOME/.local/bin:$PATH"
 agent-sci
 ```
 
-The installer provisions the managed runtime and dependencies; first setup may take
-time and require downloads. It opens normal provider setup to authenticate your
-chosen model. Credentials are personal and are not distributed in the repository.
-For unattended servers, use `bash ./install-sci.sh --non-interactive`, then run
-`sci setup` interactively. See [INSTALLATION.md](INSTALLATION.md) for prerequisites,
-verification, dashboard/desktop builds, and troubleshooting.
+Follow provider setup using your own account or API key. The PATH command enables
+the launcher in this terminal; open a new terminal for future sessions.
 
-On Windows, run `.\setup-sci.ps1`, then `sci setup` and `agent-sci`.
-Native Windows/macOS packaging is not yet verified for this customized build.
-CLI source-update notifications and `sci update` follow this repository's `main`
-branch; promoted/native release feeds are not published yet.
-The bootstrap scripts deliberately have no default repository. Maintainers using
-them must provide `SCI_REPO_URL` for their approved SCI source; normal users with
-a checkout can use `bash ./install-sci.sh` above. No Termux package is advertised.
+For unattended installation, use `bash ./install-sci.sh --non-interactive`,
+then run `sci setup` interactively before chatting.
 
-## Start and configure
+### Windows
+
+Prerequisites: Git for Windows and PowerShell. Run from a normal PowerShell
+window, not an administrator shell:
+
+```powershell
+git clone https://github.com/boltzmannlabs/agent-scientist.git
+cd agent-scientist
+.\install-sci.ps1
+```
+
+Follow provider setup, then open a new terminal and launch:
+
+```powershell
+agent-sci
+```
+
+If PowerShell blocks the local script, review it first. Where your organization's
+policy permits, run it with a process-only execution-policy override:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install-sci.ps1
+```
+
+This override is temporary. Do not bypass organization-enforced controls.
+
+If the launcher is not found, add its directory to this terminal's PATH:
+
+```powershell
+$sciBin = if ($env:SCI_HOME) { Join-Path $env:SCI_HOME 'bin' } else { Join-Path $env:LOCALAPPDATA 'sci\bin' }
+$env:Path = "$sciBin;$env:Path"
+agent-sci
+```
+
+For unattended installation, use `.\install-sci.ps1 -NonInteractive`, then
+`sci setup`. From CMD, `scripts\install.cmd` invokes the same installer.
+
+**Keep the source checkout in its installed location:** the launchers refer to it.
+Windows source installation is separate from a signed native installer; native
+Windows/macOS package qualification remains pending. See the
+[full installation guide](INSTALLATION.md) for macOS, optional builds, and recovery.
+
+## First steps
+
+1. Run `sci setup` if you skipped provider setup; use `sci model` to change it later.
+2. Launch `agent-sci`, then type `/help`.
+3. Try: “Explain the difference between a prediction and experimental evidence.”
+4. Use `/capabilities` to inspect access and setup requirements without executing tools.
+5. Connect services as needed, then restart for next-session additions.
+
+Check the installation from your operating-system terminal:
 
 ```bash
-agent-sci
-SCI_HOME="$HOME/.sci" agent-sci
 sci --help
-sci model
-sci tools
 sci doctor
 ```
 
-`SCI_HOME` selects the state directory; it does not migrate or delete another
-directory. Settings live in `config.yaml`, secrets in the profile's protected
-credential store or `.env`, and persona instructions in `SOUL.md`.
-Never paste passwords or API keys into a chat or commit them to Git.
+A successful chat confirms model access—not scientific-service readiness.
 
-Use `/help` inside the CLI for the current command list. Use `/new` for a
-fresh conversation after deferred skill/tool changes. Changing a file does not
-rewrite the system prompt of a conversation already in progress.
+## Scientific services
 
-## Scientific tools and Boltzmann
+### Boltzmann
 
-The included Boltzmann connector is locked until you authorize it:
+Inside SCI, run:
 
 ```text
-/Add_boltz
+/add_boltzmann
 ```
 
-Enter your own key in the masked prompt. Successful validation grants this
-profile access for the next session. Restart `agent-sci` after saving.
-Never assume that a shipped connector or selected tool is ready to execute.
+Enter your own API key in the masked prompt. The connector remains locked until
+the selected profile has a validated key and its authorization record.
+After saving, restart SCI and use:
 
-Scientific requests use suitable available tools first. Authorized Boltzmann
-workflows are preferred when their verified contracts match the inputs and
-outputs. Local scripts are a fallback when no suitable tool exists, or when
-explicitly requested. Authentication failures must not cause silent provider
-switching, and pending jobs must not be duplicated.
+```text
+/boltzmann_tools
+/boltzmann_tools search docking
+```
 
-See the local `plugins/boltzmann/README.md` for the authorization implementation.
+The catalog groups scientific tools by domain and module, not connector helpers.
+Catalog visibility does not grant execution access.
 
-## Add skills, tools and services
+When an authorized Boltzmann workflow matches a request, SCI prefers its installed
+contract. Missing inputs or authentication failures must not trigger silent
+provider switching; ambiguous submissions must not be duplicated.
+See [Boltzmann integration](plugins/boltzmann/README.md).
 
-- `/Add_skill`: links and local file/folder paths go to the ordinary agent for
-  skill addition. Only **Describe a workflow** asks the guided scientific
-  questions and presents a draft for review before saving.
-- `/Add_tool <request or URL>`: send a tool-addition request to the ordinary
-  agent. Inspect requirements and approve external actions before installation
-  or execution. A repository is not automatically an agent tool.
-- `/Add_mcp <request or URL>`: ask the agent to connect an existing MCP service.
-  Supply its actual endpoint or documented server configuration. An ordinary
-  website or REST endpoint is not automatically an MCP server.
-- `/skills`: inspect skills; `sci mcp --help`: inspect MCP administration.
+### ToolUniverse, PubMed, and other services
 
-Approved additions become available in a new session. Review permissions,
-dependencies, and scientific limitations. A security scan is not a scientific
-validation. Service credentials are separate from your model-provider login.
+Run `/capabilities setup` to review optional ToolUniverse and PubMed definitions.
+Setup requires approval, connection discovery, and explicit tool selection.
+ToolUniverse may need a managed dependency installation; the included PubMed
+option uses a third-party MCP endpoint, not an NCBI-operated server.
 
-### Skills included with a fresh installation
+Use `/Add_mcp <request or endpoint>` for other MCP-compatible services.
+An ordinary website or REST API is not automatically an MCP server. Review
+authentication, permissions, and data-transfer requirements before connecting.
 
-The `skills/` tree includes the science workflows and their supporting scripts,
-references, templates, and upstream license notices. Installing instructions does
-not install scientific Python environments, model weights, service connections,
-or API keys. Each workflow checks those prerequisites separately.
-Platform restrictions still apply; Linux-specific scientific helpers are not
-advertised as runnable on Windows or macOS just because their files are shipped.
+## Research profiles
 
-Fresh setup uses the disabled-skill selection in `cli-config.yaml.example`;
-the template-free first-save path uses `sci_cli/config_skill_defaults.py`.
-Keep those lists in sync when changing release defaults. They are a **disabled
-list**, not an allowlist: future bundled additions may become available unless
-disabled. `sci-agent` is the essential operating-manual skill and stays enabled.
-
-Existing configurations are not overwritten or silently assigned this selection.
-The existing bundled-skill synchronizer can deliver newly bundled files on a later
-startup while preserving user-edited bundles and existing enable/disable choices.
-`optional-skills/` remains opt-in. Use `/skills` to review your own choices.
-Personal credentials, sessions, profiles, usage history, and local dependency
-environments are not part of this distribution.
-
-## Research projects
+Create a project with selected science skills, tools, service credentials, and
+optional local files or reference URLs:
 
 ```text
 /Create_profile
+/Update_profile "omics"
 /profiles_list
-/activate
-/activate "antibody-project"
+/activate "omics"
 /activate main
 ```
 
-Choose science skills, supported service tools, existing or new service credentials,
-and optional source files/URLs with explicit access choices. New projects are native
-SCI profiles. They reuse main's local runtime or Docker image with their own workspace;
-no `--prepare` command is needed. Downloads require approval. Other remote backends
-currently need separate workspace/credential setup; there is no silent host fallback.
-Creation does not install missing scientific software. See the
-[profile guide](website/docs/user-guide/features/science-profiles.md) for supported integrations.
+Use your chosen profile name in place of `omics`. Bare `/activate` opens a picker.
 
-`/activate` opens a picker and restarts the native CLI in the selected profile,
-resuming its latest CLI conversation when available. The status bar shows the active name.
-Project conversations remain separate. Existing shared model login can be reused;
-service permissions remain profile-scoped. Automatic routing or collaboration
-must be explicitly configured; new permissions and sensitive transfers still
-require review.
+- Reuse an approved independent copy of a service key or enter a profile-specific
+  key. Supported model-provider authentication can be shared.
+- Profiles reuse supported installed runtimes/images with separate workspaces.
+  No separate `--prepare` step is needed for the normal creation flow.
+- Local execution is **not** an operating-system sandbox. Remote backends and
+  missing scientific dependencies need separate setup.
+- Sources have explicit access choices; adding a path or URL does not upload,
+  read, or index its contents automatically.
+- Switching preserves the departing conversation and resumes the destination's
+  latest saved CLI conversation when available.
 
-## Other surfaces
+See [research profiles](website/docs/user-guide/features/science-profiles.md)
+for capability selection, environment limits, and migration.
 
-```bash
-sci dashboard
-sci gateway setup
-sci desktop
-```
+## Command reference
 
-The dashboard includes this manual locally. Messaging and desktop require their
-own configuration. Desktop packaging and native platform checks remain pending;
-availability in the source tree is not a claim of release readiness.
+Shell commands such as `sci setup` run in your operating-system terminal.
+Slash commands below run **inside Agent Scientist**.
 
-## Troubleshooting
+| Command | Purpose |
+|---|---|
+| `/help` | Show available commands |
+| `/model` | Review model/provider choices |
+| `/capabilities` | Inspect the active profile's capabilities and setup state |
+| `/capabilities setup` | Review optional default MCP connections |
+| `/add_boltzmann` | Authorize Boltzmann for this profile |
+| `/boltzmann_tools [domain]` | Browse the scientific catalog; use `search <text>` to search |
+| `/Add_skill` | Supply skill material or describe a workflow for a reviewed draft |
+| `/Add_tool <request or URL>` | Ask the agent to add a tool |
+| `/Add_mcp <request or endpoint>` | Ask the agent to connect an MCP service |
+| `/skills` | Review skill instructions and management options |
+| `/Create_profile` / `/Update_profile [name]` | Create or review a research profile |
+| `/profiles_list` / `/activate [name]` | List or switch profiles |
+| `/resume` / `/sessions` | Choose a saved conversation |
+| `/new` | Start a new conversation |
+| `/exit` | Leave the CLI |
 
-If startup stalls, interrupt the foreground process with Ctrl+C and capture the
-last visible stage. Do not delete your state directory or repeatedly reinstall.
-Run `sci doctor` and inspect redacted logs in the active home's `logs/` directory.
+Addition requests do not guarantee compatibility. Review downloads, execution,
+permissions, and costs. Skill links/paths go to the agent; **Describe a workflow**
+provides guided drafting.
 
-The `sci-agent` skill is a local setup/troubleshooting manual, not a science
-workflow and not needed for greetings. Detailed references are under
-`skills/autonomous-ai-agents/sci-agent/references/` in the checkout and the
-corresponding installed skills directory. Local implementation and CLI help
-take precedence if inherited technical references disagree with this fork.
-Do not fetch upstream documentation or installers as SCI instructions.
+Resuming displays retained user messages and agent replies in scrollback.
+**Ctrl+O / F8** opens the transcript viewer; select a tool entry and press Enter
+for details, then Escape to return. Nothing is rerun during restoration.
+Saved transcript visibility is separate from the model's compressed context.
+
+## Data and safety
+
+SCI state defaults to `~/.sci` (`$HOME\.sci` on Windows). `SCI_HOME` selects
+another state directory; it does not migrate existing data.
+
+- `config.yaml`: settings; `SOUL.md`: persona instructions.
+- Protected credential storage / `.env`: personal secrets.
+- Conversations, memory, project state, and outputs remain separate from Git.
+- Never paste keys into chat, screenshots, or issue reports.
+- Installing a skill does not install its dependencies or authorize execution.
+- Computational outputs need scientific review. Successful execution or a
+  security scan does not establish experimental or clinical validity.
 
 ## Updates
 
-Git source installations from this repository receive CLI update recommendations
-when new commits are pushed to `main`. Startup checks are read-only and normally
-cached for 24 hours. SCI does not install an update merely because a notification
-appears. To check immediately or install deliberately:
+For an installed Git checkout:
 
 ```bash
 sci update --check
 sci update
 ```
 
-Inside the interactive CLI, `/update` exits the session and starts the updater.
-The normal updater snapshots profile state before applying changes and prepares
-the updated runtime afterward. Keep backups; local edits can require conflict
-resolution. `sci config set updates.check false` disables passive notifications,
-not explicit update commands. No conversations, research files or model/service
-credentials are sent as part of a version check; a configured GitHub credential
-may authenticate the repository request.
+Inside SCI, `/update` exits the session and starts the updater. Startup update
+recommendations are normally cached for 24 hours and do not install automatically.
+The updater snapshots profile state before applying changes; keep your own backups,
+and resolve local source edits before updating.
 
-This is a source-branch channel, not a promised stable version feed: every new
-commit on `main` can be recommended, so maintainers should push only tested work.
-The initial push is required before anyone can download/check this source.
-`stable`, `canary`, native installers and desktop update feeds require separately
-configured and verified release infrastructure. An inherited upstream remote
-cannot replace this official source checkout during a CLI update.
+Source updates follow this repository's `main` branch. They are not a promise of
+stable/native releases. Do not substitute another application's installer or feed.
 
-## Development and release status
+## Troubleshooting
 
-The approved source repository is `boltzmannlabs/Agent-Scientist`. The initial
-SCI commit uses fresh history; the inherited history is retained in a private
-backup outside this repository. Source updates use the approved repository,
-without another publisher's fallback. Native release publishing remains blocked by
-`sci-unpublished-distribution` until SCI-owned destinations are approved.
-GitHub automation requires the approved `SCI_REPOSITORY` and the explicit
-`SCI_RELEASES_ENABLED` opt-in; container and skills-index destinations must also
-be configured for the workflows that use them. Plugin-validation callers must
-provide `sci-repository`. Installer tests must supply SCI installer URLs.
+| Problem | Next step |
+|---|---|
+| `agent-sci` not found | Open a new terminal or use the PATH instructions above |
+| Installation interrupted | Read the failed stage, fix its cause, and rerun the same installer |
+| No model response | Check authentication with `sci setup` or `sci model` |
+| Scientific service unavailable | Check `/capabilities`, credentials, and required dependencies |
+| Newly added tools not visible | Restart SCI; do not assume an existing conversation refreshed |
+| Startup stalls | Press Ctrl+C, retain the error, and run `sci doctor`; do not delete `.sci` |
 
-Use `scripts/run_tests.sh` for Python tests. Source-level engineering guidance
-is in `AGENTS.md` and its area-specific files. See `SCI_MIGRATION.md` for
-migration verification and outstanding platform checks.
+## Documentation
 
-Before public release, configure SCI documentation, installers, support channels,
-and promoted update endpoints, then test them. A source push enables delivery
-of source updates but does not publish native installers. The source clone
-above becomes available only after the initial push.
+- [Detailed installation and optional dashboard/desktop builds](INSTALLATION.md)
+- [Research profiles](website/docs/user-guide/features/science-profiles.md)
+- [Sessions and resume](website/docs/user-guide/sessions.md)
+- [CLI commands](website/docs/reference/slash-commands.md)
+- [Developer setup](CONTRIBUTING.md) — use `scripts/run_tests.sh` for Python tests
+- [Code of conduct](CODE_OF_CONDUCT.md)
+- [Data privacy and handling](PRIVACY.md)
+- [Security policy and private reporting guidance](SECURITY.md)
 
-The `sci-unpublished-distribution` marker blocks unapproved source origins and the
-release entrypoint's publishing actions; verified SCI Git source checkouts are
-admitted for CLI updates. Canary, stable, desktop release and website
-deployment entry jobs additionally require the repository variable
-`SCI_RELEASES_ENABLED=true`. Do not enable publication or remove the marker until
-the release destinations, credentials, signing, and clean-install tests are reviewed.
+Dashboard, messaging, and desktop surfaces require separate setup; see the
+installation guide for availability and build instructions.
 
-Original copyright and license notices remain in `LICENSE` and source headers.
-They are legal attribution, not SCI's product identity or an instruction to
-contact an upstream service.
+## License
+
+[MIT](LICENSE), with original copyright and third-party notices retained.
+Bundled third-party components and skill resources retain their applicable licenses.

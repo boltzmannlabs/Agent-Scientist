@@ -1914,7 +1914,7 @@ class CLICommandsMixin(ScienceWorkspaceCommandsMixin):
     def _handle_add_tool_command(self, cmd: str):
         self._queue_add_request(cmd, "tool", "https://github.com/bio-tools/biotoolsLLMAnnotate")
 
-    def _handle_add_boltz_command(self, cmd: str):
+    def _handle_add_boltzmann_command(self, cmd: str):
         from sci_cli.boltzmann_setup import run
         from cli import _cprint
         _cprint(run(self, _command_arg(cmd)))

@@ -37,14 +37,31 @@ class Service:
     toolsets: list[str] = field(default_factory=list)
 
 
+def reviewed_model_seed(original):
+    """Check model credential portability before collecting project selections."""
+    from sci_cli.profiles import launch_model_seed
+
+    config = deepcopy(launch_model_seed(original))
+    for block in [config.get("model"), *config.get("providers", {}).values()]:
+        if isinstance(block, dict):
+            if block.get("api_key"):
+                raise ValueError("The selected model has an inline API key. Save its credential once in main's "
+                                 "shared provider store using sci auth add, then remove the inline key and retry. "
+                                 "It will not be silently discarded or copied into profile configuration.")
+            if block.get("api_key_cmd") or block.get("key_cmd"):
+                raise ValueError("Review model credential commands separately; use the shared LLM login store.")
+    return config
+
+
 def create_native(name, source_home, skills, services, sources, terminal, persona, *, skill_sources=None):
-    from sci_cli.profiles import create_profile, get_profile_dir, launch_model_seed
+    from sci_cli.profiles import create_profile, get_profile_dir
     from sci_cli.config import read_user_config_raw, atomic_config_replace, save_env_value_secure
     from sci_cli.science_profiles import copy_source, regular_files, Source, local_source
     from sci_constants import sci_home_key
     import hashlib
 
     original = read_user_config_raw(source_home / "config.yaml")
+    model_seed = reviewed_model_seed(original)
     final = get_profile_dir(name)
     if any(not service.verified for service in services):
         raise ValueError("All selected services must complete their supported setup checks before saving.")
@@ -74,17 +91,9 @@ def create_native(name, source_home, skills, services, sources, terminal, person
         skill_paths.append((selected, path))
 
     def prepare(staging):
-        config = deepcopy(launch_model_seed(original))
+        config = deepcopy(model_seed)
         # The provider's shared login is resolved by the native authentication
         # layer. Never duplicate keys, key commands, sessions or main's .env.
-        for block in [config.get("model"), *config.get("providers", {}).values()]:
-            if isinstance(block, dict):
-                if block.get("api_key"):
-                    raise ValueError("The selected model has an inline API key. Save its credential once in main's "
-                                     "shared provider store using sci auth add, then remove the inline key and retry. "
-                                     "It will not be silently discarded or copied into profile configuration.")
-                if block.get("api_key_cmd") or block.get("key_cmd"):
-                    raise ValueError("Review model credential commands separately; use the shared LLM login store.")
         for key in ("display", "reasoning"):
             if key in original:
                 config[key] = deepcopy(original[key])

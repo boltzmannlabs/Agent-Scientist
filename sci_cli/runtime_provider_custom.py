@@ -381,6 +381,9 @@ def _try_resolve_from_custom_pool(
         try:
             pool = rp.load_pool(pool_key)
             entry = pool.select() if pool.has_credentials() else None
+            entry_url = rp._pool_entry_base_url(entry) if entry is not None else ""
+            if entry_url and _normalize_base_url_for_match(entry_url) != _normalize_base_url_for_match(base_url):
+                continue  # A same-name profile override must not receive another endpoint's credential.
             pool_api_key = rp._pool_entry_api_key(entry) if entry is not None else ""
             if not pool_api_key:
                 continue

@@ -11,25 +11,36 @@ import sqlite3
 import sys
 import threading
 
-_INTERPRETER_PREFIXES = tuple({
-    Path(p).resolve() for p in (sys.prefix, sys.base_prefix, sys.exec_prefix, sys.base_exec_prefix)
-} | {
+# Plain normalized strings for the check() fast path. PurePath comparison folds case on
+# Windows; ``os.path.normcase`` (identity on POSIX) reproduces that for string compares. Prefixes
+# compute once at import, as before: they are fixed for the process lifetime.
+_normcase = os.path.normcase
+
+
+def _interpreter_prefix_strings(candidates) -> tuple[str, ...]:
+    """Each prefix in BOTH spellings: as named and fully resolved. A PM install is
+    often reached through a symlink (~/.sci/installs/<hash> -> another disk), and the
+    interpreter's own paths (sys.prefix, module __file__, linecache reads for
+    tracebacks) keep that symlinked spelling, which sits lexically inside the guarded
+    home. check() refuses lexical matches against the home before it resolves
+    anything, so the named spelling must already be exempt here."""
+    forms = {Path(os.path.abspath(p)) for p in candidates}
+    forms |= {Path(p).resolve() for p in candidates}
+    return tuple(_normcase(os.fspath(p)) for p in forms)
+
+
+_INTERPRETER_PREFIX_STRS = _interpreter_prefix_strings(
+    (sys.prefix, sys.base_prefix, sys.exec_prefix, sys.base_exec_prefix)
     # A PM-activated developer shell runs sys.prefix's python against a dependency generation
     # whose site-packages sits under the (real) Sci home; third-party imports from it are the
     # interpreter's installation, not Sci state.
-    Path(p).resolve() for p in sys.path if p and Path(p).name in ("site-packages", "dist-packages")
-} | {
+    + tuple(p for p in sys.path if p and Path(p).name in ("site-packages", "dist-packages"))
     # The default install checks the repo out INSIDE the home (install.sh:
     # INSTALL_DIR=$SCI_HOME/sci-agent). Reading test data, sources for tracebacks, or the
     # checkout's own .venv is not Sci state; without this every run from a default install
     # trips on its first traceback.
-    Path(__file__).resolve().parent.parent,
-})
-# The same prefixes as plain strings for the check() fast path. PurePath comparison folds case on
-# Windows; ``os.path.normcase`` (identity on POSIX) reproduces that for string compares. Prefixes
-# resolve once at import, as before: they are fixed for the process lifetime.
-_normcase = os.path.normcase
-_INTERPRETER_PREFIX_STRS = tuple(_normcase(os.fspath(p)) for p in _INTERPRETER_PREFIXES)
+    + (os.path.dirname(os.path.dirname(os.path.abspath(__file__))),)
+)
 
 
 def _within(path: str, prefix: str) -> bool:

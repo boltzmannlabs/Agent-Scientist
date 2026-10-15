@@ -1827,7 +1827,7 @@
       "module_id": "small-molecule-enumeration",
       "status": "active",
       "source": "modules/small-molecule-enumeration.md",
-      "description": "Create a small-molecule dataset from a target, measurement type, and assay type.",
+      "description": "Create a project-linked dataset of SMILES and associated bioactivity or assay measurements, organized by target gene, assay type and measurement endpoint. Saved datasets provide the required training data for the platform's Custom Property Model regression and classification workflows.",
       "execution_blocked": false,
       "request_schema": {
         "type": "object",
@@ -1872,7 +1872,8 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [],
+      "product_documentation": "boltchem-product-guide.md#create-dataset"
     },
     "crispr_base_editing": {
       "display_name": "CRISPR Base Editing",
@@ -2936,7 +2937,7 @@
       "module_id": "small-molecule-qspr",
       "status": "active",
       "source": "modules/small-molecule-qspr.md",
-      "description": "Predict IC50 from a molecule, protein sequence, or uploaded batch.",
+      "description": "Predict inhibitory potency for compound–protein pairs from direct SMILES and protein-sequence input or a CSV of paired inputs. The product describes pIC50, IC50 in nanomolar units and an activity label; confirm the columns actually returned. Higher pIC50 and lower IC50 indicate greater predicted inhibitory potency, not necessarily binding affinity or experimentally established activity.",
       "execution_blocked": false,
       "request_schema": {
         "type": "object",
@@ -2967,7 +2968,8 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [],
+      "product_documentation": "boltchem-product-guide.md#ic50"
     },
     "Lead_Generation_Graph_GA": {
       "display_name": "Graph GA",
@@ -4328,7 +4330,7 @@
       "module_id": "small-molecule-toolbox",
       "status": "active",
       "source": "modules/small-molecule-toolbox.md",
-      "description": "Route molecular docking through Vina or DiffDock, with basic, flexible, and score-only behavior under the Vina mode.",
+      "description": "Predict ligand poses and docking scores within a defined protein search region using AutoDock Vina in basic, rigid-receptor mode. Inspect the returned poses and available interaction artifacts; docking scores are estimates, not measured binding affinities. Historical worker-failure notices still apply.",
       "execution_blocked": false,
       "request_schema": {
         "type": "object",
@@ -4410,7 +4412,8 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [],
+      "product_documentation": "boltchem-product-guide.md#molecular-docking"
     },
     "Vina_Flexible_Docking": {
       "display_name": "Flexible Docking",
@@ -4423,7 +4426,7 @@
       "module_id": "small-molecule-toolbox",
       "status": "active",
       "source": "modules/small-molecule-toolbox.md",
-      "description": "Route molecular docking through Vina or DiffDock, with basic, flexible, and score-only behavior under the Vina mode.",
+      "description": "Predict ligand poses and docking scores with AutoDock Vina while allowing explicitly selected receptor residues to be flexible. Use the documented search-region and ligand inputs, and inspect the returned artifacts rather than assuming every product-level visualization is available.",
       "execution_blocked": false,
       "request_schema": {
         "type": "object",
@@ -4530,7 +4533,8 @@
           "mapping_status": "matched",
           "notes": "collection name missing in source table; durable-log retrieval remains unavailable"
         }
-      ]
+      ],
+      "product_documentation": "boltchem-product-guide.md#molecular-docking"
     },
     "Vina_Score_only_docking": {
       "display_name": "Molecular Docking — Vina Score Only Mode",
@@ -4544,7 +4548,7 @@
       "module_id": "small-molecule-toolbox",
       "status": "active",
       "source": "modules/small-molecule-toolbox.md",
-      "description": "Route molecular docking through Vina or DiffDock, with basic, flexible, and score-only behavior under the Vina mode.",
+      "description": "Evaluate supplied ligand poses against a receptor using AutoDock Vina score-only mode. Report returned scores and available artifacts without claiming a new docking search, optimized pose or experimentally measured affinity.",
       "execution_blocked": false,
       "request_schema": {
         "type": "object",
@@ -4607,7 +4611,8 @@
           "mapping_status": "matched",
           "notes": "live Mongo document verified 2026-09-11 for Vina score-only experiment CURRENT_JOB_ID"
         }
-      ]
+      ],
+      "product_documentation": "boltchem-product-guide.md#molecular-docking"
     },
     "Diffdock": {
       "display_name": "Molecular Docking — DiffDock Mode",
@@ -4620,7 +4625,7 @@
       "module_id": "small-molecule-toolbox",
       "status": "active",
       "source": "modules/small-molecule-toolbox.md",
-      "description": "Molecular Docking is one product tool with Vina and DiffDock modes. In the Vina mode, leaving both feature boxes unchecked selects basic docking; selecting Flexible docking or Score only routes to the corresponding Vina submode. Read the canonical `mode_families` and corresponding job entries for the complete mode router and evidence levels.",
+      "description": "Predict ligand–protein binding poses with DiffDock in blind-docking mode without a predefined binding site. Inspect returned poses, confidence information and available interaction artifacts; do not treat confidence as a Vina energy score or experimentally measured affinity.",
       "execution_blocked": false,
       "request_schema": {
         "type": "object",
@@ -4659,7 +4664,8 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [],
+      "product_documentation": "boltchem-product-guide.md#molecular-docking"
     },
     "MDS_openMM": {
       "display_name": "MDS OpenMM",
@@ -8111,9 +8117,10 @@
             "x-input-kind": "value"
           },
           "num_seq": {
-            "description": "Use the exact source field.",
-            "type": "integer",
-            "x-input-kind": "value"
+            "description": "Number of sequences to design, supplied as a finite numeric string, not a JSON integer.",
+            "type": "string",
+            "x-input-kind": "value",
+            "x-numeric-string": true
           },
           "fixed_residues": {
             "description": "Use the exact source field.",

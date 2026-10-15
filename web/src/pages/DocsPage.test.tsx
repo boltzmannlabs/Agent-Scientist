@@ -16,7 +16,7 @@ it("renders the bundled SCI manual without a remote frame or fetch", async () =>
   try {
     await act(async () => root.render(<DocsPage />));
     expect(container.textContent).toContain("Boltzmann Labs");
-    expect(container.textContent).toContain("/Add_boltz");
+    expect(container.textContent).toContain("/add_boltzmann");
     expect(container.querySelector("iframe")).toBeNull();
     expect(container.querySelector('a[href*="nousresearch"]')).toBeNull();
     expect(fetchSpy).not.toHaveBeenCalled();

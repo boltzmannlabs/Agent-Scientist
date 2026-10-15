@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 from agent.command_token_source import build_command_token_provider, materialize_probe_api_key
 from sci_cli.providers import custom_provider_aliases, custom_provider_slug, get_label
+from sci_cli.shared_llm import with_shared_credentials
 from utils import base_url_host_matches
 
 # Log-record parity with the origin module.
@@ -319,11 +320,10 @@ def _auth_store_has_provider(*keys: str) -> bool:
 
 
 def _raw_pool_usable(sci_id: str) -> bool:
-    """Section-1 pool check: only consult the pool when auth.json lists a raw entry."""
+    """Use the same profile/global credential lookup as inference resolution."""
     try:
-        from sci_cli.auth import _load_auth_store
-        store = _load_auth_store()
-        if store and store.get("credential_pool", {}).get(sci_id):
+        from sci_cli.auth import read_credential_pool
+        if read_credential_pool(sci_id):
             return _credential_pool_is_usable(sci_id, raw_pool_present=True)
     except Exception:
         pass
@@ -749,12 +749,13 @@ class _PickerBuild:
 
     def add_endpoint_row(
         self, slug: str, name: str, api_url: str, models: list, is_current: bool, native_catalog_empty: bool,
-        *, source: str = "user-config", shown: list | None = None) -> None:
+        *, source: str = "user-config", shown: list | None = None, aliases=()) -> None:
         """Append a user-defined endpoint row (sections 3, 3b, 4)."""
         self.results.append({
             "slug": slug, "name": name, "is_current": is_current, "is_user_defined": True,
             "models": models if shown is None else shown, "total_models": len(models), "source": source,
-            "api_url": api_url, "native_catalog_empty": native_catalog_empty})
+            "api_url": api_url, "native_catalog_empty": native_catalog_empty,
+            "provider_aliases": sorted(aliases)})
         self.seen_slugs.add(slug.lower())
 
     def record_section3_pair(self, name: str, url_norm: str) -> bool:
@@ -981,7 +982,9 @@ def _lap_user_provider_rows(b: _PickerBuild, user_providers: dict) -> None:
     from sci_cli.config import coerce_provider_id, is_provider_enabled
     ep_groups: dict[tuple, dict] = {}
     for ep_name, ep_cfg in user_providers.items():
-        if not isinstance(ep_cfg, dict) or not is_provider_enabled(ep_cfg) or ep_name.lower() in b.seen_slugs:
+        if (not isinstance(ep_cfg, dict) or not is_provider_enabled(ep_cfg)
+                or ep_name.lower() in b.seen_slugs
+                or b.excluded.intersection(custom_provider_aliases(ep_cfg.get("name", ""), str(ep_name)))):
             continue
         display_name = coerce_provider_id(ep_cfg.get("name")) or ep_name
         api_url = _entry_base_url(ep_cfg, ("base_url", "api", "url"))
@@ -1022,7 +1025,8 @@ def _lap_user_provider_rows(b: _PickerBuild, user_providers: dict) -> None:
         if discovered is not None:
             models_list = discovered
 
-        b.add_endpoint_row(ep_name, display_name, api_url, models_list, is_current, native_catalog_empty)
+        b.add_endpoint_row(ep_name, display_name, api_url, models_list, is_current, native_catalog_empty,
+                           aliases=grp["aliases"])
         b.seen_slugs.update(ep_aliases)
         # Record every raw member name so section 4 can match per-model custom_providers rows
         # even though the group label was collapsed.
@@ -1081,6 +1085,8 @@ def _lap_custom_provider_rows(b: _PickerBuild, custom_providers: list) -> None:
         entry_extra_headers = _extra_headers_from_config(entry)
         prefix = _display_prefix(raw_name)
         provider_key = str(entry.get("provider_key") or "").strip()
+        if b.excluded.intersection(custom_provider_aliases(raw_name, provider_key)):
+            continue
         group_key = (api_url, cred_identity, api_mode, tuple(sorted(entry_extra_headers.items())), prefix.lower())
         display_name = prefix or raw_name
         grp = groups.setdefault(group_key, {
@@ -1136,7 +1142,8 @@ def _lap_custom_provider_rows(b: _PickerBuild, custom_providers: list) -> None:
                         credential_identity=grp["credential_identity"])
                 except Exception:
                     pass
-        b.add_endpoint_row(slug, grp["name"], grp["api_url"], grp["models"], is_current, native_catalog_empty)
+        b.add_endpoint_row(slug, grp["name"], grp["api_url"], grp["models"], is_current, native_catalog_empty,
+                           aliases=grp["aliases"])
         section4_slugs.add(slug.lower())
 
 
@@ -1183,6 +1190,7 @@ def _build_curated_lists(current_provider: str, current_base_url: str, current_m
     return curated
 
 
+@with_shared_credentials
 def list_authenticated_providers(
     current_provider: str = "", current_base_url: str = "", user_providers: dict = None,
     custom_providers: list | None = None, *, force_fresh_nous_tier: bool = False,

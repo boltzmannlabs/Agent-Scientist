@@ -81,7 +81,9 @@ Report actual service errors and incomplete outputs. Refresh status for expired 
 
 ## Molecular Docking
 
-Route molecular docking through Vina or DiffDock, with basic, flexible, and score-only behavior under the Vina mode.
+Predict ligand poses and docking scores within a defined protein search region using AutoDock Vina in basic, rigid-receptor mode. Inspect the returned poses and available interaction artifacts; docking scores are estimates, not measured binding affinities. Historical worker-failure notices still apply.
+
+[Product description and result interpretation](../boltchem-product-guide.md#molecular-docking)
 
 Exact job name: `Vina_basic_docking`.
 
@@ -245,7 +247,9 @@ Report actual service errors and incomplete outputs. Refresh status for expired 
 
 ## Flexible Docking
 
-Route molecular docking through Vina or DiffDock, with basic, flexible, and score-only behavior under the Vina mode.
+Predict ligand poses and docking scores with AutoDock Vina while allowing explicitly selected receptor residues to be flexible. Use the documented search-region and ligand inputs, and inspect the returned artifacts rather than assuming every product-level visualization is available.
+
+[Product description and result interpretation](../boltchem-product-guide.md#molecular-docking)
 
 Exact job name: `Vina_Flexible_Docking`.
 
@@ -405,7 +409,9 @@ Report actual service errors and incomplete outputs. Refresh status for expired 
 
 ## Molecular Docking — Vina Score Only Mode
 
-Route molecular docking through Vina or DiffDock, with basic, flexible, and score-only behavior under the Vina mode.
+Evaluate supplied ligand poses against a receptor using AutoDock Vina score-only mode. Report returned scores and available artifacts without claiming a new docking search, optimized pose or experimentally measured affinity.
+
+[Product description and result interpretation](../boltchem-product-guide.md#molecular-docking)
 
 Exact job name: `Vina_Score_only_docking`.
 
@@ -530,7 +536,9 @@ Report actual service errors and incomplete outputs. Refresh status for expired 
 
 ## Molecular Docking — DiffDock Mode
 
-Molecular Docking is one product tool with Vina and DiffDock modes. In the Vina mode, leaving both feature boxes unchecked selects basic docking; selecting Flexible docking or Score only routes to the corresponding Vina submode. Read the canonical `mode_families` and corresponding job entries for the complete mode router and evidence levels.
+Predict ligand–protein binding poses with DiffDock in blind-docking mode without a predefined binding site. Inspect returned poses, confidence information and available interaction artifacts; do not treat confidence as a Vina energy score or experimentally measured affinity.
+
+[Product description and result interpretation](../boltchem-product-guide.md#molecular-docking)
 
 Exact job name: `Diffdock`.
 

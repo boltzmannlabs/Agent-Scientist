@@ -12,7 +12,10 @@
 # ============================================================================
 # Setup and activation both prepare the isolated test interpreter; installers
 # invoke pm.cli directly and do not select it. -TestExtras overrides coverage.
-param([switch]$RuntimeOnly, [string]$TestExtras = '')
+# -UserInstall (install-sci.ps1, the end-user wrapper) skips the developer/test
+# dependency groups and the .env template — the same contract as
+# setup-sci.sh --user-install.
+param([switch]$RuntimeOnly, [switch]$UserInstall, [string]$TestExtras = '')
 $ErrorActionPreference = 'Stop'
 
 Write-Host ''
@@ -88,7 +91,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'bootstrap Python installation failed' }
     $bootPy = (& $uv python find --managed-python $pyRequest) -join "`n"
     if ($LASTEXITCODE -ne 0 -or -not $bootPy) { throw 'bootstrap Python lookup failed' }
-    & $bootPy.Trim() -m pm.cli install $(if ($RuntimeOnly) { '--trust-recorded' }) "--test-environment=$TestExtras"
+    $pmArgs = @()
+    if (-not $UserInstall) { $pmArgs += "--test-environment=$TestExtras" }
+    if ($RuntimeOnly) { $pmArgs += '--trust-recorded' }
+    & $bootPy.Trim() -m pm.cli install @pmArgs
     if ($LASTEXITCODE -ne 0) { throw 'pm install failed - see output above.' }
 } finally {
     Pop-Location
@@ -101,7 +107,9 @@ if ($RuntimeOnly) { exit 0 }
 # Environment file
 # ---------------------------------------------------------------------------
 $envFile = Join-Path $repo '.env'
-if (-not (Test-Path $envFile)) {
+if ($UserInstall) {
+    Write-Host 'Personal credentials are configured in the SCI setup wizard.' -ForegroundColor Cyan
+} elseif (-not (Test-Path $envFile)) {
     if (Test-Path (Join-Path $repo '.env.example')) {
         Copy-Item (Join-Path $repo '.env.example') $envFile
         Write-Host 'Created .env from template' -ForegroundColor Green
@@ -111,22 +119,38 @@ if (-not (Test-Path $envFile)) {
 }
 
 # ---------------------------------------------------------------------------
+# Publish user-facing launchers (checkout-local .sci\bin plus the user bin dir)
+# ---------------------------------------------------------------------------
+Write-Host 'Setting up sci command...' -ForegroundColor Cyan
+$binDir = if ($env:SCI_HOME) { Join-Path $env:SCI_HOME 'bin' } else { Join-Path $env:LOCALAPPDATA 'sci\bin' }
+& $bootPy.Trim() -I -X utf8 (Join-Path $repo 'sci_cli/_launchers.py') $binDir
+if ($LASTEXITCODE -ne 0) { throw 'launcher publication failed' }
+Write-Host "Published Sci commands in $binDir" -ForegroundColor Green
+
+# ---------------------------------------------------------------------------
 # Seed bundled skills into ~/.sci/skills/
 # ---------------------------------------------------------------------------
 $skillsDir = if ($env:SCI_HOME) { Join-Path $env:SCI_HOME 'skills' } else { Join-Path $HOME '.sci/skills' }
 New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
-$sync = Join-Path $repo 'tools/skills_sync.py'
-$venvPy = Join-Path $repo 'venv/Scripts/python.exe'
-if ((Test-Path $sync) -and (Test-Path $venvPy)) {
-    & $venvPy $sync 2>$null
-    Write-Host 'Skills synced' -ForegroundColor Green
-}
+Write-Host "Syncing bundled skills to $skillsDir ..."
+$localCli = @('sci.exe', 'sci.cmd') |
+    ForEach-Object { Join-Path $repo ".sci/bin/$_" } |
+    Where-Object { Test-Path -LiteralPath $_ } |
+    Select-Object -First 1
+if (-not $localCli) { throw 'checkout-local sci launcher is missing; launcher publication did not complete' }
+& $localCli --run-module tools.skills_sync
+if ($LASTEXITCODE -ne 0) { throw 'Bundled skill synchronization failed; installation is incomplete.' }
+Write-Host 'Skills synced' -ForegroundColor Green
 
 # ---------------------------------------------------------------------------
 # Done
 # ---------------------------------------------------------------------------
 Write-Host ''
 Write-Host 'Setup complete!' -ForegroundColor Green
+if ($UserInstall) {
+    Write-Host 'Start Agent Scientist with: agent-sci'
+    exit 0
+}
 Write-Host ''
 Write-Host 'Next steps:'
 Write-Host ''

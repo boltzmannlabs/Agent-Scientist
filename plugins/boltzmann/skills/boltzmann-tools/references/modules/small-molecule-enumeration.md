@@ -8,7 +8,9 @@ and inspect all returned artifacts. Never invent inputs or reuse another user's 
 
 ## Create Dataset
 
-Create a small-molecule dataset from a target, measurement type, and assay type.
+Create a project-linked dataset of SMILES and associated bioactivity or assay measurements, organized by target gene, assay type and measurement endpoint. Saved datasets provide the required training data for the platform's Custom Property Model regression and classification workflows.
+
+[Product description and result interpretation](../boltchem-product-guide.md#create-dataset)
 
 Exact job name: `dataset_creation`.
 

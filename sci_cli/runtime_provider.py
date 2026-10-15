@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 from sci_cli import auth as auth_mod
 from agent.credential_pool import (  # custom_provider_pool_key_candidates is read via origin by runtime_provider_custom
-    CredentialPool, PooledCredential, credential_pool_matches_provider, custom_provider_pool_key_candidates,  # noqa: F401
+    CredentialPool, PooledCredential, credential_pool_matches_provider,
     load_pool,
 )
 from agent.secret_scope import get_secret_str
@@ -29,6 +29,10 @@ from sci_cli.auth import (  # resolve_external_process_provider_credentials is r
     has_usable_secret, is_actual_local_base_url, looks_like_openrouter_key, normalize_actual_base_url,
 )
 from sci_cli import config as _config_mod
+from sci_cli.shared_llm import (
+    provider_config, with_shared_credentials,
+    custom_pool_candidates as custom_provider_pool_key_candidates,
+)
 from sci_cli import models as _models  # attribute access keeps ``sci_cli.models.<name>`` patches effective
 from sci_constants import OPENROUTER_BASE_URL
 from sci_cli.providers import determine_api_mode, get_provider, is_actual_route, is_official_openai_host, nous_api_mode
@@ -39,7 +43,7 @@ from utils import base_url_host_matches, base_url_hostname, base_url_path, env_i
 # lazily, so its first import can happen while a test has ``sci_cli.config.load_config`` patched
 # — a from-import would bind the MagicMock permanently and poison every later caller.
 def load_config():
-    return _config_mod.load_config()
+    return provider_config(_config_mod.load_config())
 
 
 def get_compatible_custom_providers(config=None):
@@ -866,7 +870,7 @@ _LOCAL_BYPASS_CLOUD_HOSTS = ("openrouter.ai", "anthropic.com", "openai.com")
 def _raise_if_provider_disabled(requested_provider: str) -> None:
     """Honour ``providers.<name>.enabled: false`` for built-ins too (the custom lookup gate only
     covers custom blocks); a typed error lets the fallback chain advance."""
-    full_cfg = _config_mod.load_config()
+    full_cfg = load_config()
     provs_cfg = full_cfg.get("providers") if isinstance(full_cfg, dict) else None
     block = provs_cfg.get(requested_provider) if isinstance(provs_cfg, dict) else None
     if isinstance(block, dict) and not _config_mod.is_provider_enabled(block):
@@ -979,6 +983,7 @@ def _openrouter_fallback(requested_provider, explicit_api_key, explicit_base_url
                                             explicit_base_url=explicit_base_url), requested_provider)
 
 
+@with_shared_credentials
 def resolve_runtime_provider(*, requested: Optional[str] = None, explicit_api_key: Optional[str] = None,
                              explicit_base_url: Optional[str] = None, target_model: Optional[str] = None) -> Dict[str, Any]:
     """Resolve runtime provider credentials for agent execution. Ladder (order is behavior — each

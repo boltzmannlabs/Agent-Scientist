@@ -31,7 +31,7 @@ use `bash ./install-sci.sh --non-interactive`, then configure your provider with
 
 Use `sci setup` or `sci model` for your selected model provider. No hosted-product
 login is required by SCI. Tools may require their own credentials. Authorize
-Boltzmann using `/Add_boltz` and its masked key prompt; never paste keys in chat.
+Boltzmann using `/add_boltzmann` and its masked key prompt; never paste keys in chat.
 
 ## State and verification
 
@@ -42,7 +42,7 @@ need separate tool/environment checks; installed instructions do not install sof
 
 ## Other platforms and updates
 
-Windows source setup uses the checkout's `setup-sci.ps1` and local instructions.
+Windows source setup uses the checkout's `install-sci.ps1` and local instructions.
 Native Windows/macOS packages, Nix and Termux distribution are not release-certified.
 No public download, signing identity, package repository or update feed is promised.
 Automatic publication and self-update remain blocked until SCI endpoints are verified.

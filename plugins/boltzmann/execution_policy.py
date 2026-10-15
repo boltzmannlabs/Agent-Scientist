@@ -10,7 +10,7 @@ from .auth import available
 
 AUTHORIZED_EXECUTION_POLICY = """Boltzmann scientific execution routing
 
-This profile had /Add_boltz authorization when this session's policy was built.
+This profile had /add_boltzmann authorization when this session's policy was built.
 That is not a live service check or permission to bypass session tool restrictions.
 For questions like 'what Boltzmann tools do we have', load boltzmann:tools and
 read references/tool-contracts.v1.json (the same catalog as /boltzmann_tools).
@@ -43,7 +43,7 @@ inspect GPUs or install/download a local generator before this provider decision
 
 If the session cannot discover the required plugin tools or boltzmann:tools,
 stop and explain the missing setup/session access; request a restart of agent-sci
-after /Add_boltz. Do not treat deferred activation as 'no suitable tool exists'.
+after /add_boltzmann. Do not treat deferred activation as 'no suitable tool exists'.
 If authentication fails, a contract is blocked, or scientific inputs are missing,
 stop and explain/ask; do not silently switch providers. For a nonmatching task,
 explain the limitation and obtain explicit approval before alternative scientific

@@ -50,7 +50,7 @@ def authorization_summary():
     restricted = ("boltzmann" not in plugins.get("enabled", []) or "boltzmann" in disabled or
                   (selected is not None and "boltzmann" not in selected))
     legacy = (get_sci_home() / "science-profile.json").is_file()
-    return ("Local authorization: " + ("present" if available() else "missing; use /Add_boltz") +
+    return ("Local authorization: " + ("present" if available() else "missing; use /add_boltzmann") +
             "; profile access: " + ("restricted/not selected" if restricted else "configured; execution gates still apply") +
             ("; legacy isolation policy applies" if legacy else "") +
             ". Catalog visibility is not execution permission, live entitlement, or readiness verification.")

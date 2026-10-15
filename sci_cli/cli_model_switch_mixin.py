@@ -725,6 +725,11 @@ class CLIModelSwitchMixin:
         stage = state.get("stage")
         if stage == "provider":
             providers = state.get("providers") or []
+            if selected == len(providers):
+                self._close_model_picker()
+                from sci_cli.provider_removal import dispatch
+                dispatch(self, "remove", providers)
+                return
             if selected >= len(providers):
                 self._close_model_picker()
                 return
@@ -825,6 +830,9 @@ class CLIModelSwitchMixin:
         from sci_cli.model_switch import parse_model_switch_args, resolve_persist_behavior
 
         parts = cmd_original.split(None, 1)  # split off '/model'
+        from sci_cli.provider_removal import dispatch as dispatch_removal
+        if dispatch_removal(self, parts[1].strip() if len(parts) > 1 else ""):
+            return
         request = parse_model_switch_args(parts[1].strip() if len(parts) > 1 else "")
         if request.errors:
             # CLI decoration: "  ✗ " prefix over the canonical error copy.
