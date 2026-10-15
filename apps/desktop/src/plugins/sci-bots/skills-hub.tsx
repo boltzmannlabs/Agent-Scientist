@@ -55,6 +55,7 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
     if (searching || (browsePage === undefined && !q)) {
       return
     }
+
     const attempt = ++generation.current
     setSearching(true)
     setResults(null)
@@ -74,6 +75,7 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
       if (attempt !== generation.current) {
         return
       }
+
       setResults(res.items ?? res.results ?? [])
       setPage(res.page ?? 1)
       setPages(res.total_pages ?? 1)
@@ -114,6 +116,7 @@ export function HubSkillsSection({ bot, onInstalled }: HubSkillsSectionProps) {
       if (installOwner !== ownerGeneration.current) {
         return
       }
+
       setInstalled(prev => ({
         ...prev,
         [label]: true

@@ -13,6 +13,7 @@ function releasePalette(section: 'colors' | 'light_colors') {
     if (heading) {
       current = heading[1]!
     }
+
     const entry = /^ {2}(\w+): "(#[0-9A-Fa-f]{6})"$/.exec(line)
 
     if (current === section && entry) {

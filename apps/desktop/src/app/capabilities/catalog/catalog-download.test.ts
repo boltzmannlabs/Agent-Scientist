@@ -13,9 +13,11 @@ afterEach(() => {
 
 it('uses the selected backend A → B → A without contacting public catalogs', async () => {
   const api = vi.fn(async (request: { profile?: string }) => ({ skills: [{ name: request.profile }] }))
+
   const fetch = vi.fn(() => {
     throw new Error('unexpected website request')
   })
+
   vi.stubGlobal('window', { sciDesktop: { api } })
   vi.stubGlobal('fetch', fetch)
 
