@@ -1,5 +1,9 @@
 # Dependabot configuration for sci-agent.
 #
+# Automatic version-update PRs are paused at the maintainer's request.
+# Restore a positive open-pull-requests-limit to resume them. Security-update
+# PRs are controlled separately by the repository's Code security settings.
+#
 # Deliberately scoped to github-actions only.
 #
 # We do NOT enable Dependabot for pip / npm / any source-dependency ecosystem
@@ -27,7 +31,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
       - "github-actions"
