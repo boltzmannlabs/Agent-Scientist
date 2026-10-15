@@ -26,8 +26,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "monthly"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -36,7 +35,7 @@ updates:
       prefix: "chore(actions)"
       include: "scope"
     groups:
-      # Batch routine action bumps into one PR per week to reduce noise.
+      # Batch routine action bumps into one PR per month to reduce noise.
       # Security updates still open individually and bypass grouping.
       actions-minor-patch:
         update-types:
