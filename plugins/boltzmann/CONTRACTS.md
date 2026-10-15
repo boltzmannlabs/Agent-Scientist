@@ -61,6 +61,19 @@ Developer evidence is retained in `contract_sources/`, outside active skill
 knowledge. It is historical evidence, not a second runtime catalog. See
 `READINESS_AUDIT.md` for the current verification boundary and full inventory.
 
+`contract_sources/diagnostic-collections.csv` preserves explicit job-to-collection
+evidence recovered from the maintained `tool-outcome-collections.csv`; sample
+document IDs and machine-specific paths are intentionally excluded. Its mappings
+are incorporated into canonical `diagnostics`, not loaded as another runtime
+registry. `ContractStore.diagnostic_collection()` resolves exact-job `matched`
+or `source_documented` records only and rejects missing or conflicting mappings.
+Historical evidence does not establish present service availability.
+
+The diagnostic helper accepts `job_name` and `experiment_id`, preserving legacy
+explicit `collection` calls. If both job and collection are supplied, they must
+agree. Normal status polling still uses the original job name and document ID;
+diagnostic-resolution failure neither blocks polling nor implies job failure.
+
 Native and MCP interfaces share the same handlers. Status always refreshes from
 the service rather than reusing terminal responses with expired signed links.
 Downloads preserve same-named artifacts instead of overwriting earlier files.

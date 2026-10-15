@@ -94,7 +94,8 @@ SCHEMAS = [
     {
         "name": "boltzmann_fetch_tool_log",
         "description": (
-            "Read the durable platform-tools record for a known collection and experiment ID. "
+            "Read a durable platform-tools record using job_name and the returned experiment_id. "
+            "Resolves the documented collection automatically; never guess a collection. "
             "This is diagnostic and never submits or mutates a job."
         ),
         "input_schema": {
@@ -102,14 +103,18 @@ SCHEMAS = [
             "properties": {
                 "collection": {
                     "type": "string",
-                    "description": "Verified durable collection name from the skill contract.",
+                    "description": "Optional verified collection for existing callers. If job_name is supplied, this must match its documented collection.",
+                },
+                "job_name": {
+                    "type": "string",
+                    "description": "Exact submitted job name; resolves the diagnostic collection from the installed contract.",
                 },
                 "experiment_id": {
                     "type": "string",
                     "description": "Exact document ID returned by the current workflow.",
                 },
             },
-            "required": ["collection", "experiment_id"],
+            "required": ["experiment_id"],
             "additionalProperties": False,
         },
     },

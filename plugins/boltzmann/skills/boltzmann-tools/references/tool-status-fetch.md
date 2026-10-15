@@ -16,7 +16,7 @@ Omics checkpoints, conversation memory, or the existing workflow logger.
 
 When `boltzmann_status` receives a terminal `failed` or `error` response,
 summarize its sanitized diagnostic. If more detail is needed and a verified
-collection mapping exists, explicitly call the read-only log helper. Do not
+documented collection mapping exists, explicitly call the read-only log helper. Do not
 claim an automatic durable lookup occurred when no such call was made.
 
 ## Endpoint contract
@@ -39,22 +39,29 @@ uses v5 by default and allows an operator-provided
 ## Safe invocation
 
 Use the registered `boltzmann_fetch_tool_log` tool only after the current
-conversation contains a successful submit/workflow record with the exact
-collection and document ID. Resolve the collection from
-the selected entry's `diagnostics` in `references/tool-contracts.v1.json` only when its mapping is non-empty
-and unambiguous. Resolve the ID from the immediate submit response or the
-current conversation's workflow record. Do not infer either value from
-arbitrary user text.
+conversation contains an accepted submit/workflow record with the exact job
+name and document ID. Pass `job_name` and `experiment_id`; the handler resolves
+the collection from the selected entry's `diagnostics` in
+`references/tool-contracts.v1.json`. Only exact-job `source_documented` or
+`matched` records participate. Source-only and superseded historical candidates
+are not mappings. Missing or conflicting mappings stop this diagnostic lookup,
+not ordinary status polling, and do not establish that a job failed.
+
+For example, `Random_Antibody_Generation` resolves to `AB_GEN`, not to a
+collection named after the job. These are documented mappings, not a claim of
+current service availability. Never test alternative collections to find a job.
+Resolve the ID from the immediate submit response or the current conversation's
+workflow record; do not invent it or reuse a historical sample ID.
 
 If the selected module gives a durable collection that differs from the
-submission job name, use that exact collection (for example, `equidock` for
-Vina score-only) in the lookup. The submission job name must still be used
-for live `boltzmann_status` polling.
+submission job name, the resolver preserves that exact collection (for example,
+`equidock` for Vina score-only). Existing callers may still supply a verified
+`collection` explicitly; supplying both requires a match. The submission job
+name must still be used for live `boltzmann_status` polling.
 
-The runtime may pass the current conversation ID, request ID, and bearer
-credential as hidden tool context. Never put credentials, raw Mongo documents,
-or signed download URLs in user-facing text; the adapter redacts credentials
-and bounds large documents before returning them to the model.
+The handler obtains credentials from the active profile. Never put credentials,
+raw Mongo documents, or signed download URLs in user-facing text. Summarize only
+the relevant diagnostic; do not assume arbitrary returned documents are redacted.
 
 ## Reconciliation and failure semantics
 

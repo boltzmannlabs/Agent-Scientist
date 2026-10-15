@@ -496,7 +496,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "act_seek",
+          "collection_name": "actseek",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 22,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Antibody_Backbone_to_Sequence_Generation": {
       "display_name": "Antibody Backbone to Sequence Generation",
@@ -541,7 +551,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Antibody_Backbone_to_Sequence_Generation",
+          "collection_name": "SEQ_PRED",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 3,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Antibody_Numbering": {
       "display_name": "Antibody Numbering",
@@ -596,7 +616,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Antibody_Numbering",
+          "collection_name": "AbNumber",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 4,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Antibody_Prediction": {
       "display_name": "Antibody Property Prediction",
@@ -662,7 +692,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Antibody_Prediction",
+          "collection_name": "AB_PROP",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 72,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "agcdr_diff": {
       "display_name": "Antibody RFD3",
@@ -715,7 +755,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "agcdr_diff",
+          "collection_name": "agcdr_diff",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 23,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "atom_mapping": {
       "display_name": "Atom Mapping",
@@ -756,7 +806,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "atom_mapping",
+          "collection_name": "atommapping",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 16,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Custom_Property_Model_DL": {
       "display_name": "Custom Property Model DL",
@@ -828,7 +888,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Custom_Property_Model_DL",
+          "collection_name": "property-predictors",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 24,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Custom_Property_Model_Automl": {
       "display_name": "Custom Property Model ML",
@@ -924,7 +994,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Custom_Property_Model_Automl",
+          "collection_name": "property-predictors",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 25,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Backbone_Generation": {
       "display_name": "Backbone Generation",
@@ -969,7 +1049,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Backbone_Generation",
+          "collection_name": "BACKBONE_GENERATION",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 5,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Binding_Site_Prediction": {
       "display_name": "Binding Site Prediction (fpocket)",
@@ -1005,7 +1095,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Binding_Site_Prediction",
+          "collection_name": "fpocket",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 26,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "BiomambaRna": {
       "display_name": "BiomambaRna",
@@ -1054,6 +1154,15 @@
           "sandbox_reference": "rna-generation.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "BiomambaRna",
+          "collection_name": "BiomambaRna",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 27,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -1116,7 +1225,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Boltz2",
+          "collection_name": "boltz_structure_prediction",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 28,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "boltzgen": {
       "display_name": "BoltzGen",
@@ -1294,7 +1413,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "boltzgen",
+          "collection_name": "boltzgen",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 29,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Butina_Clustering": {
       "display_name": "Butina Clustering",
@@ -1375,7 +1504,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Butina_Clustering",
+          "collection_name": "butinaclustering",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 30,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Cat_Pred": {
       "display_name": "Cat_Pred (Catalyst Prediction)",
@@ -1501,7 +1640,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "CDR_Generator",
+          "collection_name": "Antibody_CDR",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 31,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "CodonRLBERTPropPred": {
       "display_name": "CDS Property Prediction",
@@ -1570,6 +1719,15 @@
           "sandbox_reference": "rna-property-prediction.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "CodonRLBERTPropPred",
+          "collection_name": "CodonRLBERTPropertyPrediction",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 32,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -1626,8 +1784,8 @@
           "source_file": "All_product_features_info - RNA_APIs.csv",
           "source_row": "16",
           "sandbox_reference": "",
-          "mapping_status": "source_only",
-          "notes": "no matching sandbox contract found in current references"
+          "mapping_status": "superseded",
+          "notes": "Historical association superseded: CircRNA_evaluate maps to CircRNAEvaluate, not CircRNA."
         },
         {
           "domain": "rna",
@@ -1641,6 +1799,15 @@
           "sandbox_reference": "",
           "mapping_status": "source_only",
           "notes": "no matching sandbox contract found in current references"
+        },
+        {
+          "job_name": "CircRNA",
+          "collection_name": "CircRNA",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 33,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -1683,7 +1850,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "CircRNAEvaluate",
+          "collection_name": "CircRNA_evaluate",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 34,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Clean": {
       "display_name": "Clean (Enzyme Classification)",
@@ -1718,7 +1895,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Clean",
+          "collection_name": "clean",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 35,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "CodonRLBERT": {
       "display_name": "CodonRLBERT",
@@ -1773,6 +1960,15 @@
           "sandbox_reference": "rna-translation-codon.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "CodonRLBERT",
+          "collection_name": "CodonRLBERT",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 36,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -1815,7 +2011,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "condition_recommendation",
+          "collection_name": "condition_recommendation",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 17,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "dataset_creation": {
       "display_name": "Create Dataset",
@@ -1872,7 +2078,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": [],
+      "diagnostics": [
+        {
+          "job_name": "dataset_creation",
+          "collection_name": "datasets",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 37,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ],
       "product_documentation": "boltchem-product-guide.md#create-dataset"
     },
     "crispr_base_editing": {
@@ -1933,6 +2149,15 @@
           "sandbox_reference": "rna-grna-design.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "crispr_base_editing",
+          "collection_name": "crispr_base_editing",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 38,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -2102,6 +2327,15 @@
           "sandbox_reference": "rna-grna-design.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "gRNA_design",
+          "collection_name": "crispr_design",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 39,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -2166,6 +2400,15 @@
           "sandbox_reference": "",
           "mapping_status": "source_only",
           "notes": "no matching sandbox contract found in current references"
+        },
+        {
+          "job_name": "crispr_fs_score",
+          "collection_name": "crispr_lindel",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 40,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -2230,6 +2473,15 @@
           "sandbox_reference": "rna-grna-design.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "crispr_score",
+          "collection_name": "crispr_azimuth",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 41,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -2279,7 +2531,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "cyclic_binder",
+          "collection_name": "colabdesign",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 42,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Insilico_Directed_Evolution": {
       "display_name": "Directed Evolution (MLDE)",
@@ -2334,7 +2596,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Insilico_Directed_Evolution",
+          "collection_name": "mlde",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 6,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Enzymes": {
       "display_name": "Enzymes",
@@ -2386,7 +2658,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Enzymes",
+          "collection_name": "ENZ_PROP",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 43,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Evobind": {
       "display_name": "Evobind",
@@ -2491,7 +2773,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "forward_reaction",
+          "collection_name": "forward_reaction",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 20,
+          "evidence": "live_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Fragment_Based_Optimization": {
       "display_name": "Fragment-Based Optimization",
@@ -2706,7 +2998,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Function_Based_Enzyme_Generation",
+          "collection_name": "Enz_CTRL",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 44,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Genzyme_Generation": {
       "display_name": "Genzyme Generation",
@@ -2763,7 +3065,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Genzyme_Generation",
+          "collection_name": "genzyme",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 45,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Geometry_Optimization": {
       "display_name": "Geometry Optimization",
@@ -2968,7 +3280,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": [],
+      "diagnostics": [
+        {
+          "job_name": "global_ic50",
+          "collection_name": "IC50",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 46,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ],
       "product_documentation": "boltchem-product-guide.md#ic50"
     },
     "Lead_Generation_Graph_GA": {
@@ -3299,7 +3621,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "igdesign",
+          "collection_name": "igdesign",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 47,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "impurity_prediction": {
       "display_name": "Impurity Prediction",
@@ -3340,7 +3672,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "impurity_prediction",
+          "collection_name": "impurities",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 18,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "K_Means_Clustering": {
       "display_name": "K-Means Clustering",
@@ -3401,7 +3743,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "K_Means_Clustering",
+          "collection_name": "kmeansclustering",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 48,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "kcatnet": {
       "display_name": "Kcatnet",
@@ -3436,7 +3788,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "kcatnet",
+          "collection_name": "kcatnet",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 49,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "kcat_km": {
       "display_name": "Kinetic Kcat",
@@ -3481,7 +3843,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "kcat_km",
+          "collection_name": "kcat_km",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 50,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Lead_Generation_Augmented": {
       "display_name": "Lead Generation — Augmented",
@@ -3683,7 +4055,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Lead_Generation_Augmented",
+          "collection_name": "leadopt_augmented",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 51,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Lead_Generation_Reinvent": {
       "display_name": "Lead Generation — Reinvent",
@@ -3895,7 +4277,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Lead_Generation_Reinvent",
+          "collection_name": "leadopt_reinvent",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 52,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Lead_Optimization_Mcts": {
       "display_name": "Lead Optimization MCTS",
@@ -4275,7 +4667,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Ligand_MPNN",
+          "collection_name": "ligand_mpnn",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 53,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "MegaDock": {
       "display_name": "MegaDock",
@@ -4316,7 +4718,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "MegaDock",
+          "collection_name": "megadock_gpu",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 7,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Vina_basic_docking": {
       "display_name": "Molecular Docking",
@@ -4610,6 +5022,15 @@
           "sandbox_reference": "small-molecule-toolbox.md",
           "mapping_status": "matched",
           "notes": "live Mongo document verified 2026-09-11 for Vina score-only experiment CURRENT_JOB_ID"
+        },
+        {
+          "job_name": "Vina_Score_only_docking",
+          "collection_name": "equidock",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 54,
+          "evidence": "live_read_2026-09-12",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ],
       "product_documentation": "boltchem-product-guide.md#molecular-docking"
@@ -4664,7 +5085,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": [],
+      "diagnostics": [
+        {
+          "job_name": "Diffdock",
+          "collection_name": "diffdock",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 55,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ],
       "product_documentation": "boltchem-product-guide.md#molecular-docking"
     },
     "MDS_openMM": {
@@ -4928,7 +5359,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Protein_Structure_Prediction",
+          "collection_name": "monomer_structure_prediction",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 10,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Motiff_Scaffolding": {
       "display_name": "Motif Scaffolding",
@@ -4993,7 +5434,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Motiff_Scaffolding",
+          "collection_name": "inference_scaffolding",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 56,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rna_property_calculation": {
       "display_name": "mRNA Property Calculation",
@@ -5063,7 +5514,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Multimer_Structure_Prediction",
+          "collection_name": "colabfold_multimer",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 57,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Netsolp": {
       "display_name": "NetsolP (Solubility)",
@@ -5109,7 +5570,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Netsolp",
+          "collection_name": "solubility_prediction",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 8,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Novelty": {
       "display_name": "Novelty Check",
@@ -5172,7 +5643,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Novelty",
+          "collection_name": "novelty",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 58,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Pep_Patch": {
       "display_name": "Pep_Patch",
@@ -5206,7 +5687,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Pep_Patch",
+          "collection_name": "pep_patch",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 59,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Peptide_Property_Prediction": {
       "display_name": "Peptide Property Prediction",
@@ -5321,7 +5812,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "peptiverse",
+          "collection_name": "peptiverse",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 21,
+          "evidence": "operator_and_public_docs_confirmed",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Pharmacophore_Hypothesis": {
       "display_name": "Pharmacophore Hypothesis (phcore_gen)",
@@ -5380,7 +5881,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Pharmacophore_Hypothesis",
+          "collection_name": "pharmacophore-hypothesis",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 60,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Pharmacophore_Screening": {
       "display_name": "Pharmacophore Screening",
@@ -5427,7 +5938,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Pharmacophore_Screening",
+          "collection_name": "ph_screening",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 61,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Pharmacophore_Based_Generator": {
       "display_name": "Pharmacophore-Based Generator (pgmg_molgen)",
@@ -5463,7 +5984,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Pharmacophore_Based_Generator",
+          "collection_name": "pharmacophore-generator",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 62,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Placer": {
       "display_name": "Placer",
@@ -5526,7 +6057,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Placer",
+          "collection_name": "placer",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 63,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "ppiflowmonomer": {
       "display_name": "PPI Flow Monomer",
@@ -5617,7 +6158,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "ppiflowmonomer",
+          "collection_name": "ppiflow",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 64,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "ppiflowantibody": {
       "display_name": "PPI Flow Antibody",
@@ -5701,7 +6252,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "ppiflowantibody",
+          "collection_name": "ppiflow",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 65,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Prodigy": {
       "display_name": "Prodigy (Binding Affinity)",
@@ -5745,7 +6306,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Prodigy",
+          "collection_name": "prodigy",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 66,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Property_Prediction": {
       "display_name": "Property Prediction (propinf)",
@@ -5885,7 +6456,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Property_Prediction",
+          "collection_name": "basic-property-prediction",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 67,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Rna_Inter_Pred": {
       "display_name": "Protein-RNA Interaction Prediction",
@@ -5939,6 +6520,15 @@
           "sandbox_reference": "rna-binding.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "Rna_Inter_Pred",
+          "collection_name": "Rna_Inter_Pred",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 68,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -6012,7 +6602,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "pxdesigninfer",
+          "collection_name": "pxdesign",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 69,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "QSPR_Screening": {
       "display_name": "QSPR Screening",
@@ -6155,7 +6755,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "QSPR_Screening",
+          "collection_name": "reward-based-screening",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 11,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Molecule_Enumeration": {
       "display_name": "R-Group Enumeration",
@@ -6258,7 +6868,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Molecule_Enumeration",
+          "collection_name": "rgroup_enumeration",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 70,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Random_Antibody_Generation": {
       "display_name": "Random Antibody Generation",
@@ -6305,7 +6925,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Random_Antibody_Generation",
+          "collection_name": "AB_GEN",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 71,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Random_based_generation_training": {
       "display_name": "Random based generation training",
@@ -6494,7 +7124,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Random_based_generation_training",
+          "collection_name": "custom-optimizers",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 73,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Random_Controlled_Mutagenesis": {
       "display_name": "Random Controlled Mutagenesis",
@@ -6559,7 +7199,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Random_Controlled_Mutagenesis",
+          "collection_name": "Mutagenesis",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 74,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Random_based_generation_nontrans": {
       "display_name": "Random Generation — Inference",
@@ -6730,7 +7380,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Random_based_generation_nontrans",
+          "collection_name": "random-generator",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 75,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Random_based_generation_Inference_transvaegen": {
       "display_name": "Random Generation — Inference",
@@ -6920,7 +7580,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Random_based_generation_Inference_transvaegen",
+          "collection_name": "transvae-generator",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 76,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "RC_Plot": {
       "display_name": "RC Plot",
@@ -6955,7 +7625,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "RC_Plot",
+          "collection_name": "RC_PLOT",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 77,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "retrosynthesis": {
       "display_name": "Retrosynthesis",
@@ -6995,7 +7675,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "retrosynthesis",
+          "collection_name": "retrosynthesis",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 19,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rfdiffusion_proteinmpnn": {
       "display_name": "RF-Antibody",
@@ -7052,7 +7742,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rfdiffusion_proteinmpnn",
+          "collection_name": "rf_antibody",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 78,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rna_inverse_fold": {
       "display_name": "RNA 2D Inverse Folding",
@@ -7118,6 +7818,15 @@
           "sandbox_reference": "",
           "mapping_status": "source_only",
           "notes": "no matching sandbox contract found in current references"
+        },
+        {
+          "job_name": "rna_inverse_fold",
+          "collection_name": "rna_inverse_fold",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 79,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -7165,7 +7874,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rnagen_3utr",
+          "collection_name": "GEMORNA",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 80,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rnagen_5utr": {
       "display_name": "RNA 5'UTR Generation",
@@ -7211,7 +7930,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rnagen_5utr",
+          "collection_name": "GEMORNA",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 81,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rnagen_cds": {
       "display_name": "RNA CDS Generation",
@@ -7252,7 +7981,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rnagen_cds",
+          "collection_name": "GEMORNA",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 82,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rnagen_cds_mrna-gen": {
       "display_name": "RNA mRNA Generation",
@@ -7316,7 +8055,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rnagen_cds_mrna-gen",
+          "collection_name": "GEMORNA",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 83,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rna_pocket_pred": {
       "display_name": "RNA Pocket Prediction",
@@ -7370,6 +8119,15 @@
           "sandbox_reference": "",
           "mapping_status": "source_only",
           "notes": "no matching sandbox contract found in current references"
+        },
+        {
+          "job_name": "rna_pocket_pred",
+          "collection_name": "pocket_pred",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 84,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -7406,7 +8164,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rna_property_prediction_incell_stabilty",
+          "collection_name": "RNA_PROP_PRED",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 12,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rna_property_prediction_mean_ribosomal_load": {
       "display_name": "RNA Property Prediction — Mean Ribosomal Load",
@@ -7441,7 +8209,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rna_property_prediction_mean_ribosomal_load",
+          "collection_name": "RNA_PROP_PRED",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 13,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "TertiaryFolding": {
       "display_name": "RNA Tertiary Folding",
@@ -7489,6 +8267,15 @@
           "sandbox_reference": "",
           "mapping_status": "source_only",
           "notes": "no matching sandbox contract found in current references"
+        },
+        {
+          "job_name": "TertiaryFolding",
+          "collection_name": "TertiaryFolding",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 85,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -7525,7 +8312,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rna_structure_prediction",
+          "collection_name": "RhoFold",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 86,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "RNA_Translation": {
       "display_name": "RNA Translation Prediction",
@@ -7579,6 +8376,15 @@
           "sandbox_reference": "",
           "mapping_status": "source_only",
           "notes": "no matching sandbox contract found in current references"
+        },
+        {
+          "job_name": "RNA_Translation",
+          "collection_name": "RNA_Translation",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 87,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -7639,6 +8445,15 @@
           "sandbox_reference": "rna-translation-codon.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "transla_score",
+          "collection_name": "transla_score",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 88,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -7694,6 +8509,15 @@
           "sandbox_reference": "rna-binding.md",
           "mapping_status": "matched",
           "notes": ""
+        },
+        {
+          "job_name": "rna_bind_specificity_pred",
+          "collection_name": "rna_bind_pred",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 89,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -7730,7 +8554,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "sec_struct_pred",
+          "collection_name": "sec_struct_pred",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 90,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Sequence_based_peptide_generation": {
       "display_name": "Sequence based peptide generation",
@@ -7780,7 +8614,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Sequence_based_peptide_generation",
+          "collection_name": "TARGET_PEP_GEN",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 14,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Similarity_Screening": {
       "display_name": "Similarity Screening",
@@ -7832,7 +8676,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Similarity_Screening",
+          "collection_name": "sim_screen",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 91,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Single_Point_Energy": {
       "display_name": "Single Point Energy",
@@ -7941,7 +8795,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Single_Point_Energy",
+          "collection_name": "Single_Point_Energy",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 15,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rna_siRNA_efficacy_pred": {
       "display_name": "siRNA Efficacy Prediction",
@@ -7983,7 +8847,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rna_siRNA_efficacy_pred",
+          "collection_name": "OligoFormer_Pred",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 92,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "rna_siRNA_gen": {
       "display_name": "siRNA Generation",
@@ -8022,7 +8896,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "rna_siRNA_gen",
+          "collection_name": "OligoFormer_Gen",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 93,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "siRNA_obj_pred": {
       "display_name": "siRNA Property Prediction",
@@ -8086,6 +8970,15 @@
           "sandbox_reference": "",
           "mapping_status": "source_only",
           "notes": "no matching sandbox contract found in current references"
+        },
+        {
+          "job_name": "siRNA_obj_pred",
+          "collection_name": "sirnaforge_pred",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 94,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     },
@@ -8150,7 +9043,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Solublempnn",
+          "collection_name": "solublempnn",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 95,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Structure_Based_Generator": {
       "display_name": "Structure-Based Generator",
@@ -8316,7 +9219,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Structure_Based_Generator",
+          "collection_name": "structure-based-generator",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 96,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Structure_based_peptide_generation": {
       "display_name": "Structure-Based Peptide Generation",
@@ -8357,7 +9270,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Structure_based_peptide_generation",
+          "collection_name": "TARGET_PEP_GEN",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 97,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Substructure_Screening": {
       "display_name": "Substructure Screening",
@@ -8428,7 +9351,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Substructure_Screening",
+          "collection_name": "substructure_screen",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 98,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "epitope_abgen": {
       "display_name": "Target-Aware CDR Designer / Epitope Conditioned Antibody Generation",
@@ -8571,7 +9504,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "epitope_abgen",
+          "collection_name": "epitope_abgen",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 99,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Thermal_MPNN": {
       "display_name": "Thermal MPNN",
@@ -8616,7 +9559,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Thermal_MPNN",
+          "collection_name": "ThermoMPNN",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 100,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "tm_align": {
       "display_name": "TM Align",
@@ -8659,7 +9612,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "tm_align",
+          "collection_name": "tmalign",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 101,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Uncondtional_Sampling": {
       "display_name": "Unconditional Sampling",
@@ -8702,7 +9665,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Uncondtional_Sampling",
+          "collection_name": "inference_unconditional",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 102,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "Vaccines": {
       "display_name": "Vaccines",
@@ -8766,7 +9739,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "Vaccines",
+          "collection_name": "PEP_PROP",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 9,
+          "evidence": "sample_verified",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "AntiBMPNN": {
       "display_name": "AntiBMPNN",
@@ -8826,7 +9809,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "AntiBMPNN",
+          "collection_name": "antibmpnn",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 103,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "ipsae-protein": {
       "display_name": "ipSAE Generation",
@@ -8884,7 +9877,17 @@
         "experiment_name_required": true,
         "payload_field": "experimentData"
       },
-      "diagnostics": []
+      "diagnostics": [
+        {
+          "job_name": "ipsae-protein",
+          "collection_name": "ipsae",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 104,
+          "evidence": "source_documented",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
+        }
+      ]
     },
     "ppiflowprotein": {
       "display_name": "PPI Flow Protein",
@@ -9191,6 +10194,15 @@
           "sandbox_reference": "modules/protein-optimization.md",
           "mapping_status": "matched",
           "notes": "Job confirmed by operator recording and public form; collection from product mapping"
+        },
+        {
+          "job_name": "stability-binding-ddg",
+          "collection_name": "stabddg",
+          "mapping_status": "source_documented",
+          "source_file": "contract_sources/diagnostic-collections.csv",
+          "source_row": 2,
+          "evidence": "product_mapping_and_operator_video_2026-09-25",
+          "notes": "Restored from maintained tool-outcome-collections.csv; historical evidence, not a current service check."
         }
       ]
     }

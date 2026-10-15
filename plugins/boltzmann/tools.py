@@ -14,6 +14,7 @@ from .nodeapi_helpers import (
     fetch_tool_log,
 )
 from .auth import current_key, require_authorized
+from .contracts import ContractStore
 from .preflight import decision, preflight_submission, validated_upload
 
 # Permanently retired platform jobs. Keep this enforcement at the submission
@@ -239,10 +240,22 @@ def handle_boltzmann_upload(**kwargs):
 
 def _handle_boltzmann_fetch_tool_log_inner(**kwargs):
     collection = kwargs.get("collection")
+    job_name = kwargs.get("job_name")
     experiment_id = kwargs.get("experiment_id")
-    if not collection or not experiment_id:
-        missing = [k for k in ("collection", "experiment_id") if not kwargs.get(k)]
-        return json.dumps({"error": f"Missing required arguments: {', '.join(missing)}"})
+    try:
+        if not experiment_id:
+            raise ValueError("Missing required argument: experiment_id.")
+        if job_name:
+            resolved = ContractStore().diagnostic_collection(job_name)
+            if collection and collection != resolved:
+                raise ValueError(f"Collection conflicts with the documented mapping for {job_name}: {resolved}.")
+            collection = resolved
+        elif not collection:
+            raise ValueError("Provide job_name for documented collection resolution, or a verified collection.")
+    except ValueError as exc:
+        return json.dumps({"error": str(exc), "stage": "diagnostic_lookup", "status": "not_started",
+                           "job_name": job_name, "experiment_id": experiment_id,
+                           "note": "Only diagnostic lookup stopped; the submitted job's outcome is unchanged."})
     result = fetch_tool_log(collection, experiment_id, token=_get_api_key())
     return json.dumps(result) if isinstance(result, dict) else result
 

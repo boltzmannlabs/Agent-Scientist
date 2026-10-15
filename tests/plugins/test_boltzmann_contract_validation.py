@@ -1,6 +1,35 @@
 """Contract coverage and preflight behavior; no scientific service is contacted."""
 
 
+def test_diagnostic_collection_resolution_requires_exact_documented_mapping():
+    import csv
+
+    import pytest
+
+    from plugins.boltzmann.contracts import ContractStore
+
+    store = ContractStore()
+    assert store.diagnostic_collection("Random_Antibody_Generation") == "AB_GEN"
+    evidence = store.root.parents[2] / "contract_sources/diagnostic-collections.csv"
+    with evidence.open() as source:
+        for row in csv.DictReader(source):
+            assert store.diagnostic_collection(row["job_name"]) == row["collection_name"]
+    store.tools["fixture"] = {"diagnostics": [
+        {"job_name": "another-job", "collection_name": "wrong", "mapping_status": "source_documented"},
+        {"job_name": "fixture", "collection_name": "candidate", "mapping_status": "source_only"},
+    ]}
+    with pytest.raises(ValueError, match="No documented"):
+        store.diagnostic_collection("fixture")
+    with pytest.raises(ValueError, match="Unknown"):
+        store.diagnostic_collection("invented-job")
+    store.tools["fixture"]["diagnostics"] += [
+        {"job_name": "fixture", "collection_name": name, "mapping_status": "source_documented"}
+        for name in ("one", "two")
+    ]
+    with pytest.raises(ValueError, match="Ambiguous"):
+        store.diagnostic_collection("fixture")
+
+
 def test_every_catalog_tool_has_explicit_contract_coverage():
     from plugins.boltzmann.contracts import ContractStore
     from plugins.boltzmann.contract_docs import generated_modules

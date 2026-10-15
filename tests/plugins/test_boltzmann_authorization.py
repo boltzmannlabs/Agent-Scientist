@@ -52,7 +52,15 @@ def auth_server(monkeypatch):
 
         def do_POST(self):
             state["calls"].append(self.path)
-            assert self.headers.get("Authorization") == "Bearer fixture-valid"
+            assert self.headers.get("Authorization") == "Bearer " + state.get("accepted_key", "fixture-valid")
+            if self.path == "/tool-log":
+                payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                state.setdefault("diagnostic_requests", []).append(payload)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"fixture_record": payload}).encode())
+                return
             if self.path == "/upload":
                 state["upload_bytes"] = self.rfile.read(int(self.headers["Content-Length"]))
                 self.send_response(200)
@@ -166,6 +174,54 @@ def test_main_and_named_profile_credentials_resolve_without_fallback(tmp_path, m
         plain_launch.delenv("SCI_HOME", raising=False)
         assert get_sci_home() == main
         assert auth.current_key() == "fixture-main"
+
+
+def test_diagnostic_lookup_resolves_collection_without_changing_job_or_profile(tmp_path, monkeypatch, auth_server):
+    state, endpoint = auth_server
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("SCI_HOME", str(tmp_path / "a"))
+    monkeypatch.delenv("SCI_BUNDLED_PLUGINS", raising=False)
+    monkeypatch.chdir(tmp_path)
+    with profile(tmp_path / "a"):
+        manager, module = discover(monkeypatch, endpoint)
+        auth = sys.modules[module.__name__ + ".auth"]
+        # Patch the globals actually bound by the real discovered handler.
+        monkeypatch.setitem(module.tools.fetch_tool_log.__globals__, "_TOOL_LOG_URL",
+                            endpoint.replace("/api/get-projects", "/tool-log"))
+        try:
+            for name in ("a", "b", "a"):
+                with profile(tmp_path / name):
+                    key = "fixture-" + name
+                    save_env_value("BOLTZMANN_API_KEY", key)
+                    auth.authorize_saved_key()
+                    state["accepted_key"] = key
+                    result = json.loads(module.tools.handle_boltzmann_fetch_tool_log(
+                        job_name="Random_Antibody_Generation", experiment_id="fixture-" + name))
+                    assert result["fixture_record"] == {
+                        "collection": "AB_GEN", "experiment_id": "fixture-" + name}
+                    for arguments in (
+                        {"job_name": "Random_Antibody_Generation", "collection": "wrong"},
+                        {"job_name": "unknown-job"},
+                        {},
+                    ):
+                        previous = list(state["diagnostic_requests"])
+                        result = json.loads(module.tools.handle_boltzmann_fetch_tool_log(
+                            experiment_id="fixture-" + name, **arguments))
+                        assert result["error"] and result["status"] == "not_started"
+                        assert state["diagnostic_requests"] == previous
+            # Existing keyword-based explicit collection calls remain supported.
+            result = json.loads(module.tools.handle_boltzmann_fetch_tool_log(
+                collection="AB_GEN", experiment_id="fixture-a"))
+            assert result["fixture_record"]["collection"] == "AB_GEN"
+            state["revoked"] = True
+            previous = list(state["diagnostic_requests"])
+            result = json.loads(module.tools.handle_boltzmann_fetch_tool_log(
+                job_name="Random_Antibody_Generation", experiment_id="fixture-a"))
+            assert result["authorization_required"]
+            assert state["diagnostic_requests"] == previous
+            assert set(state["calls"]) == {"/api/get-projects", "/tool-log"}
+        finally:
+            manager.unload()
 
 
 def test_command_is_required_and_activation_is_deferred_and_profile_local(tmp_path, monkeypatch, auth_server, capsys):

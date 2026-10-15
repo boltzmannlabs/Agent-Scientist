@@ -118,6 +118,24 @@ class ContractStore:
             raise ValueError(f"{job}.{name} is not declared as a local-file input in its request schema.")
         return self.files.get(job, {}).get("files", {}).get(name, {})
 
+    def diagnostic_collection(self, job):
+        """Resolve documented exact-job mappings, never guess from a job spelling."""
+        if job not in self.tools:
+            raise ValueError(f"Unknown Boltzmann job name: {job}.")
+        collections = {
+            record["collection_name"]
+            for record in self.tools[job].get("diagnostics", [])
+            if record.get("job_name") == job and record.get("collection_name")
+            and record.get("mapping_status") in {"matched", "source_documented"}
+        }
+        if not collections:
+            raise ValueError(f"No documented diagnostic collection mapping for {job}. "
+                             "Use boltzmann_status with the original job_name and doc_id; do not guess a collection.")
+        if len(collections) != 1:
+            raise ValueError(f"Ambiguous diagnostic collection mapping for {job}; lookup stopped. "
+                             "The submitted job's outcome is unchanged.")
+        return next(iter(collections))
+
     def file_fields(self, job):
         return {name: prop for name, prop in self.tool(job)["request_schema"]["properties"].items()
                 if prop.get("x-input-kind") in {"file", "file_or_value", "artifact"}}

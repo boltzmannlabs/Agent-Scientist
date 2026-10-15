@@ -114,9 +114,12 @@ the current job. Inspect required artifacts, counts and available metadata befor
 claiming completion. Unknown output shapes require inspection, not invented keys
 or fabricated results. Report partial results; never submit a top-up automatically.
 
-For a known job, `boltzmann_fetch_tool_log(collection, experiment_id)` can read
-diagnostics when the canonical record contains a verified collection mapping.
-Source-only or ambiguous mapping candidates are not permission to guess.
+For a known submitted job, call `boltzmann_fetch_tool_log` with its exact
+`job_name` and returned `experiment_id`. The handler resolves the documented
+collection from the canonical record; do not guess it from the job name.
+Source-only or ambiguous candidates are not permission to guess. Missing
+diagnostic mappings do not block ordinary `boltzmann_status` polling or prove
+generation failed. See `references/tool-status-fetch.md` for lookup semantics.
 
 Generic validators do not certify scientific correctness. Missing dependencies
 or specialized validators must be disclosed; never claim checks ran when they did not.

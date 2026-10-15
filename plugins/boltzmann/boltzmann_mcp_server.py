@@ -76,11 +76,13 @@ def boltzmann_upload(local_path: str, job_name: str, input_field: str,
 
 
 @mcp.tool()
-def boltzmann_fetch_tool_log(collection: str, experiment_id: str) -> str:
-    """Read one durable platform-tools record without mutating it."""
+def boltzmann_fetch_tool_log(experiment_id: str, collection: str | None = None,
+                             job_name: str | None = None) -> str:
+    """Read one durable record, resolving its collection from the exact submitted job name."""
     return handle_boltzmann_fetch_tool_log(
         collection=collection,
         experiment_id=experiment_id,
+        job_name=job_name,
     )
 
 
