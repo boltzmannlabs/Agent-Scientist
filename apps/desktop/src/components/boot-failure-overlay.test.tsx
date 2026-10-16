@@ -2,11 +2,14 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { en } from '@/i18n/en'
+import { downloadTextFile } from '@/lib/download-text'
 import { $desktopBoot } from '@/store/boot'
 import { $notifications } from '@/store/notifications'
 import { $desktopOnboarding } from '@/store/onboarding'
 
 import { BootFailureOverlay } from './boot-failure-overlay'
+
+vi.mock('@/lib/download-text', () => ({ downloadTextFile: vi.fn() }))
 
 // Remote-backend users hit a hard boot failure that isn't OAuth reauth (token
 // auth, wrong URL, unreachable host). The recovery screen must let them fix the
@@ -311,10 +314,9 @@ describe('BootFailureOverlay', () => {
       // Cloud-specific title + actionable recovery instead of the generic
       // remote-failure copy.
       expect(await screen.findByText(/Nous Cloud agent is down/i)).toBeTruthy()
-      // Portal and Discord are dedicated action buttons (localized labels
-      // can't drift the URLs, which live in code).
+      // Recovery keeps the service portal, not the inherited community chat.
       expect(screen.getByRole('button', { name: /check portal status/i })).toBeTruthy()
-      expect(screen.getByRole('button', { name: /get help on discord/i })).toBeTruthy()
+      expect(screen.queryByRole('button', { name: /get help on discord/i })).toBeNull()
       // Cloud-down is a remote failure: local-only Repair is dropped; the
       // actionable paths are Gateway settings + Use local gateway.
       expect(screen.queryByRole('button', { name: /repair/i })).toBeNull()
@@ -361,8 +363,9 @@ describe('BootFailureOverlay', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /reinstall the app/i }))
       await waitFor(() =>
-        expect(openExternal).toHaveBeenCalledWith('https://hermes-agent.nousresearch.com/docs/user-guide/desktop')
+        expect(downloadTextFile).toHaveBeenCalledWith('Agent-Scientist-Manual.md', expect.any(String), 'text/markdown')
       )
+      expect(openExternal).not.toHaveBeenCalled()
     } finally {
       restore()
     }

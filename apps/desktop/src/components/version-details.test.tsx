@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, describe, expect, it, type Mock, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { DesktopVersionInfo } from '@/global'
 import { I18nProvider } from '@/i18n'
@@ -110,26 +110,15 @@ describe('VersionDetails', () => {
     }
   })
 
-  it('opens the commit URL via the system-browser bridge without opening a preview tab', async () => {
-    const openExternal: Mock<Window['sciDesktop']['openExternal']> = vi
-      .fn<Window['sciDesktop']['openExternal']>()
-      .mockResolvedValue(undefined)
-
-    vi.stubGlobal('sciDesktop', { openExternal } satisfies Pick<Window['sciDesktop'], 'openExternal'>)
-
+  it('shows build provenance without linking to an inherited release repository', () => {
     render(
       <I18nProvider configClient={null} initialLocale="en">
         <VersionDetails version={{ ...baseVersion, commit: 'd233b6d7a9c5b79288e48dfb3b29e2ead106ac73' }} />
       </I18nProvider>
     )
 
-    fireEvent.click(screen.getByText('d233b6d7a9c5b7'))
-
-    await waitFor(() => {
-      expect(openExternal).toHaveBeenCalledWith(
-        'https://github.com/NousResearch/hermes-agent/commit/d233b6d7a9c5b79288e48dfb3b29e2ead106ac73'
-      )
-    })
+    expect(screen.getByText('d233b6d7a9c5b7')).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
     expect($previewTabs.get()).toHaveLength(0)
   })
 })

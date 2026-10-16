@@ -24,7 +24,7 @@ def test_local_setup_path_arguments_and_exit_code(tmp_path, exit_code):
         'Set-Content -LiteralPath $env:SETUP_CALL_LOG -Value $Marker\n'
         f'exit {exit_code}\n')
     result = subprocess.run(
-        ["cmd.exe", "/d", "/c", f'""{scripts / "install.cmd"}" -Marker "fixture value""'],
+        f'cmd.exe /d /s /c ""{scripts / "install.cmd"}" -Marker "fixture value""',
         env={**os.environ, "SETUP_CALL_LOG": str(log)},
         capture_output=True, text=True, timeout=20,
     )

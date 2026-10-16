@@ -241,7 +241,10 @@ test('packaging isolates boot metadata and executable names without renaming rel
     // all consume this resolved name, not the display name.
     assert.equal(appInfo.productFilename, identity.windowsExecutableName)
     assert.equal(config.mac.extendInfo.CFBundleExecutable, config.executableName)
-    assert.equal(config.artifactName, stable.artifactName)
+    assert.equal(
+      config.artifactName,
+      stable.artifactName.replace('${version}', process.env.SCI_PAYLOAD_VERSION || '${version}')
+    )
     assert.equal(config.msix.customManifestPath, 'build/msix-manifest.xml')
 
     const {

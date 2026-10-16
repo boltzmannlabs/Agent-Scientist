@@ -227,6 +227,11 @@ def world(root: Path, *, base: str, installer_ref: str | None = None,
         assert cp.returncode == 0, f"install ({installer_ref or 'HEAD'} installer, base {base[:12]}) failed:\n{w.diag(cp)}"
         head = w.head()
         assert head == base, f"installer left HEAD at {head}, expected {base}\n{w.diag(cp)}"
+        if preclone is not None and "--depth" in preclone:
+            # Current provisioning may deepen an existing checkout. Restore
+            # the legacy graph this scenario asks the updater to exercise.
+            depth = preclone[preclone.index("--depth") + 1]
+            w.git("fetch", "-q", "--depth", depth, "origin", "main")
         w.install_bytes = w.bytes_since(0)
         w.install_shape = w.shape()
         yield w

@@ -26,7 +26,8 @@ def _failing_install_env(tmp_path):
         git = tools / f"git-2.53.0+3-win32-{arch}" / "cmd" / "git.exe"
         git.parent.mkdir(parents=True)
         git.write_bytes(b"")
-    return dict(os.environ, SCI_HOME=str(home), SCI_RUNTIME_DIR=str(tools))
+    return dict(os.environ, SCI_HOME=str(home), SCI_RUNTIME_DIR=str(tools),
+                SCI_REPO_URL="https://github.com/boltzmannlabs/Agent-Scientist.git")
 
 
 def _powershell():

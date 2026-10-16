@@ -654,6 +654,7 @@ _ENTRIES = {
     "sci-acp-version": Entry("sci-acp", ("--version",), frozenset({0}), prints_version=True),
     "sci-acp-help": Entry("sci-acp", ("--help",), frozenset({0})),
     "sci-agent-help": Entry("sci-agent", ("--help",), frozenset({0})),
+    "agent-sci-help": Entry("agent-sci", ("--help",), frozenset({0})),
 }
 def _run_on_tty(argv: list[str], *, env: dict[str, str], cwd: Path, writable: list[Path],
                 timeout: float) -> subprocess.CompletedProcess:

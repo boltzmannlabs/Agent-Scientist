@@ -109,7 +109,7 @@ function channelRecord(channel: 'stable' | 'canary', sequence: number): FixtureR
   return {
     schema: 1,
     name: channel,
-    repository: 'NousResearch/hermes-agent',
+    repository: 'boltzmannlabs/Agent-Scientist',
     policy: channel === 'stable' ? 'stable-release' : 'canary-release',
     state: 'active',
     revision: 1,
@@ -159,7 +159,7 @@ function buildManifest(
       schema: 1,
       buildId: id,
       channel,
-      repository: 'NousResearch/hermes-agent',
+      repository: 'boltzmannlabs/Agent-Scientist',
       commit: sha,
       sourceVersion: tag.replace(/^v/, '').split('+')[0],
       releaseTag: tag,
@@ -168,7 +168,7 @@ function buildManifest(
       windowsVersion: `0.0.${sequence}.0`,
       identity,
       bundleEnv: {},
-      publicBase: 'https://hermes-assets.nousresearch.com'
+      publicBase: 'https://builds.example.test'
     },
     packages: [
       {
@@ -257,12 +257,12 @@ it('carries each install channel from Python publication checks into the source 
         })
       )
       responses.set(`/${manifestKey(channel)}`, body)
-      responses.set(`/repos/NousResearch/hermes-agent/releases/tags/${tags[channel]}`, {
+      responses.set(`/repos/boltzmannlabs/Agent-Scientist/releases/tags/${tags[channel]}`, {
         tag_name: tags[channel],
         draft: false,
         prerelease: channel === 'canary'
       })
-      responses.set(`/repos/NousResearch/hermes-agent/commits/${tags[channel]}`, { sha })
+      responses.set(`/repos/boltzmannlabs/Agent-Scientist/commits/${tags[channel]}`, { sha })
     }
 
     responses.set('/releases/stable/release-candidates.json', { tag: tags.stable, commit: commits[1] })
@@ -272,7 +272,7 @@ it('carries each install channel from Python publication checks into the source 
       JSON.stringify({
         schema: 1,
         name: 'main',
-        repository: 'NousResearch/hermes-agent',
+        repository: 'boltzmannlabs/Agent-Scientist',
         policy: 'source-branch',
         state: 'active',
         revision: 1,
@@ -304,7 +304,7 @@ original_build = urllib.request.build_opener
 passthrough = original_build().open
 def local(request, *args, **kwargs):
     parsed = urlsplit(request.full_url if isinstance(request, urllib.request.Request) else request)
-    assert parsed.hostname in ('sci-assets.nousresearch.com', 'api.github.com')
+    assert parsed.hostname in ('builds.example.test', 'api.github.com')
     url = 'http://127.0.0.1:${address.port}' + parsed.path + ('?' + parsed.query if parsed.query else '')
     # ChannelReader compares response.geturl() against the ORIGINAL request url:
     # wrap so the redirect detector still sees the un-rewritten authority.
@@ -319,6 +319,8 @@ def local_build(*args, **kwargs):
     opener.open = local
     return opener
 urllib.request.build_opener = local_build
+import sci_cli.source_releases as releases
+releases._PUBLIC_BASE = "https://builds.example.test"
 `
     )
     vi.stubEnv('SCI_MANAGED', '')

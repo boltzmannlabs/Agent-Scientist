@@ -6,7 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 
 import type { Configuration } from 'app-builder-lib'
-import { afterEach, test } from 'vitest'
+import { afterEach, test, vi } from 'vitest'
 
 import type { ChannelBuildRequest, InstallStamp } from './install-stamp'
 import { applyDesktopIdentity, type ProductIdentity } from './product-identity'
@@ -57,7 +57,17 @@ function load(build: ChannelBuildRequest): PackagingFacts {
     delete require.cache[require.resolve(file)]
   }
 
-  return { identity: require('../product-identity.cjs'), config: require('../electron-builder.config.cjs') }
+  // Exercise an admitted publisher without removing the live checkout's
+  // unpublished-distribution guard or enabling any actual publication.
+  const exists = fs.existsSync
+  const guard = path.join(repo, 'sci-unpublished-distribution')
+  const fixture = vi.spyOn(fs, 'existsSync').mockImplementation(file => file !== guard && exists(file))
+
+  try {
+    return { identity: require('../product-identity.cjs'), config: require('../electron-builder.config.cjs') }
+  } finally {
+    fixture.mockRestore()
+  }
 }
 
 afterEach((): void => {

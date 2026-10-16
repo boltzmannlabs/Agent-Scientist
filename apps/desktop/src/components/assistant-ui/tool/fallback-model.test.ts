@@ -228,28 +228,28 @@ describe('buildToolView browser_navigate title', () => {
     const view = buildToolView(
       part({
         toolName: 'browser_navigate',
-        args: { url: 'https://hermes-agent.nousresearch.com/docs' },
+        args: { url: 'https://docs.example.test/docs' },
         result: { success: false, error: 'Command timed out after 60 seconds' }
       }),
       ''
     )
 
     expect(view.status).toBe('error')
-    expect(view.title).toContain('sci-agent.nousresearch.com/docs')
+    expect(view.title).toContain('docs.example.test/docs')
   })
 
   it('shows opened title on success', () => {
     const view = buildToolView(
       part({
         toolName: 'browser_navigate',
-        args: { url: 'https://hermes-agent.nousresearch.com/docs' },
-        result: { success: true, url: 'https://hermes-agent.nousresearch.com/docs', title: 'Docs' }
+        args: { url: 'https://docs.example.test/docs' },
+        result: { success: true, url: 'https://docs.example.test/docs', title: 'Docs' }
       }),
       ''
     )
 
     expect(view.status).toBe('success')
-    expect(view.title).toContain('sci-agent.nousresearch.com/docs')
+    expect(view.title).toContain('docs.example.test/docs')
   })
 })
 

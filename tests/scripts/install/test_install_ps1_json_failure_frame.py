@@ -20,7 +20,8 @@ def test_fail_inside_a_stage_emits_one_json_frame_with_the_reason(tmp_path):
     (install_dir / "user-file").write_text("preserve me", encoding="utf-8")
     tools = tmp_path / "empty-tools"
     env = dict(os.environ, SCI_HOME=str(tmp_path / "home"),
-               SCI_RUNTIME_DIR=str(tools))
+               SCI_RUNTIME_DIR=str(tools),
+               SCI_REPO_URL="https://github.com/boltzmannlabs/Agent-Scientist.git")
     result = subprocess.run(
         [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(INSTALLER),
          "-Stage", "repository", "-Json", "-InstallDir", str(install_dir)],

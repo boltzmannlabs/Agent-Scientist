@@ -21,7 +21,7 @@ if ($Rest) {
     exit 2
 }
 
-if ($env:OS -ne 'Windows_NT') {
+if ([System.Environment]::OSVersion.Platform -ne [System.PlatformID]::Win32NT) {
     [Console]::Error.WriteLine('Use install-sci.sh for Linux and macOS. This installer supports native Windows.')
     exit 1
 }

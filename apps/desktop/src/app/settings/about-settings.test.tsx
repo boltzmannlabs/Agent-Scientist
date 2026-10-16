@@ -103,7 +103,7 @@ describe('AboutSettings', (): void => {
 
     expect(screen.getByText(en.updates.latestBodyBackend)).toBeTruthy()
     expect(checkBackendUpdates).toHaveBeenCalledTimes(1)
-    expect(screen.getAllByRole('link', { name: en.updates.releaseNotes })).toHaveLength(1)
+    expect(screen.queryByRole('link', { name: en.updates.releaseNotes })).toBeNull()
 
     $connection.set({ ...connection('remote'), baseUrl: 'http://other-gateway:9119' })
     rerender(<AboutSettings />)

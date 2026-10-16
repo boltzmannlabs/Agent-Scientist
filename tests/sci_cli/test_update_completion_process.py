@@ -38,9 +38,9 @@ def transition(tmp_path):
     # Deliberately incompatible: a cached OLD_API-only PM cannot prepare this tree.
     (root / "pm/__init__.py").write_text(
         "from sci_cli.probe import event\n"
-        "def sync_venv(*, explicit, project_root, evict_incompatible_plugins):\n"
+        "def sync_venv(extras, *, explicit, project_root, evict_incompatible_plugins):\n"
         "    assert explicit and evict_incompatible_plugins\n"
-        "    event('prepare')\n"
+        "    event('prepare', extras=extras)\n"
     )
     (root / "pm/receipt.py").write_text(
         "from contextlib import nullcontext\n"
@@ -52,6 +52,9 @@ def transition(tmp_path):
     (root / "pm/client.py").write_text(
         "from sci_cli.probe import event\n"
         "ensure_tools_for_sync = lambda: event('tools')\n"
+    )
+    (root / "pm/extras.py").write_text(
+        "legacy_selection = lambda root: ['all', 'telegram', 'discord']\n"
     )
     (package / "probe.py").write_text(
         "import json, os, pathlib, sys\n"
@@ -66,6 +69,7 @@ def transition(tmp_path):
         "import os, sys\n"
         "from pathlib import Path\n"
         "selected_venv = lambda root: Path(sys.executable).parent.parent\n"
+        "runtime_facts_path = lambda root: root / 'pm-facts.json'\n"
         f"project_python = lambda root: Path({str(selected_python)!r})\n"
         "activation_environment = lambda root: {**os.environ, 'PYTHONPATH': str(root)}\n"
         "def activate_dependencies(root):\n"
@@ -211,6 +215,19 @@ def test_old_process_new_git_tree_completes_in_fresh_python(transition, tmp_path
     assert by_name["maintenance"]["pre_update_version"] == "日本 café"
     assert by_name["restart"]["profiles"] == ["work"]
     assert [e["name"] for e in events].index("exit_marker") < [e["name"] for e in events].index("restart")
+
+
+@pytest.mark.parametrize("managed", [False, True])
+def test_completion_carries_legacy_extras_only_before_first_generation(transition, managed):
+    root, _git, _old, _new, request = transition
+    shutil.copy2(update_completion.__file__, root / "sci_cli/update_completion.py")
+    if managed:
+        (root / "pm-facts.json").write_text("{}")
+    result = update_completion.run_completion(request)
+    assert result["exit_code"] == 0
+    events = [json.loads(line) for line in (root / "events.jsonl").read_text().splitlines()]
+    prepared = next(event for event in events if event["name"] == "prepare")
+    assert prepared["extras"] == (None if managed else ["all", "telegram", "discord"])
 
 
 @pytest.mark.parametrize("code", [0, 23])

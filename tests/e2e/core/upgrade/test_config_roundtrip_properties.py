@@ -294,6 +294,11 @@ def gen_case(seed: int, *, long: bool = False, n_sections: tuple = (5, 11), excl
         tree.setdefault("skills", {})
         if isinstance(tree["skills"], dict):
             tree["skills"]["external_dirs"] = [f"/opt/c18/{rng.choice(_WORDS)}", rng.choice(_UNICODE)]
+    # A null round-trip case must contain a null regardless of changes to
+    # DEFAULT_CONFIG (which also change the seeded generator's draw sequence).
+    if null_leaves and not any(v is None for v in _leaves(tree).values()):
+        leaf = next(p for p in _leaves(tree) if not long or p[0] != sections[0])
+        _set(tree, leaf, None)
     tree["_config_version"] = LATEST
 
     lines: list[str] = [f"# C18 generated config (seed={seed}) — comments must survive every write"]

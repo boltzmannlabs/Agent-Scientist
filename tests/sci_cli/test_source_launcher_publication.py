@@ -374,7 +374,8 @@ def test_running_source_launcher_can_republish_itself(tmp_path, monkeypatch, lau
     result = subprocess.run([str(command)], cwd=tmp_path, capture_output=True,
                             text=True, encoding="utf-8", timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "published 2 2" in result.stdout
+    expected = len(_launchers.ENTRY_POINTS)
+    assert f"published {expected} {expected}" in result.stdout
     assert _launchers.ensure_install_launchers(repo, out)
     selected_python = _launchers.resolve_store_python(repo)
     assert selected_python is not None and selected_python.samefile(interpreter)
