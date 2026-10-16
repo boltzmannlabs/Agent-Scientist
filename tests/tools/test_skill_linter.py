@@ -13,7 +13,7 @@ CLEAN = """---
 name: my-skill
 description: Search arXiv papers by keyword, author, or ID.
 version: 1.0.0
-author: Hermes Agent
+author: Sci Agent
 license: MIT
 metadata:
   sci:

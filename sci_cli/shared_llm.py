@@ -67,10 +67,12 @@ def provider_config(config, *, expand=True):
             names.update(custom_provider_aliases(entry.get("name", ""), name))
     inherited_providers = {name: entry for name, entry in shared.get("providers", {}).items()
                            if not names.intersection(custom_provider_aliases(entry.get("name", ""), name))}
-    result["providers"] = {**inherited_providers, **local_providers}
+    # Endpoint/model identity recovery uses the first matching entry. Keep the
+    # owning profile first even when main names the same route differently.
+    result["providers"] = {**local_providers, **inherited_providers}
     inherited = [e for e in shared.get("custom_providers", [])
                  if isinstance(e, dict) and not names.intersection(custom_provider_aliases(e.get("name", "")))]
-    result["custom_providers"] = inherited + local
+    result["custom_providers"] = local + inherited
     # Keep main's catalog policy while preserving any stricter local exclusions.
     excluded = (raw.get("model_catalog") or {}).get("excluded_providers") or []
     if excluded:

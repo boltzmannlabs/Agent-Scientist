@@ -124,3 +124,24 @@ def test_local_provider_overrides_and_exclusions_remain_authoritative(homes):
                 assert set(load_picker_context().excluded_providers) == {"copilot-acp", "anthropic"}
                 with pytest.raises(ValueError, match="disabled"):
                     resolve_runtime_provider(requested="pooled")
+
+
+@pytest.mark.parametrize("schema", ["providers", "custom_providers"])
+def test_shared_endpoint_identity_prefers_owning_profile_a_b_a(homes, schema):
+    from sci_cli.config import atomic_config_replace, read_user_config_raw
+    from sci_cli.native_profile_creation import profile_scope
+    from sci_cli.runtime_provider import canonical_custom_identity
+
+    main, a, b = homes
+    url = "https://same-endpoint.invalid/v1"
+    for home, name in ((main, "main-route"), (a, "a-route"), (b, "b-route")):
+        raw = read_user_config_raw(home / "config.yaml")
+        entry = {"name": name, "base_url": url, "models": ["shared-model"]}
+        raw[schema] = {name: entry} if schema == "providers" else [entry]
+        atomic_config_replace(home / "config.yaml", raw)
+    before = {home: (home / "config.yaml").read_bytes() for home in homes}
+    for home, name in ((a, "a-route"), (b, "b-route"), (a, "a-route"), (main, "main-route")):
+        with profile_scope(home):
+            assert canonical_custom_identity(base_url=url) == f"custom:{name}"
+            assert canonical_custom_identity(model="shared-model") == f"custom:{name}"
+    assert all((home / "config.yaml").read_bytes() == data for home, data in before.items())

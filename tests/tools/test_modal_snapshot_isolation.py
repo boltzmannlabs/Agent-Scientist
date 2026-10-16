@@ -99,6 +99,9 @@ def _install_modal_test_modules(
         def __init__(self, exec_fn, cancel_fn=None):
             pass
 
+    class _DummyEnvironmentConnectionError(RuntimeError):
+        pass
+
     def _load_json_store(path):
         if path.exists():
             try:
@@ -120,6 +123,7 @@ def _install_modal_test_modules(
 
     sys.modules["tools.environments.base"] = types.SimpleNamespace(
         BaseEnvironment=_DummyBaseEnvironment,
+        EnvironmentConnectionError=_DummyEnvironmentConnectionError,
         _ThreadedProcessHandle=_DummyThreadedProcessHandle,
         _load_json_store=_load_json_store,
         _save_json_store=_save_json_store,
