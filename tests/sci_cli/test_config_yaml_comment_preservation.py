@@ -121,7 +121,7 @@ class TestEveryWriterPreservesComments:
         save_config({"model": {"provider": "test"}})
         text = (home / "config.yaml").read_text(encoding="utf-8")
         assert "── Security ──" in text  # fresh file gets the commented examples once
-        save_config({"model": {"provider": "test", "default": "m"}})
+        save_config({"model": {"provider": "test", "default": "m"}}, merge_existing=True)
         assert (home / "config.yaml").read_text(encoding="utf-8").count("── Security ──") == 1
 
 

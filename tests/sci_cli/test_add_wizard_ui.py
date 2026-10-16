@@ -8,27 +8,33 @@ import pytest
 from sci_cli.skill_add import WizardUI
 
 
-def test_other_source_reaches_review_without_implicit_approval(tmp_path):
+def test_other_source_hands_off_without_implicit_installation(tmp_path):
     from sci_cli import skill_add
     from sci_cli.skill_add_status import status_for
+    from sci_constants import get_sci_home
     from tests.sci_cli.test_skill_add import SKILL
 
     source = tmp_path / "source with spaces"
     source.mkdir()
     (source / "SKILL.md").write_text(SKILL)
-    answers = iter([f'"{source}"', "Cancel"])
+    skill_home = get_sci_home() / "skills"
+    before = sorted(p.relative_to(skill_home) for p in skill_home.rglob("*"))
+    answers = iter([f'"{source}"'])
     questions, output = [], []
 
     def clarify(batch):
         questions.append(batch[0])
         return {"outcome": "submitted", "answers": {"skill_add": next(answers)}}
 
+    queued = []
     cli = SimpleNamespace(_app=SimpleNamespace(is_running=True), _agent_running=False,
-                          _clarify_callback=clarify)
+                          _clarify_callback=clarify, _queue_add_request=lambda *args: queued.append(args))
     ui = WizardUI(cli)
     ui.show = output.append
     skill_add.run_add_skill(cli, "/Add_skill", ui=ui)
-    assert status_for(cli).phase == "CANCELLED", output
+    assert status_for(cli).phase == "HANDED TO AGENT", output
+    assert len(queued) == 1 and str(source) in queued[0][0]
+    assert sorted(p.relative_to(skill_home) for p in skill_home.rglob("*")) == before
     assert questions[0]["allow_other"] is True
     assert len({q["question"] for q in questions}) == len(questions), questions
     assert all(q["allow_other"] is False for q in questions[1:] if q["choices"])

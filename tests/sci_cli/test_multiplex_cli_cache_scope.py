@@ -155,9 +155,10 @@ def _write_manifest(home, model_id: str, mtime: float) -> None:
 def test_model_catalog_in_process_copy_is_bound_to_its_cache_file(homes, monkeypatch):
     a, b = homes
     import sci_cli.model_catalog as mc
+    monkeypatch.setattr(mc, "DEFAULT_CATALOG_URL", "https://catalog.example.test/models.json")
 
     for home in (a, b):
-        (home / "config.yaml").write_text("model_catalog:\n  ttl_minutes: 600\n", encoding="utf-8")
+        (home / "config.yaml").write_text("model_catalog:\n  enabled: true\n  ttl_minutes: 600\n", encoding="utf-8")
     same_mtime = time.time() - 5  # identical mtimes: only the path can tell the two files apart
     _write_manifest(a, "vendor/a-model", same_mtime)
     _write_manifest(b, "vendor/b-model", same_mtime)

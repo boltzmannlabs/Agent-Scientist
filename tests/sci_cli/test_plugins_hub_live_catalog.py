@@ -25,6 +25,7 @@ from tools import registry as tools_registry
 
 @pytest.fixture(autouse=True)
 def _isolated_live_catalog(monkeypatch, tmp_path):
+    monkeypatch.setattr(pc, "LIVE_CATALOG_URL", "https://catalog.example.test/plugins.json")
     monkeypatch.setattr(pc, "_live_fetch_failed_until", 0.0, raising=False)
     monkeypatch.setattr(pc, "_live_cache_path", lambda: tmp_path / "cache" / "plugin-catalog.json")
     tools_registry.invalidate_check_fn_cache()

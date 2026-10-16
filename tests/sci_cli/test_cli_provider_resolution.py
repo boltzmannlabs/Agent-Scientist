@@ -754,7 +754,7 @@ def test_model_flow_custom_persists_selected_api_mode(monkeypatch):
     assert saved_env[key_env] == "test-key"
 
 
-def test_cmd_model_forwards_nous_login_tls_options(monkeypatch):
+def test_explicit_nous_flow_forwards_login_tls_options(monkeypatch):
     monkeypatch.setattr(sci_main, "_require_tty", lambda *a: None)
     monkeypatch.setattr(
         "sci_cli.config.load_config",
@@ -782,8 +782,10 @@ def test_cmd_model_forwards_nous_login_tls_options(monkeypatch):
 
     monkeypatch.setattr("sci_cli.auth._login_nous", _fake_login)
 
-    sci_main.cmd_model(
-        SimpleNamespace(
+    from sci_cli.model_setup_flows import _model_flow_nous
+
+    _model_flow_nous(
+        {}, args=SimpleNamespace(
             portal_url="https://portal.nousresearch.com",
             inference_url="https://inference.nousresearch.com/v1",
             client_id="sci-local",
@@ -792,7 +794,7 @@ def test_cmd_model_forwards_nous_login_tls_options(monkeypatch):
             timeout=7.5,
             ca_bundle="/tmp/local-ca.pem",
             insecure=True,
-        )
+        ),
     )
 
     assert captured == {

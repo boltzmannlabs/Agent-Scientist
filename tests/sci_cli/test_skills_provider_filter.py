@@ -15,6 +15,7 @@ from tools.skills_hub_search import _sci_index_cache_file, parallel_search_sourc
 
 @pytest.fixture(params=["index", "github"])
 def catalog(request, monkeypatch):
+    monkeypatch.setattr("tools.skills_hub_search.SCI_INDEX_URL", "https://catalog.example.test/skills.json")
     def entry(repo, provider, name):
         return SkillMeta(
             name=name, description="GPU utilities", source="github",

@@ -89,7 +89,7 @@ class TestDoctorPlatformHints:
 
         hint = doctor_platform._sqlite_upgrade_hint()
 
-        assert "docker pull nousresearch/hermes-agent:latest" in hint
+        assert "Rebuild and redeploy your approved SCI image" in hint
         assert "sci update" not in hint
 
 

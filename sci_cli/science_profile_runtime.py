@@ -26,7 +26,7 @@ class Worker:
         # The runner is Sci, not a generated adapter or a user-supplied shell command.
         self.proc = subprocess.Popen([sys.executable, "-m", "sci_cli.science_profile_worker"],
                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                     stderr=subprocess.DEVNULL, text=True, bufsize=1, env=env,
+                                     stderr=subprocess.DEVNULL, text=True, encoding="utf-8", bufsize=1, env=env,
                                      cwd=Path(__file__).resolve().parents[1])
         self.reader = spawn_context_thread(self._read, daemon=True, name="science-profile-reader")
         self.reader.start()

@@ -156,9 +156,8 @@ def test_setup_flow_status_carries_a_pool_row_own_gateway_url(monkeypatch):
     assert get_codex_auth_status()["base_url"] == OTHER_GW
 
 
-def test_model_setup_flow_catalog_goes_to_the_pool_entry_gateway(monkeypatch, picker_http):
-    """``sci model`` → OpenAI Codex with a pooled gateway key: the model list is fetched from
-    the gateway that key routes to, not chatgpt.com."""
+def test_model_setup_refuses_oauth_validation_against_a_custom_gateway(monkeypatch, picker_http, capsys):
+    """The OAuth setup flow must not send a login to a non-OpenAI endpoint."""
     home = _home(monkeypatch)
     _write_config(home, base_url=GW)
     _write_pool(home, OPAQUE)
@@ -169,9 +168,9 @@ def test_model_setup_flow_catalog_goes_to_the_pool_entry_gateway(monkeypatch, pi
 
     _model_flow_openai_codex({}, current_model="gpt-5.5")
 
-    assert _authorized_hosts(picker_http) == {"codex-gw.example"}
-    # The confirm guards see the key together with its own route, not the chatgpt.com default.
-    assert (confirm["confirm_api_key"], confirm["confirm_base_url"]) == (OPAQUE, GW)
+    assert _authorized_hosts(picker_http) == set()
+    assert confirm == {}
+    assert "Cannot validate a Codex OAuth login against a custom endpoint" in capsys.readouterr().out
 
 
 def test_cli_default_model_swap_asks_the_session_route(monkeypatch, picker_http):

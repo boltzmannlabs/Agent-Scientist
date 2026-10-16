@@ -30,12 +30,16 @@ from sci_cli.main import cmd_update
 @patch("sci_cli.version_info.get_version_info")
 @patch("subprocess.run")
 def test_cmd_update_in_docker_prints_guidance_and_exits(
-    mock_run, _mock_version, _mock_method, _mock_managed, capsys
+    mock_run, _mock_version, _mock_method, _mock_managed, capsys, tmp_path, monkeypatch
 ):
     """``sci update`` inside Docker → friendly message + exit 2, no git calls.
 
     Exit 2 = refused-by-contract (#91277 Phase 3), distinct from exit-1 errors.
     """
+    from sci_cli.version_info import VersionInfo
+    from sci_cli import main
+    monkeypatch.setattr(main, "PROJECT_ROOT", tmp_path)
+    _mock_version.return_value = VersionInfo("1.0.0", "1.0.0", 0, None, None, "docker", distribution="docker")
     with pytest.raises(SystemExit) as excinfo:
         cmd_update(SimpleNamespace(check=False))
 
@@ -44,7 +48,7 @@ def test_cmd_update_in_docker_prints_guidance_and_exits(
     # Spot-check the key guidance — exhaustive wording is locked in by the
     # config-module test below to keep these CLI tests resilient to copy edits.
     assert "doesn't apply inside the Docker container" in out
-    assert "docker pull nousresearch/hermes-agent:latest" in out
+    assert "Rebuild and redeploy your approved SCI image" in out
 
     # No git invocations — the early-return must beat every git command.
     git_calls = [c for c in mock_run.call_args_list if c.args and c.args[0] and "git" in str(c.args[0][0])]

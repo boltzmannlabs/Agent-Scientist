@@ -45,6 +45,8 @@ def _account_state() -> dict:
 
 @pytest.fixture
 def nous_runner(tmp_path, monkeypatch):
+    from tests.sci_cli.anon_portal import opt_in_guest
+    opt_in_guest()
     monkeypatch.setattr(gateway_run, "_sci_home", tmp_path)
     monkeypatch.setenv("SCI_SHARED_AUTH_DIR", str(tmp_path / "shared-store"))
     monkeypatch.setenv("SCI_GUEST_ONBOARDING", "1")

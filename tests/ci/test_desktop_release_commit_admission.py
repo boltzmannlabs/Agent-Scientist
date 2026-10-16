@@ -28,6 +28,9 @@ def environment(clone, commit):
         GITHUB_ACTOR='maintainer', GITHUB_TRIGGERING_ACTOR='maintainer',
         GITHUB_OUTPUT=str(clone / 'outputs'), GH_TOKEN='fixture-token',
         GIT_ALLOW_PROTOCOL='file', PYTHONUTF8='1',
+        # The copied release controller uses SCI's canonical version grammar.
+        # CI's managed test environment is not an editable app installation.
+        PYTHONPATH=str(Path(__file__).resolve().parents[2]),
     )
 
 

@@ -66,6 +66,8 @@ def _account_state() -> dict:
 
 @pytest.fixture(autouse=True)
 def isolated_auth_store(tmp_path, monkeypatch):
+    from tests.sci_cli.anon_portal import opt_in_guest
+    opt_in_guest()
     monkeypatch.setenv("SCI_SHARED_AUTH_DIR", str(tmp_path / "shared-store"))
     monkeypatch.setenv("SCI_GUEST_ONBOARDING", "1")
 

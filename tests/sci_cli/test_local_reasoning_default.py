@@ -64,6 +64,7 @@ def test_qwen_medium_default_reaches_only_its_model_preset(tmp_path, monkeypatch
 
 def test_explicit_reasoning_choices_survive_shared_resolution_and_wire(tmp_path, monkeypatch):
     from agent.transports.chat_completions import ChatCompletionsTransport
+    from agent.reasoning_effort import clamp_effort
     from sci_cli.config_effective import load_user_config_effective
     from sci_constants import resolve_reasoning_config
     from providers import get_provider_profile
@@ -94,6 +95,8 @@ def test_explicit_reasoning_choices_survive_shared_resolution_and_wire(tmp_path,
             if effort is None:
                 assert "reasoning_effort" not in wire  # Leave the default to this model's server preset.
             else:
-                assert wire["reasoning_effort"] == ("none" if effort is False else effort)
+                expected = ("none" if effort is False or effort == "none" else
+                            clamp_effort(effort, profile.supported_reasoning_efforts(model_id)))
+                assert wire["reasoning_effort"] == expected
             assert "chat_template_kwargs" not in wire.get("extra_body", {})
             assert config_path.read_text(encoding="utf-8-sig") == config

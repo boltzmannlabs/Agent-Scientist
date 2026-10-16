@@ -166,9 +166,15 @@ def test_status_snapshot_never_adopts_codex_cli_tokens(tmp_path, monkeypatch):
 
     assert _singleton_tokens(home) == stale, "a status read persisted the Codex CLI login into auth.json"
 
-    # Control: the runtime resolver still self-heals from the CLI file.
-    assert resolve_codex_runtime_credentials()["source"] == "sci-auth-store"
-    assert _singleton_tokens(home)["refresh_token"] == "cli-refresh"
+    # Runtime adoption validates first, then follows the file by reference;
+    # it must not copy another client's rotating refresh token into SCI.
+    validated = []
+    monkeypatch.setattr("sci_cli.auth_codex_shared.validate", lambda token, base: validated.append(base))
+    assert resolve_codex_runtime_credentials()["source"] == "codex-file-reference"
+    assert validated
+    state = json.loads((home / "auth.json").read_text())["providers"]["openai-codex"]
+    assert "tokens" not in state
+    assert state["external_codex_home"] == str(tmp_path / "codex")
 
 
 def test_status_snapshot_never_refreshes_an_expired_singleton(tmp_path, monkeypatch):

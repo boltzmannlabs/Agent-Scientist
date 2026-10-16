@@ -160,7 +160,7 @@ def test_catalog_failure_never_breaks_the_picker(monkeypatch):
 
 def test_custom_template_efforts_survive_picker_contract_across_installations(tmp_path, monkeypatch):
     """Real config → provider policy → picker wire, independent of endpoint and profile."""
-    import yaml
+    import sci_yaml as yaml
 
     from agent import models_dev
     from providers import get_provider_profile

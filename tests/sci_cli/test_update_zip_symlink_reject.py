@@ -77,7 +77,7 @@ def test_update_via_zip_rejects_symlink_member(tmp_path, monkeypatch):
         # That's the contract: a malicious ZIP must fail the update, not
         # silently materialize a symlink.
         with pytest.raises(SystemExit) as exc_info:
-            _update_via_zip(args, completion_request={})
+            _update_via_zip(args, target_repository="fixture/sci", completion_request={})
         assert exc_info.value.code == 1
 
     # Belt: confirm extractall never produced the link.
@@ -130,7 +130,7 @@ def test_update_via_zip_accepts_normal_member(tmp_path, monkeypatch, capsys):
          patch("subprocess.check_call"):
         fake_run.return_value = type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
         try:
-            update_cmd._update_via_zip(args, completion_request={})
+            update_cmd._update_via_zip(args, target_repository="fixture/sci", completion_request={})
         except SystemExit:
             pass
 

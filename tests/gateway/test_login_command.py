@@ -516,11 +516,12 @@ async def test_the_drain_never_touches_the_shared_executor(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_login_dispatches_mid_turn():
+async def test_model_login_requires_an_idle_turn():
     runner = object.__new__(GatewayRunner)
     runner._handle_login_command = AsyncMock(return_value="started")
     command = resolve_command("login")
     event = _event()
 
-    assert await runner._dispatch_busy_slash_command(event, command, "", event.source) == "started"
-    runner._handle_login_command.assert_awaited_once_with(event)
+    result = await runner._dispatch_busy_slash_command(event, command, "", event.source)
+    assert "/stop" in result
+    runner._handle_login_command.assert_not_awaited()

@@ -69,6 +69,7 @@ class TestPluginRerenderFailOpen(unittest.TestCase):
 def _init_repo(path, first_commit):
     import subprocess
     path.mkdir()
+    path = path.resolve()
     for cmd in (
         ["git", "init", "-q", "-b", "main"],
         ["git", "config", "user.email", "t@t"],

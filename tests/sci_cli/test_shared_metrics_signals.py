@@ -343,17 +343,18 @@ def _settle_disabled() -> None:
 
 
 def test_settings_skills_plugins_transitions_only_count_moves_from_and_back_to_default():
-    old = {"skills": {"disabled": ["my-private-skill"]}, "plugins": {"disabled": []}}
+    old = {"display": {"show_commentary": True},
+           "skills": {"disabled": ["my-private-skill"]}, "plugins": {"disabled": []}}
     new = {
         "memory": {"memory_enabled": False}, "compression": {"enabled": "false"}, "curator": {"enabled": True},
-        "display": {"show_reasoning": False, "skin": "mono"},  # a value change on a non-bool: never a row
+        "display": {"show_commentary": False, "skin": "mono"},  # a value change on a non-bool: never a row
         "skills": {"disabled": ["my-private-skill", "arxiv"], "platform_disabled": {"telegram": ["totally-custom"]}},
         "plugins": {"disabled": ["disk-cleanup", "telegram", "some-private-plugin"]},
     }
     got = set(disabled_metrics.config_transitions(old, new))
     assert got == {
         ("memory", "memory.memory_enabled", "disabled"), ("compression", "compression.enabled", "disabled"),
-        ("setting", "display.show_reasoning", "disabled"),
+        ("setting", "display.show_commentary", "disabled"),
         ("skill", "arxiv", "disabled"), ("skill", "custom", "disabled"),
         ("plugin", "disk-cleanup", "disabled"), ("platform", "telegram", "disabled"),
         ("plugin", "custom", "disabled"),
@@ -407,15 +408,19 @@ def test_real_config_writes_report_the_move_away_from_default(marks, monkeypatch
     from sci_cli.config import load_config, save_config, set_config_value
 
     marks.home.mkdir(parents=True, exist_ok=True)
+    # Establish the shipped skill defaults before measuring user changes.
+    save_config(load_config())
+    _settle_disabled()
+    marks.rows.clear()
     monkeypatch.setattr(disabled_metrics, "_process_surface", "cli_config")
     config = load_config()
     config.setdefault("memory", {})["memory_enabled"] = False
     save_config(config)
     _settle_disabled()
-    set_config_value("curator.enabled", "false")
+    set_config_value("compression.enabled", "false")
     _settle_disabled()
     rows = [(d["kind"], d["name"], d["event"]) for m, d in marks.rows if m == contract.FEATURE_DISABLED_MARK]
-    assert rows == [("memory", "memory.memory_enabled", "disabled"), ("curator", "curator.enabled", "disabled")]
+    assert rows == [("memory", "memory.memory_enabled", "disabled"), ("compression", "compression.enabled", "disabled")]
 
 
 def test_migrations_and_env_templates_are_not_user_disables(marks, monkeypatch):

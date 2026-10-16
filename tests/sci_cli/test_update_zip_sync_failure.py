@@ -21,10 +21,10 @@ def test_zip_completion_failure_does_not_run_old_followup(tmp_path, monkeypatch,
     monkeypatch.setattr(update_cmd, "_update_via_zip", update_cmd_zip._update_via_zip)
     with pytest.raises(SystemExit) as error:
         if route == "zip":
-            update_cmd_zip._update_via_zip(SimpleNamespace(branch="main"), completion_request=request)
+            update_cmd_zip._update_via_zip(SimpleNamespace(branch="main"), target_repository="fixture/sci", completion_request=request)
         else:
             update_cmd._handle_update_called_process_error(
                 subprocess.CalledProcessError(1, ["git", "fetch"]), SimpleNamespace(branch="main"),
-                False, True, completion_request=request)
+                False, True, target_repository="fixture/sci", completion_request=request)
     assert error.value.code == 23
     completion.assert_called_once_with(request)

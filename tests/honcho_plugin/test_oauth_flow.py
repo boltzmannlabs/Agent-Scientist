@@ -157,7 +157,7 @@ def fake_as(monkeypatch):
     base = f"http://127.0.0.1:{port}"
     monkeypatch.setenv("HONCHO_OAUTH_AUTHORIZE_URL", f"{base}/authorize")
     monkeypatch.setenv("HONCHO_OAUTH_TOKEN_URL", f"{base}/oauth/token")
-    monkeypatch.setenv("HONCHO_OAUTH_CLIENT_ID", "hermes-desktop")
+    monkeypatch.setenv("HONCHO_OAUTH_CLIENT_ID", "sci-desktop")
     try:
         yield base
     finally:
@@ -241,7 +241,7 @@ def test_grant_persists_default_client_id(tmp_path, fake_as, monkeypatch):
         timeout=10,
     )
     saved = json.loads(config_path.read_text())
-    assert saved["hosts"]["sci"]["oauth"]["clientId"] == "sci-agent"
+    assert saved["hosts"]["sci"]["oauth"]["clientId"] == oauth_flow._DEFAULT_CLIENT_ID
 
 
 

@@ -8,6 +8,10 @@ import pytest
 @pytest.mark.real_release_channels
 def test_missing_origin_refuses_release_network_and_remote_creation(tmp_path, monkeypatch):
     from sci_cli import banner, source_check, source_releases, update_cmd_git
+    from sci_cli.release_channels import ChannelNotFound
+
+    monkeypatch.setattr(source_releases, "OFFICIAL_REPOSITORY", "")
+    monkeypatch.setattr(update_cmd_git, "OFFICIAL_REPO_URL", "")
 
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
 
@@ -19,9 +23,9 @@ def test_missing_origin_refuses_release_network_and_remote_creation(tmp_path, mo
     monkeypatch.setattr(banner, "_latest_release_cache", None)
     with pytest.raises(ValueError, match="No SCI release repository"):
         source_releases.source_repository(["git"], tmp_path)
-    with pytest.raises(ValueError, match="endpoint is not configured"):
+    with pytest.raises(ChannelNotFound, match="SCI main follows"):
         source_releases._resolve_channel("main", "example/sci")
-    assert source_check._github_compare("a" * 40, "b" * 40) is None
+    assert source_check._github_compare("a" * 40, "b" * 40, repository="") is None
     assert not update_cmd_git._add_upstream_remote(["git"], tmp_path)
     assert not update_cmd_git._offer_upstream_remote(["git"], tmp_path, assume_yes=True, input_fn=unexpected)
     assert banner.get_latest_release_tag(tmp_path) is None
