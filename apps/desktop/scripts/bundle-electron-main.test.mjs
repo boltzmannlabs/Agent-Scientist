@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -9,11 +9,13 @@ import { afterAll, beforeAll, expect, test } from 'vitest'
 import { bundleElectronMain } from './bundle-electron-main.mjs'
 
 const repo = resolve(import.meta.dirname, '../../..')
+const testLinux = test.runIf(process.platform === 'linux')
+const defaultOzonePlatform = existsSync('/proc/driver/nvidia/version') ? 'x11' : 'wayland'
 let root
 let bundle
 let preload
 
-// Run the shipped electron-main.mjs under plain Node as if on Linux. The entry
+// Run the shipped electron-main.mjs under plain Node on Linux. The entry
 // relaunches through process.execPath; the preload (inherited through
 // NODE_OPTIONS) makes that child print its argv instead of starting the app.
 beforeAll(async () => {
@@ -26,7 +28,6 @@ beforeAll(async () => {
     `
     import { readFileSync } from 'node:fs'
     import { registerHooks } from 'node:module'
-    Object.defineProperty(process, 'platform', { value: 'linux' })
     if (process.argv.some(arg => arg.startsWith('--ozone-platform='))) {
       console.log(JSON.stringify({ relaunched: process.argv.slice(2) }))
       process.exit(0)
@@ -81,19 +82,19 @@ function launch(env, config, extraEnv = {}) {
   return JSON.parse(out.trim().split('\n').at(-1))
 }
 
-test('the bundled entry relaunches native Wayland sessions with the wayland ozone platform', () => {
+testLinux('the bundled entry applies the native driver policy to Wayland sessions', () => {
   expect(launch({ XDG_SESSION_TYPE: 'wayland', WAYLAND_DISPLAY: 'wayland-0', DISPLAY: ':0' })).toEqual({
-    relaunched: ['.', '--ozone-platform=wayland']
+    relaunched: ['.', `--ozone-platform=${defaultOzonePlatform}`]
   })
 })
 
-test('the bundled entry keeps the WSLg Wayland relaunch', () => {
+testLinux('the bundled entry applies the native driver policy to WSLg sessions', () => {
   expect(launch({ WSL_DISTRO_NAME: 'Ubuntu', WAYLAND_DISPLAY: 'wayland-0', DISPLAY: ':0' })).toEqual({
-    relaunched: ['.', '--ozone-platform=wayland']
+    relaunched: ['.', `--ozone-platform=${defaultOzonePlatform}`]
   })
 })
 
-test('the bundled entry lets desktop.electron_flags choose the ozone platform', () => {
+testLinux('the bundled entry lets desktop.electron_flags choose the ozone platform', () => {
   const config = 'desktop:\n  electron_flags:\n    - --ozone-platform=x11\n'
 
   expect(launch({ XDG_SESSION_TYPE: 'wayland', WAYLAND_DISPLAY: 'wayland-0', DISPLAY: ':0' }, config)).toEqual({
@@ -106,7 +107,7 @@ test('the bundled entry lets desktop.electron_flags choose the ozone platform', 
 // profile silently never reaches the relaunch. The two cases below are the
 // ones the inline resolution in configuredElectronFlags() got wrong: the
 // data-dir suffix channel installs rely on, and multiplexed profiles/ homes.
-test('the bundled entry reads desktop.electron_flags through a suffixed home', () => {
+testLinux('the bundled entry reads desktop.electron_flags through a suffixed home', () => {
   const config = 'desktop:\n  electron_flags:\n    - --ozone-platform=x11\n'
   const home = mkdtempSync(join(root, 'suffixed-home-'))
   mkdirSync(join(home, '.sci-canary'), { recursive: true })
@@ -121,7 +122,7 @@ test('the bundled entry reads desktop.electron_flags through a suffixed home', (
   ).toEqual({ relaunched: ['.', '--ozone-platform=x11'] })
 })
 
-test('the bundled entry reads desktop.electron_flags from the parent of a profiles/-rooted SCI_HOME', () => {
+testLinux('the bundled entry reads desktop.electron_flags from the parent of a profiles/-rooted SCI_HOME', () => {
   const config = 'desktop:\n  electron_flags:\n    - --ozone-platform=x11\n'
   const home = mkdtempSync(join(root, 'profiles-home-'))
   mkdirSync(home, { recursive: true })

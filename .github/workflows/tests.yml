@@ -318,7 +318,8 @@ jobs:
           # A shard that collects nothing is a wiring bug, not a pass.
           [ "${#files[@]}" -gt 0 ] || { echo "no test files for shard $SHARD" >&2; exit 1; }
           printf 'shard %s: %s\n' "$SHARD" "${files[*]}"
-          scripts/run_tests.sh --include-integration "${files[@]}"
+          # Select the locked controller above instead of bootstrapping another PM environment.
+          SCI_PYTHON="$VIRTUAL_ENV/bin/python" scripts/run_tests.sh --include-integration "${files[@]}"
         env:
           SHARD: ${{ matrix.shard }}
           # Each file drives installs/updaters with its own process tree.
