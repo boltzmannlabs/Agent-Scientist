@@ -26,6 +26,7 @@ from pathlib import Path
 import pytest
 
 from tests.fakes.fake_llm_provider import FakeLLMServer, Text, write_sci_home
+from tests.e2e.core._pm_dependencies import select_test_dependencies
 
 pytestmark = pytest.mark.skipif(shutil.which("tmux") is None, reason="needs tmux")
 
@@ -38,6 +39,7 @@ def _reply(turn: int) -> str:
     return "\n".join(" ".join(words[j:j + 21]) for j in range(0, len(words), 21))
 
 
+@pytest.mark.live_system_guard_bypass  # diagnostics signal only this test's private tmux pane
 def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Path) -> None:
     sock = f"sci-e2e-{uuid.uuid4().hex[:8]}"
     home = tmp_path / "home"
@@ -101,9 +103,10 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
         # deliberately rejects it even when HOME itself is temporary.
         state_home = home / "test-sci-state"
         write_sci_home(state_home, llm.base_url)
+        select_test_dependencies(state_home, REPO_ROOT)
         env = {k: v for k, v in os.environ.items() if not k.startswith(("SCI_", "TMUX"))}
         env.update(HOME=str(home), SCI_HOME=str(state_home), PYTHONPATH=str(REPO_ROOT),
-                   TERM="xterm-256color", PYTHONFAULTHANDLER="1")
+                   TERM="xterm-256color", PYTHONFAULTHANDLER="1", SCI_DISABLE_LAZY_INSTALLS="1")
         argv = [sys.executable, "-m", "sci_cli.main", "chat", "--cli", "--yolo"]
         subprocess.run(["tmux", "-L", sock, "-f", os.devnull, "new-session", "-d", "-s", "p", "-x", "120",
                         "-y", "24", "-c", str(tmp_path / "work"), *argv], env=env, check=True, timeout=30)
@@ -149,5 +152,5 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
     assert sorted(w for w in expected if words[w] != 1) == [], final
     assert [final.count(f"zq{t}q") for t in WORDS] == [1, 1, 1], final
     assert sum(1 for line in final.split("\n") if line.lstrip().startswith("❯")) == 1, final
-    blank_runs = [len(run) for run in re.findall(r"(?:^[ \t]*\n)+", final, flags=re.M)]
+    blank_runs = [run.count("\n") for run in re.findall(r"(?:^[ \t]*\n)+", final, flags=re.M)]
     assert max(blank_runs, default=0) <= 2, final  # the reply panel's own spacing, nothing more
