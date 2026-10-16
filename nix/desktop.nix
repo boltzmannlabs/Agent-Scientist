@@ -66,6 +66,7 @@ let
       "apps/desktop"
       "apps/shared"
       "apps/ui"
+      "README.md"
       "scripts/build/desktop.mjs"
       "scripts/build/freshness.mjs"
       "scripts/build/frontend-common.mjs"

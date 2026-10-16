@@ -5,6 +5,7 @@ sciNpmLib.buildNpmPackage {
     "web"
     "apps/shared"
     "apps/ui"
+    "README.md"
     "scripts/build/web.mjs"
     "scripts/build/freshness.mjs"
     "scripts/build/frontend-common.mjs"
