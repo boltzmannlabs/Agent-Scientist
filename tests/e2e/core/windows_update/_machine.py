@@ -72,9 +72,9 @@ UPDATE_TIMEOUT = 1200.0
 CMD_TIMEOUT = 300.0
 GATEWAY_READY_TIMEOUT = 240.0
 CANONICAL_URLS = (
-    "https://github.com/NousResearch/hermes-agent.git",
-    "https://github.com/NousResearch/hermes-agent",
-    "git@github.com:NousResearch/hermes-agent.git",
+    "https://github.com/boltzmannlabs/Agent-Scientist.git",
+    "https://github.com/boltzmannlabs/Agent-Scientist",
+    "git@github.com:boltzmannlabs/Agent-Scientist.git",
 )
 NEXT_MARKER = ".sci-e2e-next"
 # Captured before any machine strips PATH: harness plumbing (serve.git, rev-parse) only.
@@ -207,6 +207,7 @@ class Machine:
             "LOCALAPPDATA": str(self.local),
             "APPDATA": str(roaming),
             "GIT_CONFIG_GLOBAL": str(self.root / "e2e-gitconfig"),
+            "SCI_REPO_URL": CANONICAL_URLS[0],
             "NO_COLOR": "1",
             # state.db lives under tmp; under a pytest ancestor the live-DB guard would refuse it.
             "SCI_STATE_DB_GUARD_BYPASS": "1",

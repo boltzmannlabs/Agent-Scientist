@@ -55,7 +55,8 @@ SCRIPT = r"""
 set -u
 apk add --no-cache -q bash git curl >/dev/null 2>&1 || { echo "HARNESS: apk add failed"; exit 90; }
 git config --global safe.directory '*'
-git config --global url."file://$ORIGIN".insteadOf https://github.com/NousResearch/hermes-agent.git
+export SCI_REPO_URL=https://github.com/boltzmannlabs/Agent-Scientist.git
+git config --global url."file://$ORIGIN".insteadOf "$SCI_REPO_URL"
 echo "=== libc: $(ldd --version 2>&1 | head -n1)"
 bash /work/install.sh --non-interactive </dev/null
 echo "=== install rc=$?"

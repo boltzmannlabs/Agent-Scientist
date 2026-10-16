@@ -16,6 +16,8 @@ from sci_cli.commands import COMMANDS, resolve_command
 def test_login_real_model_setup_handoff_preserves_profile_and_cached_conversation(tmp_path, monkeypatch):
     import os
     import pty
+    import select
+    import threading
     from prompt_toolkit import Application
     from prompt_toolkit.input import create_pipe_input
     from prompt_toolkit.output import DummyOutput
@@ -35,6 +37,7 @@ def test_login_real_model_setup_handoff_preserves_profile_and_cached_conversatio
     # The REAL model command and loaders run in a child. Only its picker is
     # controlled: select no provider, then record a harmless reviewed default.
     code = """
+print('fixture setup output ' * 8192, flush=True)
 from sci_cli import main
 from sci_cli.config import atomic_config_replace, read_user_config_raw
 from sci_constants import get_sci_home
@@ -49,6 +52,21 @@ atomic_config_replace(path, cfg)
     monkeypatch.setattr(relaunch, "build_relaunch_argv", lambda args, **kw: [sys.executable, "-c", code])
     master, slave = pty.openpty()
     terminal = os.fdopen(os.dup(slave), "r")
+    # A real terminal emulator consumes output continuously. Without a reader,
+    # setup can block on the PTY buffer rather than reach its controlled picker.
+    stop_reader = threading.Event()
+    drained = []
+
+    def drain_terminal():
+        while not stop_reader.is_set():
+            if select.select([master], [], [], 0.1)[0]:
+                data = os.read(master, 65536)
+                if not data:
+                    break
+                drained.append(len(data))
+
+    reader = threading.Thread(target=drain_terminal, daemon=True)
+    reader.start()
     monkeypatch.setattr(sys, "stdin", terminal)
     real_spawn = asyncio.create_subprocess_exec
     spawns = []
@@ -94,7 +112,10 @@ atomic_config_replace(path, cfg)
         assert resolve_command("LOGIN").name == "login"
         assert "/login" in COMMANDS
         assert "Nous" not in resolve_command("login").describe()
+        assert sum(drained) >= 4 * 8192 * len('fixture setup output ')
     finally:
+        stop_reader.set()
+        reader.join(timeout=5)
         terminal.close()
         os.close(master)
         os.close(slave)
