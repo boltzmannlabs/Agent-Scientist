@@ -644,7 +644,8 @@ def main():
         "release", help="Claim a version, cut a draft, and dispatch the gate")
     release_cmd.add_argument("--commit", required=True, metavar="SHA",
                              help="The main commit to release")
-    release_cmd.add_argument("--bump", choices=["major", "minor", "patch"], default="patch")
+    from scripts.releases.versioning import BUMPS
+    release_cmd.add_argument("--bump", choices=BUMPS, default="patch")
     release_cmd.add_argument("--autopublish", action="store_true",
                              help="Publish on green instead of leaving a draft")
     release_cmd.add_argument("--skip-bundles", action="store_true",

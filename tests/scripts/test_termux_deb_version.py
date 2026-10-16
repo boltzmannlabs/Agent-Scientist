@@ -55,7 +55,7 @@ def test_canary_shape_matches_the_stable_shape_on_every_component():
 
 
 @pytest.mark.parametrize("tag", [
-    "", "1.2.3", "v1.2", "v1.2.3.4", "v1.2.3-", "v1.2.3-canary", "v1.2.3-canary.abc",
+    "", "1.2.3", "v1.2", "v1.2.3.4.5", "v1.2.3-", "v1.2.3-canary", "v1.2.3-canary.abc",
     "v1.2.3-beta.1", "v1.2.x", "v-1.2.3", "v2026.9.15",
     "v1.2.3-canary.202608311", "v1.2.3-canary.12345678", "v1.2.3-canary.202608311200001",
 ])

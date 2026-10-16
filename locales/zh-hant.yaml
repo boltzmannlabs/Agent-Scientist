@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "查看你的 Nous 方案，並在瀏覽器中變更"
   login:
-    description: "使用 Nous 帳號登入（保留你的連接器）"
+    description: "開啟 SCI 模型設定：登入或管理供應商"
   topup:
     description: "顯示你的 Nous 餘額，並在入口網站管理帳務"
   platforms:

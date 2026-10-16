@@ -633,6 +633,7 @@ _MESSAGE_TAIL_RULES = (
 # Structured error code → verdict. The error-code rate_limit verdict rotates
 # but does not set should_fallback (unlike the message/status paths).
 _ERROR_CODE_VERDICTS: Dict[str, Verdict] = {
+    "sci_provider_removed": _v(_R.auth_permanent, retryable=False, should_fallback=False, should_rotate_credential=False),
     **dict.fromkeys(("resource_exhausted", "throttled", "rate_limit_exceeded"),
                     _v(_R.rate_limit, should_rotate_credential=True)),
     **dict.fromkeys(_BILLING_ERROR_CODES, _V_BILLING),

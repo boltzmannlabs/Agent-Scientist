@@ -24,9 +24,10 @@ MAX_ATTEMPTS = 3
 CLAIM_GRACE = timedelta(hours=1)
 
 
-def _key(version: str) -> tuple[int, int, int]:
-    major, minor, patch = version.split(".")
-    return int(major), int(minor), int(patch)
+def _key(version: str) -> tuple[int, ...]:
+    if version_from_tag("v" + version) is None:
+        raise ValueError(f"invalid release version: {version!r}")
+    return tuple(map(int, version.split(".")))
 
 
 def plan(claims: list[dict], *, head: str | None,

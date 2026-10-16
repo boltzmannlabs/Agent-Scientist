@@ -390,6 +390,15 @@ def _model_flow_openai_codex(config, current_model=""):
             _creds = resolve_codex_runtime_credentials()
             _codex_token, _codex_base = _creds.get("api_key"), _creds.get("base_url")
 
+    from sci_cli.auth_codex_shared import validate
+    from sci_cli.auth import AuthError, format_auth_error
+    try:
+        validate(_codex_token or "", _codex_base or DEFAULT_CODEX_BASE_URL)
+    except AuthError as exc:
+        print("Codex login check failed: " + format_auth_error(exc))
+        print("Use sci auth add openai-codex --type oauth to choose the current Codex login or sign in again.")
+        return
+
     codex_models = get_codex_model_ids(access_token=_codex_token, base_url=_codex_base)
     selected = _prompt_model_selection(
         codex_models, current_model=current_model, confirm_provider="openai-codex",

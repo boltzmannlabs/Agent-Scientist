@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "查看你的 Nous 套餐并在浏览器中更改"
   login:
-    description: "使用 Nous 账号登录（保留你的连接器）"
+    description: "打开 SCI 模型设置：登录或管理提供商"
   topup:
     description: "显示你的 Nous 余额并在门户中管理账单"
   platforms:

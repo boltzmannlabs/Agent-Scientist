@@ -13,6 +13,7 @@ import socket
 import threading
 import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import parse_qs, urlencode, urlparse
 
@@ -48,6 +49,11 @@ class _FakeOpenAIHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
+        if parsed.path == "/usage":
+            self.send_response(200 if self.headers.get("Authorization", "").startswith("Bearer ") else 401)
+            self.end_headers()
+            self.wfile.write(b"{}")
+            return
         q = {k: v[0] for k, v in parse_qs(parsed.query).items()}
         self.server.seen["authorize"] = q
         self.send_response(302)
@@ -82,6 +88,9 @@ def fake_openai():
 
 
 def test_browser_flag_runs_loopback_pkce_and_stores_loopback_source(tmp_path, monkeypatch, fake_openai):
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex"))
+    monkeypatch.setattr("sci_cli.auth_codex._codex_usage_probe_url", lambda base: fake_openai.base + "/usage")
     monkeypatch.setenv("SCI_HOME", str(tmp_path / "sci"))
     (tmp_path / "sci").mkdir()
     (tmp_path / "sci" / "auth.json").write_text(json.dumps({"version": 1, "providers": {}}))
@@ -114,7 +123,11 @@ def test_browser_flag_runs_loopback_pkce_and_stores_loopback_source(tmp_path, mo
     assert token["redirect_uri"] == authorize["redirect_uri"] and token["client_id"] == authorize["client_id"]
 
 
-def test_default_is_device_code_and_busy_callback_port_falls_back(tmp_path, monkeypatch):
+def test_default_is_device_code_and_busy_callback_port_falls_back(tmp_path, monkeypatch, fake_openai):
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex"))
+    monkeypatch.setattr("sci_cli.auth._prompt_yes_no", lambda *args, **kwargs: False)
+    monkeypatch.setattr("sci_cli.auth_codex._codex_usage_probe_url", lambda base: fake_openai.base + "/usage")
     monkeypatch.setenv("SCI_HOME", str(tmp_path / "sci"))
     (tmp_path / "sci").mkdir()
     (tmp_path / "sci" / "auth.json").write_text(json.dumps({"version": 1, "providers": {}}))
@@ -146,4 +159,4 @@ def test_default_is_device_code_and_busy_callback_port_falls_back(tmp_path, monk
         auth_add_command(_args(browser=True, label="second"))
     assert device_logins == [1, 1] and bind_attempts == [1]
     sources = [e["source"] for e in json.loads((tmp_path / "sci" / "auth.json").read_text())["credential_pool"]["openai-codex"]]
-    assert sources == ["manual:device_code", "manual:device_code"]
+    assert sources == ["manual:device_code"]  # reusing the exact grant must not duplicate its refresh chain

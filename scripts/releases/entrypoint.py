@@ -198,7 +198,13 @@ def release(commit: str, *, bump: str, repo: Path, remote: str, repository: str,
                                   repository=repository, execute=execute)
     published_version, published_commit = published
     _require_ancestry(repo, commit, published_commit)
-    version = derive_next_version(published=published_version, bump=bump)
+    # A seed is not a published version. A source-only baseline tag does count
+    # as the starting point, even before a native/GitHub release is published.
+    seed_exists = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", f"refs/tags/v{SEED}^{{commit}}"],
+        cwd=repo, capture_output=True).returncode == 0
+    prior = None if published == (SEED, None) and not seed_exists else published_version
+    version = derive_next_version(published=prior, bump=bump)
     if _git(repo, "ls-remote", remote, f"refs/tags/v{version}"):
         # A final tag records a started publication. Until its GitHub release is
         # public the published identity still names the previous version.

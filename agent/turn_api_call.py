@@ -72,6 +72,9 @@ def perform_api_call(
     interrupted: Any,
 ) -> ApiCallVerdict:
     """Issue the request (see ``_should_stream`` for the streaming decision)."""
+    from sci_cli.shared_provider_lifecycle import enforce_runtime_access
+    requested = getattr(agent, "requested_provider", "")
+    enforce_runtime_access(requested if requested and requested != "auto" else agent.provider)
     response = None
 
     def _verdict(action: str) -> ApiCallVerdict:

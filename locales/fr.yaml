@@ -1914,7 +1914,7 @@ slash:
   subscription:
     description: "Voir votre forfait Nous et le modifier dans le navigateur"
   login:
-    description: "Se connecter avec un compte Nous (conserve vos connecteurs)"
+    description: "Ouvrir la configuration des modèles SCI : se connecter ou gérer les fournisseurs"
   topup:
     description: "Afficher votre solde Nous et gérer la facturation sur le portail"
   platforms:

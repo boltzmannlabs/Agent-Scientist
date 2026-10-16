@@ -73,9 +73,28 @@ export function contentTypeFor(filename) {
   return undefined
 }
 
-const VERSION_CORE = '(?:0|[1-9]\\d{0,2})\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)'
+const VERSION_CORE = '(?:0|[1-9]\\d{0,2})\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:\\.(?:0|[1-9]\\d*))?'
 const CANARY_TAG_RE = new RegExp(`^v(${VERSION_CORE})\\+canary\\.(20\\d{6}T\\d{6}Z)$`)
 const STABLE_TAG_RE = new RegExp(`^v${VERSION_CORE}$`)
+
+/** Ordered SemVer for Electron/Cargo, not the displayed SCI release identity.
+ * 1.M.m.p -> 1.(M*1000+m).p. Keep in sync with releases/semver.py.
+ * @param {string} version @returns {string}
+ */
+export function packageVersion(version) {
+  if (!STABLE_TAG_RE.test(`v${version}`) && !CANARY_TAG_RE.test(`v${version}`)) {
+    throw new Error(`Invalid release version: ${version}`)
+  }
+  const [core, suffix] = version.split('+')
+  const parts = core.split('.').map(Number)
+  if (parts.length === 3) return version
+  const [major, milestone, minor, patch] = parts
+  const combined = milestone * 1000 + minor
+  if (minor >= 1000 || !Number.isSafeInteger(combined) || !Number.isSafeInteger(patch)) {
+    throw new Error('Native packaging requires minor < 1000 and safe SemVer numeric fields; advance the milestone')
+  }
+  return `${major}.${combined}.${patch}${suffix ? `+${suffix}` : ''}`
+}
 
 /**
  * @param {string} stamp YYYYMMDDTHHMMSSZ
@@ -250,12 +269,12 @@ export function appIdentity(desktopDir, tag = process.env.SCI_PAYLOAD_TAG || '')
     const commit = process.env.SCI_BUILD_COMMIT
     if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Commit builds require an exact full SHA')
     const version = String(process.env.SCI_PAYLOAD_VERSION || '')
-    if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)
+    if (!STABLE_TAG_RE.test(`v${version}`)
         || version.split('.').some(part => Number(part) > 65535)) {
-      throw new Error('Commit builds require SCI_PAYLOAD_VERSION=X.Y.Z with 16-bit fields')
+      throw new Error('Commit builds require SCI_PAYLOAD_VERSION=X.Y.Z or 1.M.m.p with 16-bit fields')
     }
     if (identity.store) throw new Error('Store packaging requires a stable release tag')
-    return { identity, version: `${version}.0`, fileVersion: version, name: identity.artifactNamePascal }
+    return { identity, version: version.split('.').length === 4 ? version : `${version}.0`, fileVersion: version, name: identity.artifactNamePascal }
   }
   if (identity.store) {
     return { identity, version: nativeQuad(String(tag), releaseEpoch(String(tag), repoRoot)),

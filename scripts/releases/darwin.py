@@ -5,7 +5,7 @@ import re
 from typing import Any, Callable
 
 from . import r2 as r2_module
-from .semver import compare, is_release_version
+from .semver import compare, is_release_version, package_version
 from sci_cli.update_channel import canary_timestamp, is_canary_tag
 
 ARCHES = ("arm64", "x64")
@@ -95,7 +95,7 @@ def merge_mac_feeds(legs: dict[str, str], tag: str, light: bool = False,
     first: dict[str, Any] | None = None
     for index, name in enumerate(expected):
         leg = parse_mac_feed(legs[name])
-        if str(leg.get("version")) != version:
+        if str(leg.get("version")) != package_version(version):
             raise ValueError(f"Feed version does not match {tag}")
         prefix = f"{'SciLight' if light else 'SciBundled'}-{version}-mac-{ARCHES[index]}"
         if not any(f.get("url") == f"{prefix}.zip" for f in leg["files"]):
@@ -121,7 +121,7 @@ def merge_mac_feeds(legs: dict[str, str], tag: str, light: bool = False,
         "text": text,
         "files": merged["files"],
         "tag": tag,
-        "version": version,
+        "version": package_version(version),
     }
 
 

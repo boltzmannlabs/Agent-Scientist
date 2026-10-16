@@ -24,6 +24,7 @@ import sys
 
 _TAG_RE = re.compile(
     r"^v(?P<major>0|[1-9]\d{0,2})\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
+    r"(?:\.(?P<revision>0|[1-9]\d*))?"
     r"(?:\+canary\.(?P<ts>20\d{6}T\d{6}Z))?$"
 )
 
@@ -32,8 +33,8 @@ def _match_tag(tag: str) -> re.Match[str]:
     m = _TAG_RE.match(tag)
     if m is None:
         raise ValueError(
-            f"malformed release tag {tag!r}: expected v<MAJOR>.<MINOR>.<PATCH> "
-            "or v<MAJOR>.<MINOR>.<PATCH>+canary.<UTC timestamp>"
+            f"malformed release tag {tag!r}: expected v1.M.m.p (or legacy vX.Y.Z), "
+            "optionally followed by +canary.<UTC timestamp>"
         )
     return m
 
@@ -42,6 +43,8 @@ def deb_version_for_tag(tag: str) -> str:
     """Map a release tag to its Debian version. Raises ValueError on malformed tags."""
     m = _match_tag(tag)
     base = f"{m.group('major')}.{m.group('minor')}.{m.group('patch')}"
+    if m.group("revision") is not None:
+        base += "." + m.group("revision")
     ts = m.group("ts")
     if ts is None:
         return f"{base}-1"

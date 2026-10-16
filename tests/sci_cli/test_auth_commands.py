@@ -79,7 +79,12 @@ def _codex_pool_only_store(*, exhausted: bool = False) -> dict:
 
 
 @pytest.fixture(autouse=True)
-def _clear_provider_env(monkeypatch):
+def _clear_provider_env(tmp_path, monkeypatch):
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex"))
+    monkeypatch.setattr("sci_cli.auth._prompt_yes_no", lambda *a, **kw: False)
+    # These tests own pool mechanics; login validation is exercised by
+    # test_codex_shared_login against controlled authenticated responses.
+    monkeypatch.setattr("sci_cli.auth_codex_shared.validate", lambda *a: None)
     for key in (
         "OPENROUTER_API_KEY",
         "OPENAI_API_KEY",
@@ -565,7 +570,7 @@ def test_auth_add_codex_warns_when_login_is_same_account_as_pooled_entry(tmp_pat
 
     err = _add_codex_twice(tmp_path, monkeypatch, capsys, _codex_jwt("me@example.com", "acct-A", "user-1"))
     assert "me@example.com" in err
-    # The warning informs; it never blocks the add.
+    # Independent refresh grants remain separate; exact copies are deduplicated.
     assert len(load_pool("openai-codex").entries()) == 2
 
 

@@ -79,6 +79,7 @@ def test_closed_modal_and_invalid_commands_cannot_write_or_probe(tmp_path, monke
     with profile_scope(home):
         removal.run(cli, "anthropic")
         from sci_cli.runtime_provider import resolve_runtime_provider
+        assert any("Provider removed:" in message for message in messages), messages
         with pytest.raises(ValueError, match="disabled"):
             resolve_runtime_provider(requested="anthropic")
     assert any("Provider removed: Anthropic" in message for message in messages)

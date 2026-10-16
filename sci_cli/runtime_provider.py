@@ -639,6 +639,12 @@ def _exchange_copilot_pool_entry(entry: Any, pool_api_key: str) -> str:
 def _resolve_from_pool(provider: str, requested_provider: str, model_cfg: Dict[str, Any], explicit_api_key, explicit_base_url,
                        target_model) -> Optional[Dict[str, Any]]:
     """Runtime from the provider's credential pool, or None to continue down the ladder."""
+    if provider == "openai-codex" and not explicit_api_key:
+        from sci_cli.auth_codex_shared import external_credentials
+        external = external_credentials()
+        if external:
+            return _runtime(provider, "codex_responses", external["base_url"], external["api_key"],
+                            source=external["source"], requested_provider=requested_provider)
     should_use_pool = provider != "openrouter" or _openrouter_should_use_pool(requested_provider, model_cfg, explicit_api_key,
                                                                              explicit_base_url)
     try:
@@ -925,6 +931,12 @@ def _resolve_vertex_runtime(requested_provider: str) -> Dict[str, Any]:
 
 def _resolve_requested_shortcuts(requested_provider, explicit_api_key, explicit_base_url, target_model) -> Optional[Dict[str, Any]]:
     """Providers decided on the REQUESTED name alone, before custom / pool / generic paths."""
+    if requested_provider == "openai-codex" and not explicit_api_key:
+        from sci_cli.auth_codex_shared import external_credentials
+        external = external_credentials()
+        if external:
+            return _runtime("openai-codex", "codex_responses", external["base_url"], external["api_key"],
+                            source=external["source"], requested_provider=requested_provider)
     if requested_provider == "moa":
         return _runtime("moa", "chat_completions", "moa://local", "moa-virtual-provider", source="moa-virtual-provider",
                         requested_provider=requested_provider)

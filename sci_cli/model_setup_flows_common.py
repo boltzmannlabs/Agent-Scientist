@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 from sci_cli.cli_output import line_input
 from sci_cli.config import clear_model_endpoint_credentials
+from sci_cli.shared_llm import with_shared_credentials
 
 _HTTP = ("http://", "https://")
 
@@ -47,6 +48,7 @@ def _ask(prompt: str, *, secret: bool = False, raw: bool = False, cancel_msg: st
         return on_cancel
 
 
+@with_shared_credentials
 def _existing_api_key_for_model_flow(provider_id: str, pconfig) -> tuple[str, str]:
     """Resolve an existing wizard credential without changing its storage."""
     from sci_cli.auth import _resolve_api_key_provider_secret
@@ -95,6 +97,10 @@ def _commit_model_config(cfg: dict) -> None:
     from sci_cli.config import save_config
     save_config(cfg)
     deactivate_provider()
+    from sci_cli.shared_provider_lifecycle import publish
+    model = cfg.get("model") or {}
+    if isinstance(model, dict) and model.get("provider"):
+        publish(model["provider"], base_url=model.get("base_url", ""))
 
 
 def _persist_model(selected: str, provider: str, *, base_url: str | None = None, api_mode: str | None = None,
@@ -143,6 +149,8 @@ def _activate_provider_model(selected, provider_id: str, base_url: str, done: st
         return
     _save_model_choice(selected)
     _update_config_for_provider(provider_id, base_url)
+    from sci_cli.shared_provider_lifecycle import publish
+    publish(provider_id)
     print(done)
 
 

@@ -2034,6 +2034,13 @@ def get_codex_auth_status() -> Dict[str, Any]:
     """Status snapshot for Codex auth (pool first, then legacy provider state).
 
     Read-only by contract: status/doctor must never adopt, refresh or persist a credential (#68004)."""
+    from sci_cli.auth_codex_shared import external_credentials
+    try:
+        external = external_credentials(read_only=True)
+    except AuthError as exc:
+        return {"logged_in": False, "provider": "openai-codex", "error": str(exc)}
+    if external:
+        return {**external, "logged_in": True}
     status = _pool_first_oauth_status(
         "openai-codex", is_expiring=_codex_access_token_is_expiring, auth_mode="chatgpt",
         resolve=lambda: resolve_codex_runtime_credentials(read_only=True),

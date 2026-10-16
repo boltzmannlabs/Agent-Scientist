@@ -2110,6 +2110,12 @@ def _resolve_codex_credential_and_base() -> Tuple[Optional[str], str]:
     it belongs to (#121486): the profile-scoped ``SCI_CODEX_BASE_URL`` wins; otherwise a pooled
     key goes where that pool entry routes (row URL / ``model.base_url``) and the auth.json OAuth
     token goes to the ChatGPT default. ``(None, <base>)`` without a usable token."""
+    from sci_cli.runtime_provider import _raise_if_provider_disabled
+    from sci_cli.auth_codex_shared import external_credentials
+    _raise_if_provider_disabled("openai-codex")
+    external = external_credentials()
+    if external:
+        return external["api_key"], external["base_url"]
     override = _codex_base_url_override()
     pool_present, entry = _select_pool_entry("openai-codex")
     if pool_present:
@@ -3615,6 +3621,11 @@ def _pool_cache_hint(provider: str, *, main_runtime: Optional[Dict[str, Any]] = 
         normalized = _normalize_aux_provider(runtime.get("provider") or _read_main_provider())
     if normalized in {"", "auto", "custom"}:
         return ""
+    if normalized == "openai-codex":
+        from sci_cli.auth_codex_shared import external_credentials
+        external = external_credentials(read_only=True)
+        if external:
+            return hashlib.blake2b(external["api_key"].encode(), digest_size=16).hexdigest()
     pool = _load_pool_with_credentials(normalized, " (cache hint)")
     if pool is None:
         return ""
@@ -5985,10 +5996,26 @@ def _get_cached_client(
     """
     current_loop = _current_event_loop() if async_mode else None
     runtime = _normalize_main_runtime(main_runtime)
+    from sci_cli.shared_provider_lifecycle import enforce_runtime_access
+    policy_provider = runtime.get("provider") if provider == "auto" else provider
+    if policy_provider:
+        enforce_runtime_access(policy_provider)
     cache_key = _client_cache_key(
         provider, async_mode=async_mode, base_url=base_url, api_key=api_key, api_mode=api_mode,
         main_runtime=main_runtime, is_vision=is_vision, task=task, model=model,
     )
+    if provider == "openai-codex" or (provider == "auto" and runtime.get("provider") == "openai-codex"):
+        from sci_cli.runtime_provider import _raise_if_provider_disabled
+        from sci_cli.auth_codex_shared import external_credentials
+        _raise_if_provider_disabled("openai-codex")
+        external = external_credentials()
+        if external:
+            # The token can change without SCI auth.json changing. Pin the client
+            # cache and the actual title request to the same current file value.
+            api_key, base_url = external["api_key"], external["base_url"]
+            if provider == "auto":
+                runtime = {**runtime, "api_key": api_key, "base_url": base_url}
+            cache_key += (_runtime_cache_discriminator("api_key", api_key),)
     with _client_cache_lock:
         if cache_key in _client_cache:
             cached_client, cached_default, cached_loop = _client_cache[cache_key]

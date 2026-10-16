@@ -54,8 +54,8 @@ if (commitBuild) {
     console.error('[stage-msixbundle] --commit must be an exact full 40-hex SHA')
     process.exit(1)
   }
-  if (!/^\d+\.\d+\.\d+$/.test(commitVersion)) {
-    console.error('[stage-msixbundle] --version=X.Y.Z is required with --commit (the target pyproject version)')
+  if (!/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(commitVersion)) {
+    console.error('[stage-msixbundle] --version=X.Y.Z or 1.M.m.p is required with --commit (the target pyproject version)')
     process.exit(1)
   }
   if (!noUpload) {

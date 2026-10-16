@@ -478,17 +478,18 @@ jobs:
           git archive "$RELEASE_COMMIT" | tar -x -C "$tree"
           python3 -m scripts.releases.stamping --tree "$tree" \
             --version "$RELEASE_VERSION"
+          package_version="$(python3 -c 'import sys; from scripts.releases.semver import package_version; print(package_version(sys.argv[1]))' "$RELEASE_VERSION")"
           actual="$(cargo metadata --no-deps --format-version 1 \
             --manifest-path "$tree/apps/bootstrap-installer/src-tauri/Cargo.toml" \
             | jq -r '.packages[] | select(.name == "sci-bootstrap") | .version')"
-          test "$actual" = "$RELEASE_VERSION" || {
-            echo "::error::Bootstrap Cargo version $actual != $RELEASE_VERSION"
+          test "$actual" = "$package_version" || {
+            echo "::error::Bootstrap Cargo version $actual != $package_version"
             exit 1
           }
           actual_tauri="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' \
             "$tree/apps/bootstrap-installer/src-tauri/tauri.conf.json")"
-          test "$actual_tauri" = "$RELEASE_VERSION" || {
-            echo "::error::Bootstrap Tauri version $actual_tauri != $RELEASE_VERSION"
+          test "$actual_tauri" = "$package_version" || {
+            echo "::error::Bootstrap Tauri version $actual_tauri != $package_version"
             exit 1
           }
 

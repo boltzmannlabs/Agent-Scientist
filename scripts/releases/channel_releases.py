@@ -312,7 +312,8 @@ def verify_canary_outputs(request: dict, manifest: dict, reader) -> None:
         pinned = parse_mac_feed(feeds[0].read_text(encoding="utf-8-sig"))
         files = [{**entry, "url": base + entry["url"] if entry["url"].startswith("/releases/") else entry["url"]}
                  for entry in live["files"]]
-        if live["version"] != request["version"] or sorted(files, key=lambda x: x["url"]) != sorted(pinned["files"], key=lambda x: x["url"]):
+        from scripts.releases.semver import package_version
+        if live["version"] != package_version(request["version"]) or sorted(files, key=lambda x: x["url"]) != sorted(pinned["files"], key=lambda x: x["url"]):
             raise ChannelError("Canary macOS feed has not promoted these packages")
         descriptor = ET.fromstring(reader.read_bytes("releases/win32/canary/canary.appinstaller"))
         bundle = descriptor.find("{*}MainBundle")

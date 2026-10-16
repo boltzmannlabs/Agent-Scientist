@@ -194,7 +194,8 @@ def _validated_rows(manifest: dict, tag: str, commit: str, public_base: str,
             if not item.get("publisher") or not item.get("applicationId") or not url.path.endswith(".msixbundle"):
                 raise ValueError("Windows candidate needs publisher, applicationId and MSIX bundle")
         elif item["platform"] == "macos":
-            if item.get("version") != tag[1:] or not re.fullmatch(r"[A-Z0-9]{10}", item.get("teamId", "")) or not url.path.endswith(".zip"):
+            from scripts.releases.semver import package_version
+            if item.get("version") != package_version(tag[1:]) or not re.fullmatch(r"[A-Z0-9]{10}", item.get("teamId", "")) or not url.path.endswith(".zip"):
                 raise ValueError("macOS candidate needs matching version, signing team and app ZIP")
         elif item.get("version") != f"{tag[1:]}-1":
             raise ValueError("Termux candidate version differs from the admitted release")

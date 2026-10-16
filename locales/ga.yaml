@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Féach ar do phlean Nous agus athraigh é sa bhrabhsálaí"
   login:
-    description: "Sínigh isteach le cuntas Nous (coinníonn sé do nascóirí)"
+    description: "Oscail socrú samhlacha SCI: sínigh isteach nó bainistigh soláthraithe"
   topup:
     description: "Taispeáin d'iarmhéid Nous agus bainistigh billeáil ar an bportal"
   platforms:

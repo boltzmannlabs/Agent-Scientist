@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Bekyk jou Nous-plan en verander dit in die blaaier"
   login:
-    description: "Meld aan met 'n Nous-rekening (behou jou koppelaars)"
+    description: "Maak SCI-modelopstelling oop: meld aan of bestuur verskaffers"
   topup:
     description: "Wys jou Nous-saldo en bestuur fakturering op die portaal"
   platforms:

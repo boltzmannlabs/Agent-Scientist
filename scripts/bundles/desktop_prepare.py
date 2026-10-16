@@ -147,7 +147,7 @@ class BuildRequest:
                 git(source, "rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}")
         release_epoch = None
         if tag:
-            canary = re.fullmatch(r"v\d+\.\d+\.\d+\+canary\.(20\d{6}T\d{6}Z)", tag)
+            canary = re.fullmatch(r"v\d+\.\d+\.\d+(?:\.\d+)?\+canary\.(20\d{6}T\d{6}Z)", tag)
             if canary:
                 release_epoch = int(datetime.strptime(canary.group(1), "%Y%m%dT%H%M%SZ")
                                     .replace(tzinfo=timezone.utc).timestamp())

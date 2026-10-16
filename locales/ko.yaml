@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Nous 요금제 확인 및 브라우저에서 변경"
   login:
-    description: "Nous 계정으로 로그인 (커넥터 유지)"
+    description: "SCI 모델 설정 열기: 로그인 또는 공급자 관리"
   topup:
     description: "Nous 잔액 표시 및 포털에서 결제 관리"
   platforms:

@@ -31,7 +31,7 @@ const { values } = parseArgs({ options: {
   'output-file': { type: 'string' },
 } })
 const tag = values.tag || process.env.SCI_PAYLOAD_TAG
-if (!/^v\d+\.\d+\.\d+$/.test(tag || '') || process.env.SCI_BUILD_COMMIT) {
+if (!/^v\d+\.\d+\.\d+(?:\.\d+)?$/.test(tag || '') || process.env.SCI_BUILD_COMMIT) {
   throw new Error('Store packaging requires a stable release tag')
 }
 process.env.SCI_PAYLOAD_TAG = tag

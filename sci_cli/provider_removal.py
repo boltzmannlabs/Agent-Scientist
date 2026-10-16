@@ -126,7 +126,7 @@ def _check_managed(target):
         raise RemovalError("This provider configuration is managed by your administrator; it cannot be removed here.")
 
 
-def prepare(home, target, *, everywhere, live_provider="", live_url=""):
+def prepare(home, target, *, everywhere, live_provider="", live_url="", replacements=None):
     from sci_constants import get_default_sci_root
     from sci_cli.route_identity import normalize_route_base_url
     from sci_cli.providers import custom_provider_slug
@@ -154,14 +154,23 @@ def prepare(home, target, *, everywhere, live_provider="", live_url=""):
         _norm(live_provider) in {"", "custom", "auto"} and normalize_route_base_url(live_url) in target.urls
     ):
         raise RemovalError("This conversation is using that provider. Select another provider with /model first, then retry removal.")
+    original_configs = deepcopy(configs)
+    if replacements is not None:
+        from sci_cli.provider_reference_review import apply_replacements
+        for owner, config in configs.items():
+            configs[owner] = apply_replacements(config, target, replacements.get(owner, {}))
     blockers = [f"{('main' if owner == root else owner.name)}: {ref}"
                 for owner, config in configs.items() for ref in _references(config, target)]
     if blockers:
         raise RemovalError("Provider is still selected in saved settings: " + "; ".join(blockers) +
                            ". Choose replacements first (/model <model> --provider <provider> --global for a profile default). Nothing changed.")
     desired = {}
-    for owner in (inspected if everywhere else [home]):
+    for owner in inspected:
         config = deepcopy(configs[owner])
+        if not everywhere and owner != home:
+            if config != original_configs[owner]:
+                desired[owner / "config.yaml"] = config
+            continue
         providers = config.setdefault("providers", {})
         for key, entry in list(providers.items()):
             if isinstance(entry, dict) and target.aliases.intersection(_aliases(key, entry)):
@@ -256,9 +265,25 @@ def run(cli, requested="", rows=None, *, ui=None):
                 else "Hide in this profile only")
         scope = ui.choose("Choose removal scope:", [hide, "Delete provider definitions in main and all profiles", "Cancel"])
         live = [getattr(cli, "requested_provider", ""), getattr(cli, "provider", "")]
+        from sci_cli.provider_reference_review import review
+        root = get_default_sci_root(home=home)
+        owners = _homes(home) if scope.startswith("Delete") or home == root else [home]
+        configs = {owner: _read(owner) for owner in owners}
+        reviewed_bytes = {owner: (owner / "config.yaml").read_bytes() if (owner / "config.yaml").exists() else None for owner in owners}
+        replacements = review(ui, configs, target, root)
+        if any(((owner / "config.yaml").read_bytes() if (owner / "config.yaml").exists() else None) != reviewed_bytes[owner]
+               for owner in owners):
+            raise RemovalError("Configuration changed during reference review; reopen removal. Nothing changed.")
         plan = prepare(home, target, everywhere=scope.startswith("Delete"),
                        live_provider=next((p for p in live if _matches(p, target)), next((p for p in live if p), "")),
-                       live_url=getattr(cli, "base_url", "") or "")
+                       live_url=getattr(cli, "base_url", "") or "", replacements=replacements)
+        if any(plan.snapshots[owner / "config.yaml"] != reviewed_bytes[owner] for owner in owners):
+            raise RemovalError("Configuration changed during review; reopen removal. Nothing changed.")
+        if replacements:
+            ui.show("Reviewed saved routes: " + "; ".join(
+                f"{'main' if owner == root else owner.name}: {'.'.join(map(str, path))} → " +
+                (f"{value['provider']} / {value['model']}" if value else "unconfigured")
+                for owner, changes in replacements.items() for path, value in changes.items()))
         ui.show(f"Provider: {target.label} [{target.slug}]\nScope: {scope}\n"
                 f"Affected profiles: {', '.join(plan.affected)}\n"
                 "All models from this provider disappear from the affected pickers. "

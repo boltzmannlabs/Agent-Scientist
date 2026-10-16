@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Ver seu plano Nous e alterá-lo no navegador"
   login:
-    description: "Entrar com uma conta Nous (mantém seus conectores)"
+    description: "Abrir a configuração de modelos SCI: entrar ou gerir provedores"
   topup:
     description: "Mostrar seu saldo Nous e gerenciar a cobrança no portal"
   platforms:

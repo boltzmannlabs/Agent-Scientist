@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Посмотреть ваш тариф Nous и изменить его в браузере"
   login:
-    description: "Войти с аккаунтом Nous (ваши коннекторы сохраняются)"
+    description: "Открыть настройки моделей SCI: войти или управлять провайдерами"
   topup:
     description: "Показать ваш баланс Nous и управлять оплатой на портале"
   platforms:

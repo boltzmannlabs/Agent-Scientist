@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Nous プランを確認し、ブラウザで変更"
   login:
-    description: "Nous アカウントでサインイン（コネクターは維持）"
+    description: "SCI モデル設定を開く：サインインまたはプロバイダーの管理"
   topup:
     description: "Nous の残高を表示し、ポータルで請求を管理"
   platforms:

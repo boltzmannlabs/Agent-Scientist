@@ -1679,7 +1679,7 @@ slash:
   subscription:
     description: "A Nous csomagod megtekintése és módosítása a böngészőben"
   login:
-    description: "Bejelentkezés Nous fiókkal (a csatlakoztatott appjaid megmaradnak)"
+    description: "SCI modellbeállítások megnyitása: bejelentkezés vagy szolgáltatók kezelése"
   topup:
     description: "A Nous egyenleged megjelenítése és a számlázás kezelése a portálon"
   platforms:

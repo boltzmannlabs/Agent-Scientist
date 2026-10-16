@@ -1733,7 +1733,7 @@ slash:
   subscription:
     description: "View your Nous plan and change it in the browser"
   login:
-    description: "Sign in with a Nous account (keeps your connectors)"
+    description: "Open SCI model setup: sign in or manage providers"
   topup:
     description: "Show your Nous balance and manage billing on the portal"
   platforms:

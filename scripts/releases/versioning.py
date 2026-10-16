@@ -15,8 +15,8 @@ from typing import Any
 from sci_cli.update_channel import STABLE_TAG_RE
 from scripts.releases.semver import compare
 
-SEED = "0.21.4"
-BUMPS = ("major", "minor", "patch")
+SEED = "1.0.0.0"
+BUMPS = ("major", "milestone", "minor", "patch")
 
 
 def published_channel_identity(repository: str, channel: str, *, base_url: str | None = None,
@@ -160,12 +160,15 @@ def marker_ref(version: str, attempt: int) -> str:
 def _bump(version: str, bump: str) -> str:
     if bump not in BUMPS:
         raise ValueError(f"unknown bump {bump!r}")
-    major, minor, patch = (int(part) for part in version.split("."))
-    if bump == "major":
-        return f"{major + 1}.0.0"
-    if bump == "minor":
-        return f"{major}.{minor + 1}.0"
-    return f"{major}.{minor}.{patch + 1}"
+    if version_from_tag("v" + version) is None:
+        raise ValueError(f"invalid published version: {version!r}")
+    parts = [int(part) for part in version.split(".")]
+    positions = ({"major": 0, "milestone": 1, "minor": 2, "patch": 3} if len(parts) == 4
+                 else {"major": 0, "milestone": 1, "minor": 1, "patch": 2})
+    position = positions[bump]
+    parts[position] += 1
+    parts[position + 1:] = [0] * (len(parts) - position - 1)
+    return ".".join(map(str, parts))
 
 
 def derive_next_version(*, published: str | None, bump: str) -> str:
@@ -174,7 +177,9 @@ def derive_next_version(*, published: str | None, bump: str) -> str:
     Attempts do not move the line. A version is spent by publication, so an
     abandoned attempt leaves its version free for the next cut.
     """
-    return _bump(published or SEED, bump)
+    if bump not in BUMPS:
+        raise ValueError(f"unknown bump {bump!r}")
+    return _bump(published, bump) if published is not None else SEED
 
 
 def next_attempt(version: str, refs: list[str]) -> int:

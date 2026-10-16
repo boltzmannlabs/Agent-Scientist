@@ -144,14 +144,15 @@ def validate_request(value: object, *, repository: str | None = None,
     require_commit(request.get("commit"))
     if "controllerCommit" in request:
         require_commit(request["controllerCommit"])
-    _match(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", request.get("sourceVersion"), "source version")
+    from sci_cli.update_channel import RELEASE_VERSION_PATTERN
+    _match(RELEASE_VERSION_PATTERN, request.get("sourceVersion"), "source version")
     versions = package_versions(request.get("sequence"))
     if policy == "preview":
         if (request.get("version"), request.get("windowsVersion")) != versions:
             raise ChannelError("Channel package version does not match sequence")
     else:
         _match(
-            r"v[0-9]+\.[0-9]+\.[0-9]+(?:\+canary\.20[0-9]{6}T[0-9]{6}Z)?",
+            rf"v{RELEASE_VERSION_PATTERN}(?:\+canary\.20[0-9]{{6}}T[0-9]{{6}}Z)?",
             request.get("releaseTag"),
             "release tag",
         )
@@ -229,7 +230,8 @@ def validate_record(value: object, *, name: str | None = None, repository: str |
         validate_identity(record.get("identity"))
     if record["state"] == "retired":
         validate_name(record.get("destination"))
-        _match(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", record.get("minimumVersion"), "retirement minimum version")
+        from sci_cli.update_channel import RELEASE_VERSION_PATTERN
+        _match(RELEASE_VERSION_PATTERN, record.get("minimumVersion"), "retirement minimum version")
         if _head(record.get("destinationHead")) is None:
             raise ChannelError("Retirement requires a pinned destination head")
         if type(record.get("receiverProtocol")) is not int or record["receiverProtocol"] != 1:
@@ -384,7 +386,9 @@ def validate_manifest(value: object, record: dict, base_url: str) -> dict:
         identity_field, version_field, signing_field = (
             ("appId", "version", "teamId") if target[0] == "darwin"
             else ("msixAppIdWithOrg", "windowsVersion", "publisher"))
-        if package.get("identity") != request["identity"][identity_field] or package.get("version") != request[version_field]:
+        from scripts.releases.semver import package_version
+        expected_version = package_version(request[version_field]) if target[0] == "darwin" else request[version_field]
+        if package.get("identity") != request["identity"][identity_field] or package.get("version") != expected_version:
             raise ChannelError("Native package identity or version mismatch")
         signing = package.get(signing_field)
         if not isinstance(signing, str) or not signing or any(ord(c) < 32 for c in signing):

@@ -53,17 +53,16 @@ CHANNEL_CANARY = "canary"
 # so channel movement comes only from the R2 head, never version comparison.
 # THIS is the single authority; producers and consumers import it rather than
 # re-typing the shape.
-_CANARY_TAG_RE = re.compile(
-    r"^v(?:0|[1-9]\d{0,2})\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)"
-    r"\+canary\.20\d{6}T\d{6}Z$"
-)
+RELEASE_VERSION_PATTERN = r"(?:0|[1-9]\d{0,2})\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))?"
+_CANARY_TAG_RE = re.compile(rf"^v{RELEASE_VERSION_PATTERN}\+canary\.20\d{{6}}T\d{{6}}Z$")
 
-# A stable release tag: v<major>.<minor>.<patch>, no suffix. The major is
+# SCI tags use v<major>.<milestone>.<minor>.<patch>; older three-part
+# releases remain readable. No suffix. The major is
 # capped at three digits so the historical CalVer tags (v2026.7.20) can never
 # pass as SemVer and reach a stable feed, Docker publish, or the source
 # updater. THIS is the single authority for the stable shape; every stable
 # selector imports it rather than re-typing the rule.
-STABLE_TAG_RE = re.compile(r"^v(?:0|[1-9]\d{0,2})\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$")
+STABLE_TAG_RE = re.compile(rf"^v{RELEASE_VERSION_PATTERN}$")
 
 
 def is_canary_tag(tag: Any) -> bool:

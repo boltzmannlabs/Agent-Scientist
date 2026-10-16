@@ -1,213 +1,175 @@
-import threading
-from io import StringIO
+"""SCI login opens provider setup, never a vendor portal or a conversation turn."""
+
+import asyncio
+import json
+import sys
+from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import MagicMock
 
 import pytest
-from rich.console import Console
 
-from agent.i18n import t
-from sci_cli import anon_auth
-from sci_cli import cli_commands_mixin as commands
+from sci_cli.cli_commands_mixin import CLICommandsMixin
+from sci_cli.commands import COMMANDS, resolve_command
 
-class _Thread:
-    def __init__(self, target):
-        self.target = target
-        self.started = False
 
-    def start(self):
-        self.started = True
+@pytest.mark.platforms("posix")
+def test_login_real_model_setup_handoff_preserves_profile_and_cached_conversation(tmp_path, monkeypatch):
+    import os
+    import pty
+    from prompt_toolkit import Application
+    from prompt_toolkit.input import create_pipe_input
+    from prompt_toolkit.output import DummyOutput
+    from sci_cli import relaunch
+    from sci_cli.config import atomic_config_replace, read_user_config_raw
+    from sci_cli.native_profile_creation import profile_scope
 
-    def join(self):
-        self.target()
-
-def _cli(monkeypatch):
-    cli = SimpleNamespace(console=MagicMock())
-    workers = []
-
-    def side_worker(produce, **kwargs):
-        thread = _Thread(produce)
-        workers.append((thread, kwargs))
-        return thread
-
-    cli._side_worker = side_worker
-    cli._handle_login_command = commands.CLICommandsMixin._handle_login_command.__get__(cli)
+    main = tmp_path / ".sci"
+    homes = [main, main / "profiles/a", main / "profiles/b"]
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("SCI_HOME", str(main))
+    for home in homes:
+        home.mkdir(parents=True)
+        atomic_config_replace(home / "config.yaml", {"model": {"provider": "fixture", "default": "old"}})
     output = []
-    monkeypatch.setattr(commands, "_cp", lambda *lines: output.extend(lines))
-    return cli, workers, output
+    monkeypatch.setattr("cli._cprint", lambda *lines: output.extend(lines))
+    # The REAL model command and loaders run in a child. Only its picker is
+    # controlled: select no provider, then record a harmless reviewed default.
+    code = """
+from sci_cli import main
+from sci_cli.config import atomic_config_replace, read_user_config_raw
+from sci_constants import get_sci_home
+from types import SimpleNamespace
+main._pick_provider = lambda *args: None
+main.cmd_model(SimpleNamespace())
+path = get_sci_home() / 'config.yaml'
+cfg = read_user_config_raw(path)
+cfg['model']['default'] = 'fixture-reviewed-default'
+atomic_config_replace(path, cfg)
+"""
+    monkeypatch.setattr(relaunch, "build_relaunch_argv", lambda args, **kw: [sys.executable, "-c", code])
+    master, slave = pty.openpty()
+    terminal = os.fdopen(os.dup(slave), "r")
+    monkeypatch.setattr(sys, "stdin", terminal)
+    real_spawn = asyncio.create_subprocess_exec
+    spawns = []
 
-def test_the_cli_handler_prints_the_code_then_drains_off_thread(monkeypatch):
-    cli, workers, output = _cli(monkeypatch)
-    states = iter([
-        anon_auth.Code("https://example.test/sign-in", "CODE-1", 900, 5),
-        anon_auth.Completed(email="person@example.test", model="model-1", model_changed=True),
-    ])
-    monkeypatch.setattr(anon_auth, "run_sign_in", lambda **_kwargs: states)
-    monkeypatch.setattr(
-        anon_auth, "render_sign_in_cli_code",
-        lambda state, **kwargs: kwargs["printer"](state.link, state.code, f"  {state.copy_with_wait}"))
+    async def spawn(*args, **kwargs):
+        spawns.append(kwargs["env"]["SCI_HOME"])
+        return await real_spawn(*args, **kwargs, stdin=slave, stdout=slave, stderr=slave)
 
-    cli._handle_login_command("/login")
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", spawn)
 
-    assert output == [
-        "  Starting sign-in...",
-        "https://example.test/sign-in",
-        "CODE-1",
-        "  Do not share this code. Waiting for sign-in, up to 15 minutes.",
-    ]
-    assert workers[0][0].started is True
-    assert workers[0][0].target() == (
-        "Signed in as person@example.test.\nDefault model is now model-1.")
+    async def exercise(home):
+        with create_pipe_input() as user_input:
+            app = Application(input=user_input, output=DummyOutput())
+            cli = SimpleNamespace(_app=app, _invalidate=lambda: None, model="cached-model",
+                                  conversation_history=[{"role": "user", "content": "hello"}],
+                                  agent=SimpleNamespace(system_prompt="cached-prefix", tools=[{"name": "fixture"}]))
+            before = json.dumps([cli.model, cli.conversation_history, vars(cli.agent)])
+            errors = []
 
-@pytest.mark.parametrize(
-    "terminal,initial_model,expected_model",
-    [
-        (anon_auth.Completed(model="model-1", model_changed=True), anon_auth.GUEST_MODEL, "model-1"),
-        (anon_auth.Completed(model="model-1", model_changed=True),
-         "openrouter/some-model", "openrouter/some-model"),
-        (anon_auth.Declined(), anon_auth.GUEST_MODEL, anon_auth.GUEST_MODEL),
-    ],
-)
-def test_the_drain_only_moves_the_free_tier_model_on_completion(
-        monkeypatch, terminal, initial_model, expected_model):
-    cli, workers, _output = _cli(monkeypatch)
-    cli.model = initial_model
-    monkeypatch.setattr(anon_auth, "run_sign_in", lambda **_kwargs: iter([
-        anon_auth.Code("https://example.test/sign-in", "CODE-1", 900, 5),
-        terminal,
-    ]))
-    monkeypatch.setattr(anon_auth, "render_sign_in_cli_code", lambda *_args, **_kwargs: None)
+            async def launch():
+                try:
+                    with profile_scope(home):
+                        # Production slash commands enter on a worker thread.
+                        await asyncio.to_thread(CLICommandsMixin._handle_login_command, cli, "/LOGIN")
+                    while getattr(cli, "_login_setup_open", False):
+                        await asyncio.sleep(0.01)
+                    assert json.dumps([cli.model, cli.conversation_history, vars(cli.agent)]) == before
+                    assert read_user_config_raw(home / "config.yaml")["model"]["default"] == "fixture-reviewed-default"
+                except Exception as exc:
+                    errors.append(exc)
+                finally:
+                    app.exit()
 
-    cli._handle_login_command("/login")
-    workers[0][0].join()
+            await asyncio.wait_for(app.run_async(pre_run=lambda: app.create_background_task(launch())), timeout=30)
+            if errors:
+                raise errors[0]
 
-    assert cli.model == expected_model
+    try:
+        for home in (main, homes[1], homes[2], homes[1]):
+            asyncio.run(exercise(home))
+        assert spawns == [str(home) for home in (main, homes[1], homes[2], homes[1])]
+        assert sum("SCI model setup closed" in line for line in output) == 4
+        assert resolve_command("LOGIN").name == "login"
+        assert "/login" in COMMANDS
+        assert "Nous" not in resolve_command("login").describe()
+    finally:
+        terminal.close()
+        os.close(master)
+        os.close(slave)
 
-def test_a_precondition_prints_without_starting_a_thread(monkeypatch):
-    cli, workers, output = _cli(monkeypatch)
-    monkeypatch.setattr(anon_auth, "run_sign_in", lambda **_kwargs: iter([anon_auth.AlreadySignedIn()]))
 
-    cli._handle_login_command("/login")
+@pytest.mark.parametrize("case", ["busy", "already_open", "noninteractive", "failed", "cancelled", "async_cancel"])
+def test_login_honest_outcomes_and_no_implicit_portal(case, monkeypatch):
+    from sci_cli import cli_login, relaunch
+    from tools.environments import local
+    output, spawned = [], []
+    monkeypatch.setattr("cli._cprint", lambda *lines: output.extend(lines))
+    monkeypatch.setattr(sys, "stdin", SimpleNamespace(isatty=lambda: case != "noninteractive"))
+    monkeypatch.setattr(relaunch, "build_relaunch_argv", lambda args, **kw: [sys.executable, "-m", "sci_cli.main", *args])
+    monkeypatch.setattr(local, "served_profile_child_env", lambda **kw: {})
 
-    assert output == ["  Starting sign-in...", "  Already signed in."]
-    assert workers == []
-
-def test_ctrl_c_during_the_first_advance_prints_the_cancelled_copy(monkeypatch):
-    cli, workers, output = _cli(monkeypatch)
-    closed = threading.Event()
-
-    def flow():
-        try:
+    def run(argv, **kwargs):
+        spawned.append(argv)
+        if case == "cancelled":
             raise KeyboardInterrupt
-            yield
-        finally:
-            closed.set()
+        return SimpleNamespace(returncode=1)
 
-    monkeypatch.setattr(anon_auth, "run_sign_in", lambda **_kwargs: flow())
+    monkeypatch.setattr(cli_login.subprocess, "run", run)
+    if case == "async_cancel":
+        from contextlib import asynccontextmanager
 
-    cli._handle_login_command("/login")
+        async def cancel_setup():
+            started = asyncio.Event()
+            process = SimpleNamespace(returncode=None)
+            tasks = []
 
-    assert output[-1] == anon_auth.UPGRADE_CANCELLED
-    assert closed.is_set()
-    assert workers == []
+            async def wait():
+                if process.returncode is None:
+                    started.set()
+                    await asyncio.Event().wait()
+                return process.returncode
 
-def test_the_handler_never_calls_input_and_uses_the_short_timeout(monkeypatch):
-    cli, _workers, _output = _cli(monkeypatch)
-    seen = []
-    monkeypatch.setattr("builtins.input", lambda *_args: (_ for _ in ()).throw(AssertionError("input called")))
+            def terminate():
+                process.returncode = -15
 
-    def flow(**kwargs):
-        seen.append(kwargs)
-        return iter([anon_auth.AlreadySignedIn()])
+            process.wait, process.terminate = wait, terminate
 
-    monkeypatch.setattr(anon_auth, "run_sign_in", flow)
-    cli._handle_login_command("/login")
+            async def spawn(*args, **kwargs):
+                return process
 
-    assert seen == [{"timeout_seconds": 8.0}]
+            @asynccontextmanager
+            async def terminal():
+                try:
+                    yield
+                finally:
+                    assert process.returncode == -15
 
-def test_the_command_resolves_through_the_cli_fallback():
-    from cli import SciCLI
-    assert SciCLI._slash_handler("login") == ("_handle_login_command", True)
+            def create_task(coro):
+                tasks.append(asyncio.create_task(coro))
 
-def test_the_drain_writes_to_the_console_captured_at_start(monkeypatch):
-    old_buf, new_buf = StringIO(), StringIO()
-    gate = threading.Event()
-    threads = []
-    cli = SimpleNamespace(
-        console=Console(file=old_buf, force_terminal=False, width=100),
-        _app=None,
-        bell_on_complete=False,
-        final_response_markdown=False,
-        _scrollback_box_width=lambda: 80,
-        _invalidate=lambda **_kwargs: None,
-    )
-    real_side_worker = commands.CLICommandsMixin._side_worker.__get__(cli)
+            monkeypatch.setattr(asyncio, "create_subprocess_exec", spawn)
+            monkeypatch.setattr("prompt_toolkit.application.in_terminal", terminal)
+            app = SimpleNamespace(is_running=True, loop=asyncio.get_running_loop(), create_background_task=create_task)
+            cli = SimpleNamespace(_app=app, _invalidate=lambda: None)
+            CLICommandsMixin._handle_login_command(cli, "/login")
+            await asyncio.wait_for(started.wait(), timeout=2)
+            tasks[0].cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await tasks[0]
+            assert not cli._login_setup_open
+            assert "cancelled" in output[-1]
 
-    def side_worker(*args, **kwargs):
-        thread = real_side_worker(*args, **kwargs)
-        threads.append(thread)
-        return thread
-
-    cli._side_worker = side_worker
-    cli._handle_login_command = commands.CLICommandsMixin._handle_login_command.__get__(cli)
-    monkeypatch.setattr(commands, "_cp", lambda *_lines: None)
-    monkeypatch.setattr(anon_auth, "render_sign_in_cli_code", lambda *_args, **_kwargs: None)
-
-    def flow(**_kwargs):
-        yield anon_auth.Code("https://example.test/sign-in", "CODE", 60, 1)
-        gate.wait()
-        yield anon_auth.Completed(email="person@example.test")
-
-    monkeypatch.setattr(anon_auth, "run_sign_in", flow)
-    cli._handle_login_command("/login")
-    cli.console = Console(file=new_buf, force_terminal=False, width=100)
-    gate.set()
-    threads[0].join(timeout=2)
-
-    assert "Signed in as person@example.test." in old_buf.getvalue()
-    assert new_buf.getvalue() == ""
-
-def test_the_live_tui_drain_prints_through_cprint_instead_of_the_captured_console(monkeypatch):
-    import cli as cli_module
-
-    old_buf, new_buf = StringIO(), StringIO()
-    gate = threading.Event()
-    threads = []
-    output = []
-    cli = SimpleNamespace(
-        console=Console(file=old_buf, force_terminal=False, width=100),
-        _app=SimpleNamespace(invalidate=lambda: None),
-        bell_on_complete=False,
-        final_response_markdown=False,
-        _scrollback_box_width=lambda: 80,
-        _invalidate=lambda **_kwargs: None,
-    )
-    real_side_worker = commands.CLICommandsMixin._side_worker.__get__(cli)
-
-    def side_worker(*args, **kwargs):
-        thread = real_side_worker(*args, **kwargs)
-        threads.append(thread)
-        return thread
-
-    cli._side_worker = side_worker
-    cli._handle_login_command = commands.CLICommandsMixin._handle_login_command.__get__(cli)
-    monkeypatch.setattr(commands, "_cp", lambda *lines: output.extend(lines))
-    monkeypatch.setattr(cli_module, "_cprint", lambda *lines, **_kwargs: output.extend(lines))
-    monkeypatch.setattr(anon_auth, "render_sign_in_cli_code", lambda *_args, **_kwargs: None)
-
-    def flow(**_kwargs):
-        yield anon_auth.Code("https://example.test/sign-in", "CODE", 60, 1)
-        gate.wait()
-        yield anon_auth.Completed(email="person@example.test")
-
-    monkeypatch.setattr(anon_auth, "run_sign_in", flow)
-    cli._handle_login_command("/login")
-    cli.console = Console(file=new_buf, force_terminal=False, width=100)
-    gate.set()
-    threads[0].join(timeout=2)
-
-    assert not threads[0].is_alive()
-    assert old_buf.getvalue() == ""
-    assert new_buf.getvalue() == ""
-    assert f"  {t('cli.commands.login.label')}" in output
-    assert any("Signed in as person@example.test." in line for line in output)
+        asyncio.run(cancel_setup())
+        return
+    cli = SimpleNamespace(_app=None, _agent_running=case == "busy", _login_setup_open=case == "already_open")
+    CLICommandsMixin._handle_login_command(cli, "/login")
+    assert bool(spawned) == (case in {"failed", "cancelled"})
+    assert all("nous" not in line.lower() for line in output)
+    if spawned:
+        assert spawned[0][-1] == "model"
+        assert not cli._login_setup_open
+        assert ("failed" if case == "failed" else "cancelled") in output[-1]
+    else:
+        assert len(output) == 1

@@ -68,7 +68,8 @@ def _release(repo, commit, **overrides):
     from scripts.releases.entrypoint import release
 
     arguments = {"bump": "patch", "repo": repo, "remote": "origin",
-                 "repository": "example/sci-agent", "execute": lambda _command: None}
+                 "repository": "example/sci-agent", "execute": lambda _command: None,
+                 "published": ("0.21.4", None)}  # Exercise legacy release compatibility explicitly.
     return release(commit, **{**arguments, **overrides})
 
 
@@ -98,7 +99,7 @@ def test_release_claims_the_first_attempt_creates_a_draft_and_dispatches(source)
     assert result["commit"] == commit
     # A draft lives at the page gh reports, never at releases/tag/<claim>.
     assert result["url"] == "https://github.com/example/hermes-agent/releases/tag/untagged-0123abcd"
-    assert result["final_url"] == "https://github.com/example/hermes-agent/releases/tag/v0.21.5"
+    assert result["final_url"] == "https://github.com/example/sci-agent/releases/tag/v0.21.5"
     assert git(source, "rev-parse", "rc.1-v0.21.5^{commit}") == commit
     claim = tag_record(git(source, "tag", "-l", "rc.1-v0.21.5", "--format=%(contents)"))
     assert isinstance(claim.pop("claimEpoch"), int)
@@ -167,7 +168,7 @@ def test_an_unlisted_run_points_at_the_workflow_page():
                        "repository": "example/sci-agent", "run_url": "",
                        "url": "https://github.com/example/hermes-agent/releases/tag/untagged-0123abcd"})
     assert "the run is not listed yet" in text
-    assert "https://github.com/example/hermes-agent/actions/workflows/stable-release.yml" in text
+    assert "https://github.com/example/sci-agent/actions/workflows/stable-release.yml" in text
 
 
 @pytest.mark.parametrize(("lists_on", "wait", "run_url", "naps"), [
@@ -360,7 +361,7 @@ def test_release_draft_lists_the_commits_since_the_stable_base(source, published
     # The notes are this repository's commits from the stable base to the cut
     # commit, not GitHub's merged-PR list, which a fork leaves empty.
     assert "New in this release" in body
-    assert "https://github.com/example/hermes-agent/pull/123" in body
+    assert "https://github.com/example/sci-agent/pull/123" in body
     assert "hipped in the published release" not in body
     assert "compare/v0.21.4...rc.1-v0.21.5" in body
     # The stable workflow renders the download tables into this marker.
@@ -429,11 +430,13 @@ def test_no_changelog_releases_what_the_full_changelog_could_not(source, tmp_pat
     ["release", "--commit", "HEAD", "--no-changelog"],
     ["--no-changelog", "release", "--commit", "HEAD"],
 ])
-def test_release_command_accepts_no_changelog(argv, monkeypatch):
+def test_release_command_accepts_no_changelog(argv, monkeypatch, tmp_path):
     from scripts import release as release_script
     from scripts.releases import entrypoint
 
     seen = {}
+    # Parsing is independent of this checkout's intentionally disabled native publication.
+    monkeypatch.setattr(release_script, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(entrypoint, "cmd_release", lambda args: seen.setdefault("args", args))
     monkeypatch.setattr(release_script.sys, "argv", ["release.py", *argv])
 
@@ -652,7 +655,7 @@ def test_concurrent_claim_loser_reports_the_remote_winner_and_the_version_stays_
     fresh = tmp_path / "fresh"
     git(tmp_path, "clone", "--quiet", origin, str(fresh))
     refs = git(fresh, "tag", "--list", "rc.*").splitlines()
-    assert derive_next_version(published=None, bump="patch") == "0.21.5"
+    assert derive_next_version(published="0.21.4", bump="patch") == "0.21.5"
     assert next_attempt("0.21.5", refs) == 2
 
 

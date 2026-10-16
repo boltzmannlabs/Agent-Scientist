@@ -113,7 +113,8 @@ def record(platform: str, arch: str, root: Path, tag: str, commit: str, out: Pat
         if stamp.get("receiverProtocol") == 1:
             row["receiverProtocol"] = 1
         row.update(identity=info["CFBundleIdentifier"], teamId=team.group(1), version=info["CFBundleShortVersionString"], filename=package.name)
-        if row["version"] != (channel_request["version"] if channel_request else tag[1:]):
+        from scripts.releases.semver import package_version
+        if row["version"] != (channel_request["version"] if channel_request else package_version(tag[1:])):
             raise ValueError("App version differs from release tag")
     elif platform == "termux":
         package = single((root / "deb").glob("*.deb"))

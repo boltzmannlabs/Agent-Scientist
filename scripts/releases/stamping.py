@@ -27,6 +27,8 @@ def _rewrite(path: Path, pattern: str, replacement: str, *, count: int = 0, flag
 def stamp(tree: Path, version: str) -> list[Path]:
     """Rewrite external builder version inputs under ``tree``."""
     written: list[Path] = []
+    from scripts.releases.semver import package_version
+    native_version = package_version(version)
 
     nix_package = tree / "nix" / "sci-agent.nix"
     if _rewrite(
@@ -39,7 +41,7 @@ def stamp(tree: Path, version: str) -> list[Path]:
         written.append(nix_package)
 
     installer = tree / "apps" / "bootstrap-installer" / "src-tauri"
-    json_version = rf'\g<1>"{version}"'
+    json_version = rf'\g<1>"{native_version}"'
     for path, pattern, replacement, flags in (
         (
             installer / "tauri.conf.json",
@@ -50,7 +52,7 @@ def stamp(tree: Path, version: str) -> list[Path]:
         (
             installer / "Cargo.toml",
             r'^version\s*=\s*"[^"]+"',
-            f'version = "{version}"',
+            f'version = "{native_version}"',
             re.MULTILINE,
         ),
     ):
@@ -63,6 +65,8 @@ def stamp(tree: Path, version: str) -> list[Path]:
 
 
 def validate_bootstrap_version(tree: Path, version: str) -> None:
+    from scripts.releases.semver import package_version
+    native_version = package_version(version)
     installer = tree / "apps" / "bootstrap-installer" / "src-tauri"
     tauri = json.loads((installer / "tauri.conf.json").read_text(encoding="utf-8-sig"))
     cargo = tomllib.loads((installer / "Cargo.toml").read_text(encoding="utf-8-sig"))
@@ -70,7 +74,7 @@ def validate_bootstrap_version(tree: Path, version: str) -> None:
         "Tauri config": tauri.get("version"),
         "Cargo package": cargo.get("package", {}).get("version"),
     }
-    mismatches = {name: value for name, value in values.items() if value != version}
+    mismatches = {name: value for name, value in values.items() if value != native_version}
     if mismatches:
         raise ValueError(f"Bootstrap installer version differs from {version}: {mismatches}")
 

@@ -585,6 +585,12 @@ class ClientLifecycleMixin:
         singleton_key = str(singleton_now.get("api_key") or "").strip()
         old_key = str(self.api_key or "").strip()
         if singleton_key and old_key and singleton_key != old_key:
+            if singleton_now.get("source") == "codex-file-reference":
+                from agent.credential_pool import _codex_principal_identity
+                identity = _codex_principal_identity(old_key)
+                if identity and identity == _codex_principal_identity(singleton_key):
+                    return self._adopt_openai_credentials(singleton_key, singleton_now["base_url"],
+                                                          reason="codex_file_rotation")
             logger.debug(
                 "%s singleton tokens differ from the active api_key; skipping singleton force-refresh to avoid "
                 "silent account swap. Reactive credential rotation should go through the pool.", self.provider,

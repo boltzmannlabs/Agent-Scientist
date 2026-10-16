@@ -38,8 +38,9 @@ def version_at(repo: Path | None, commit: str, *, run=output) -> str:
     require_commit(commit)
     document = tomllib.loads(run(["git", "show", f"{commit}:pyproject.toml"], repo))
     version = document["project"]["version"]
-    if not isinstance(version, str) or not re.fullmatch(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", version):
-        raise ValueError("Commit packaging requires project.version=X.Y.Z")
+    from sci_cli.update_channel import STABLE_TAG_RE
+    if not isinstance(version, str) or not STABLE_TAG_RE.fullmatch("v" + version):
+        raise ValueError("Commit packaging requires project.version=X.Y.Z or 1.M.m.p")
     return version
 
 

@@ -33,7 +33,7 @@ def _read_main_scope(main):
         reset_sci_home_override(home_token)
 
 
-def provider_config(config):
+def provider_config(config, *, expand=True):
     """Add main's missing provider definitions, retaining the caller's model/settings.
 
     Expansion occurs in the owning home so a shared endpoint's key reference cannot
@@ -48,11 +48,13 @@ def provider_config(config):
 
     with _read_main_scope(main):
         raw = read_user_config_raw(main / "config.yaml")
-        shared = _expand_env_vars({k: raw[k] for k in ("providers", "custom_providers") if k in raw})
+        shared = deepcopy({k: raw[k] for k in ("providers", "custom_providers") if k in raw})
+        if expand:
+            shared = _expand_env_vars(shared)
         from agent.secret_scope import get_secret_str
         entries = list((shared.get("providers") or {}).values()) + list(shared.get("custom_providers") or [])
         for entry in entries:
-            if isinstance(entry, dict) and not entry.get("api_key"):
+            if expand and isinstance(entry, dict) and not entry.get("api_key"):
                 key_env = entry.get("key_env") or entry.get("api_key_env")
                 if key_env:
                     entry["api_key"] = get_secret_str(str(key_env), "")

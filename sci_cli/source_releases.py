@@ -152,7 +152,7 @@ def _refuse_retirement_downgrade(request: dict, terminal: dict, git_cmd, cwd) ->
         with version_file.open("rb") as file:
             project = tomllib.load(file).get("project")
         installed_version = project.get("version") if isinstance(project, dict) else None
-        if not isinstance(installed_version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", installed_version, re.ASCII):
+        if not isinstance(installed_version, str) or not re.fullmatch(r"\d+\.\d+\.\d+(?:\.\d+)?", installed_version, re.ASCII):
             raise ValueError("Source retirement cannot verify the installed source version")
         if tuple(map(int, installed_version.split("."))) > tuple(map(int, request["sourceVersion"].split("."))):
             raise ValueError("Source retirement would downgrade a newer source version; select the destination channel explicitly")

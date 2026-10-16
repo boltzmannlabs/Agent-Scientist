@@ -397,11 +397,13 @@ def _poll_for_token(
         on_timeout=lambda: TimeoutError(_nous_device_auth_timeout_message(portal_base_url)))
 
 
-def _prompt_yes_no(prompt: str, *, default: str) -> bool:
+def _prompt_yes_no(prompt: str, *, default: str, cancel_raises: bool = False) -> bool:
     """``input()`` a [Y/n]-style question; EOF/Ctrl-C count as *default*."""
     try:
         answer = input(prompt).strip().lower()
     except (EOFError, KeyboardInterrupt):
+        if cancel_raises:
+            raise
         answer = default
     return answer in {"", "y", "yes"} if default == "y" else answer in {"y", "yes"}
 

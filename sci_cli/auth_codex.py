@@ -1,8 +1,7 @@
 """OpenAI Codex OAuth: token store, refresh, quota probe, device-code login.
 
-Tokens live in ~/.sci/auth.json, NOT ~/.codex/: Sci keeps its own Codex OAuth session
-separate from the Codex CLI / VS Code extension so one app's refresh-token rotation cannot
-invalidate the other's session.
+Fresh SCI grants live in its shared auth store. Explicit Codex reuse stores a
+reference to Codex's credential file; SCI never rotates that external grant.
 
 Split out of ``sci_cli/auth.py``; origin helpers are imported lazily inside each function
 so ``sci_cli.auth.<name>`` patches still intercept (and no import cycle).
@@ -196,6 +195,8 @@ def _save_codex_tokens(
         last_refresh = _utc_now_z()
     with _provider_state_transaction("openai-codex") as (auth_store, state, source_path):
         state = dict(state) if state else {}
+        state.pop("external_codex_home", None)
+        state.pop("external_codex_identity", None)
         # Capture the previous singleton tokens BEFORE overwriting: the pool sync uses them to
         # tell legacy singleton-aliases (refresh) from independent ``auth add`` accounts (keep).
         previous_singleton_tokens = (
@@ -228,7 +229,7 @@ def _recover_codex_tokens_from_cli(
     """
     from agent.credential_pool import _codex_principal_identity
     from agent.credential_sources import adopt_external_logins_enabled
-    from sci_cli.auth import _import_codex_cli_tokens, _provider_state_transaction, _save_codex_tokens
+    from sci_cli.auth import _import_codex_cli_tokens, _provider_state_transaction
     if not adopt_external_logins_enabled():
         return None
     imported = _import_codex_cli_tokens()
@@ -251,8 +252,10 @@ def _recover_codex_tokens_from_cli(
                 "workspace than the Sci credential. Run `%s` to re-authenticate it.",
                 reason, _codex_relogin_command())
             return None
-        logger.info("Codex auth recovered from Codex CLI auth.json (%s).", reason)
-        _save_codex_tokens(imported)  # nested: the per-path lock is reentrant
+        from sci_cli.auth_codex_shared import validate, link_external, codex_home
+        validate(imported["access_token"], _codex_base_url())
+        link_external(codex_home(), expected_token=imported["access_token"])
+        logger.info("Codex auth now follows the validated Codex file (%s).", reason)
     return dict(imported)
 
 
@@ -604,6 +607,10 @@ def resolve_codex_runtime_credentials(
     backup — gets a bare HTTP 401 ``Missing Authentication header`` from the wire instead of a usable
     credential. See issue #32992.
     """
+    from sci_cli.auth_codex_shared import external_credentials
+    external = external_credentials(read_only=read_only)
+    if external:
+        return external
     from sci_cli.auth import (
         _auth_store_lock, _codex_access_token_is_expiring, _probe_codex_quota_restored,
         _read_codex_tokens)
@@ -632,7 +639,7 @@ def resolve_codex_runtime_credentials(
             imported = _recover_codex_tokens_from_cli(
                 str(exc.code or "auth_error"), observed_access_token=observed)
             if imported:
-                data = {"tokens": imported, "last_refresh": imported.get("last_refresh")}
+                return external_credentials()
     if data is None:
         pool_token, pool_base = _pool_codex_credential()
         if pool_token and force_refresh and not read_only:
@@ -685,6 +692,9 @@ def resolve_codex_runtime_credentials(
             if _should_refresh(_stripped(tokens.get("access_token"))):
                 tokens = _refresh_codex_auth_tokens(tokens, refresh_timeout_seconds)
             access_token = _stripped(tokens.get("access_token"))
+    external = external_credentials(read_only=read_only)
+    if external:
+        return external
     return _codex_runtime_result(
         access_token, source="sci-auth-store", last_refresh=data.get("last_refresh"))
 
@@ -943,38 +953,16 @@ def _pool_codex_credential() -> Tuple[str, str]:
 def _login_openai_codex(args, pconfig: ProviderConfig, *, force_new_login: bool = False) -> None:
     """OpenAI Codex login: device code by default, browser PKCE when opted in (``--browser`` /
     ``auth.codex_login_flow``). Tokens stored in ~/.sci/auth.json."""
-    from sci_cli.auth import (
-        _codex_access_token_is_expiring, _import_codex_cli_tokens,
-        _offer_existing_oauth_credentials, _print_login_success, _prompt_yes_no, _save_codex_tokens,
-        _update_config_for_provider, resolve_codex_runtime_credentials)
-    from sci_cli.auth_codex_browser import codex_oauth_login
+    from sci_cli.auth import _print_login_success, _save_codex_tokens, _update_config_for_provider
+    from sci_cli.auth_codex_shared import choose_credentials, link_external
+    from sci_cli.shared_provider_lifecycle import publish
     del pconfig  # kept for parity with other provider login helpers
-    if not force_new_login:
-        if _offer_existing_oauth_credentials(
-            "openai-codex", resolve=resolve_codex_runtime_credentials,
-            is_expiring=_codex_access_token_is_expiring, display_name="Codex",
-            default_base_url=DEFAULT_CODEX_BASE_URL,
-            expired_notice="Existing Codex credentials are expired. Starting fresh login..."):
-            return
-        cli_tokens = _import_codex_cli_tokens()
-        if cli_tokens:
-            print("Found existing Codex CLI credentials at ~/.codex/auth.json")
-            print("Sci will create its own session to avoid conflicts with Codex CLI / VS Code.")
-            if _prompt_yes_no(
-                "Import these credentials? (a separate login is recommended) [y/N]: ", default="n"):
-                _save_codex_tokens(cli_tokens)
-                config_path = _update_config_for_provider("openai-codex", _codex_base_url())
-                print()
-                print("Credentials imported. Note: if Codex CLI refreshes its token,")
-                print("Sci will keep working independently with its own session.")
-                print(f"  Config updated: {config_path} (model.provider=openai-codex)")
-                return
-
-    # Run a fresh OAuth flow — Sci gets its own session (device code unless the user opted in
-    # to the browser flow).
-    print()
-    creds = codex_oauth_login(args)
-    _save_codex_tokens(creds["tokens"], creds.get("last_refresh"))
+    kind, creds = choose_credentials(args, force_new=force_new_login)
+    if kind == "external":
+        link_external(creds["home"], expected_token=creds["api_key"])
+    elif kind == "fresh":
+        _save_codex_tokens(creds["tokens"], creds.get("last_refresh"))
+    publish("openai-codex", preferred_token=creds.get("api_key") or creds.get("tokens", {}).get("access_token", ""))
     config_path = _update_config_for_provider(
         "openai-codex", creds.get("base_url", DEFAULT_CODEX_BASE_URL))
     _print_login_success("openai-codex", config_path, show_auth_state=True)

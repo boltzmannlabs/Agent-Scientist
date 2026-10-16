@@ -1,13 +1,8 @@
 """Regression tests for Codex refresh_token self-heal (cross-store rotation).
 
-Sci keeps its OWN copy of the Codex OAuth token (per profile + top-level),
-separate from the Codex CLI's ``~/.codex/auth.json``. OAuth refresh_tokens are
-single-use, so when the Codex CLI (or another Sci process) rotates the shared
-token, the frozen copy's refresh_token goes stale and ``refresh_codex_oauth_pure``
-fails with a relogin-required error. ``_refresh_codex_auth_tokens`` must then
-recover by re-importing the canonical token from ``~/.codex/auth.json`` instead of
-surfacing a hard 401 — but ONLY for relogin-required failures, never for transient
-ones (e.g. 429 quota, where the stored token is still valid).
+Legacy copied grants can become stale when Codex refreshes. Opted-in recovery
+validates the current Codex file and records a reference rather than creating
+another token copy. Account and concurrent-login boundaries still apply.
 """
 
 import base64
@@ -23,9 +18,8 @@ from sci_cli.auth import AuthError, _refresh_codex_auth_tokens, resolve_codex_ru
 STALE = {"access_token": "stale-access", "refresh_token": "stale-refresh"}
 
 
-def test_self_heals_on_stale_refresh_token(monkeypatch):
-    """invalid_grant (relogin-required) → reimport from ~/.codex and persist it."""
-    saved = {}
+def test_self_heals_on_stale_refresh_token(tmp_path, monkeypatch):
+    """invalid_grant → verified reference; the rotating pair stays in Codex."""
     fresh = {
         "access_token": "fresh-access",
         "refresh_token": "fresh-refresh",
@@ -42,17 +36,16 @@ def test_self_heals_on_stale_refresh_token(monkeypatch):
 
     monkeypatch.setattr(auth, "refresh_codex_oauth_pure", _rejected)
     monkeypatch.setattr(auth_codex, "refresh_codex_oauth_pure", _rejected)
-    monkeypatch.setattr(auth, "_import_codex_cli_tokens", lambda: dict(fresh))
-    monkeypatch.setattr(auth_codex, "_import_codex_cli_tokens", lambda: dict(fresh))
-    monkeypatch.setattr(auth, "_save_codex_tokens", lambda t, *a, **k: saved.update(t))
-    monkeypatch.setattr(auth_codex, "_save_codex_tokens", lambda t, *a, **k: saved.update(t))
+    path = _seed_homes(tmp_path, monkeypatch, STALE, fresh)
+    monkeypatch.setattr("sci_cli.auth_codex_shared.validate", lambda *args: None)
 
     out = _refresh_codex_auth_tokens(STALE, 20.0)
 
     assert out["access_token"] == "fresh-access"
     assert out["refresh_token"] == "fresh-refresh"
-    # the recovered token was persisted to the Sci auth store
-    assert saved["access_token"] == "fresh-access"
+    state = json.loads(path.read_text())["providers"]["openai-codex"]
+    assert state["external_codex_home"] == str(tmp_path / "codex")
+    assert "tokens" not in state
 
 
 
@@ -87,15 +80,15 @@ def test_self_heals_missing_singleton_access_token_from_codex_cli(tmp_path, monk
     }))
     monkeypatch.setenv("SCI_HOME", str(sci_home))
     monkeypatch.setenv("CODEX_HOME", str(codex_home))
+    monkeypatch.setattr("sci_cli.auth_codex_shared.validate", lambda *args: None)
 
     resolved = resolve_codex_runtime_credentials()
 
     assert resolved["api_key"] == "fresh-access"
-    assert resolved["source"] == "sci-auth-store"
+    assert resolved["source"] == "codex-file-reference"
     stored = json.loads((sci_home / "auth.json").read_text())
-    tokens = stored["providers"]["openai-codex"]["tokens"]
-    assert tokens["access_token"] == "fresh-access"
-    assert tokens["refresh_token"] == "fresh-refresh"
+    assert stored["providers"]["openai-codex"]["external_codex_home"] == str(codex_home)
+    assert "tokens" not in stored["providers"]["openai-codex"]
 
 
 

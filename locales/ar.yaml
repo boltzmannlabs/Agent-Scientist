@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "عرض خطة Nous الخاصة بك وتغييرها في المتصفح"
   login:
-    description: "تسجيل الدخول بحساب Nous (مع الاحتفاظ بموصّلاتك)"
+    description: "فتح إعداد نماذج SCI: تسجيل الدخول أو إدارة المزوّدين"
   topup:
     description: "عرض رصيد Nous الخاص بك وإدارة الفوترة على البوابة"
   platforms:

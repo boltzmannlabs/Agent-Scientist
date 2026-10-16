@@ -39,7 +39,8 @@ def _get_custom_provider_entries() -> list[dict]:
     """Return configured provider entries with legacy and canonical pool IDs."""
     try:
         from sci_cli.config import get_compatible_custom_providers, load_config
-        config = load_config()
+        from sci_cli.shared_llm import provider_config
+        config = provider_config(load_config())
     except Exception:
         return []
     result: list[dict] = []
@@ -396,8 +397,17 @@ def auth_add_command(args) -> None:
         requested_type = AUTH_TYPE_OAUTH if oauth_default else AUTH_TYPE_API_KEY
 
     pool = load_pool(provider)
-    if not is_custom:
-        _unsuppress_provider_sources(provider)
+    if provider == "openai-codex" and requested_type == AUTH_TYPE_OAUTH:
+        from sci_cli.auth_codex_shared import add_credential
+        try:
+            add_credential(args, pool)
+        except auth_mod.AuthError as exc:
+            raise SystemExit(f"Login failed: {auth_mod.format_auth_error(exc)}") from exc
+        except (KeyboardInterrupt, EOFError):
+            print("Codex login cancelled. No new login was saved or enabled.")
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+        return
 
     wanted_priority = getattr(args, "priority", None)
     try:
@@ -409,6 +419,11 @@ def auth_add_command(args) -> None:
         placed_pool = load_pool(provider)
         moved = placed_pool.move_entry(entry.id, int(wanted_priority))
         _report_priority(provider, placed_pool, moved, int(wanted_priority), "Placed", "at")
+    from sci_cli.auth_constants import SERVICE_PROVIDER_NAMES
+    if provider not in SERVICE_PROVIDER_NAMES:
+        from sci_cli.shared_provider_lifecycle import publish
+        publish(provider, preferred_token=entry.access_token)
+        print("Provider available in main and all profiles. Selected models unchanged; start a new conversation to use changed settings.")
 
 
 def _add_credential(args, provider: str, pool, requested_type: str) -> PooledCredential:

@@ -97,8 +97,9 @@ def _build_prepared(prepared, builder_args: list[str], variant: str | None) -> N
         env["SCI_RELEASE_EPOCH"] = str(request.release_epoch)
     desktop = repo / "apps/desktop"
     targets = {"win32": ["--win", "msix"], "darwin": ["--mac", "dmg", "zip"], "linux": ["--linux", "AppImage"]}[sys.platform]
+    from scripts.releases.semver import package_version
     package_args = ["--prepared", str(prepared.packager), "--native-deps", str(prepared.native),
-                    *targets, f"-c.extraMetadata.version={request.version}"]
+                    *targets, f"-c.extraMetadata.version={package_version(request.version)}"]
     run([node, "scripts/run-electron-builder.mjs", "--validate-only", *package_args, *builder_args],
         cwd=desktop, env=env)
     run([node, "scripts/build/node-deps.mjs", "--source", str(repo), "--reuse", "--no-install",

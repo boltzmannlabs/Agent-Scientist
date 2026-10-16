@@ -59,6 +59,7 @@ def assemble(request: dict, native: dict, root: Path, *, artifact_prefix: str) -
     feed.parent.mkdir(parents=True, exist_ok=True)
     first = single(row for row in mac_files if row["url"].endswith("-arm64.zip"))
     # A neutral feed name avoids interpreting custom channel names as prereleases.
-    feed.write_bytes(canonical_json({"version": request["version"], "files": mac_files,
+    from scripts.releases.semver import package_version
+    feed.write_bytes(canonical_json({"version": package_version(request["version"]), "files": mac_files,
                                     "path": first["url"], "sha512": first["sha512"]}))
     return manifest, [feed, descriptor]

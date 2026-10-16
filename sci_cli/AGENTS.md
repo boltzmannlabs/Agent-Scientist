@@ -204,8 +204,14 @@ read view in `shared_llm.py`: model inventory and runtime resolution reuse main'
 definitions and inference credentials. Local provider overrides/exclusions win; selected models,
 research-service secrets, tools, execution settings and conversations remain profile-specific.
 Never persist that merged view to a profile or merge main's entire `.env` into its secret scope.
+Explicit additions publish through `shared_provider_lifecycle.py`: only the chosen LLM
+provider's definition/credentials are consolidated into main, and its removal exclusions
+are cleared across native profiles. No selected model, tool credential, workspace or
+conversation is inherited. `auth_codex_shared.py` validates login choices before success;
+external file reuse stores a path/account reference, never a rotating token copy. Codex
+owns refresh for that reference; unsupported credential stores require explicit setup.
 `provider_removal.py` backs the CLI `/model` → Remove provider action and `/model remove [provider]`.
-It reviews profile scope and saved references before atomic config edits; main's catalog exclusions
+It reviews profile scope and saved-reference replacements before atomic config edits; main's catalog exclusions
 are shared, while a named profile's exclusions stay local. Removing definitions leaves disabled
 identity records to prevent retained logins from reintroducing the provider. `.env`, `auth.json`,
 external login files and active conversations are not purged or reloaded by this operation.
@@ -290,7 +296,11 @@ what happens when the server had already completed the transfer — the desktop 
 DELETE means "not on this machine"), the gateway passes `False` (a supersede must not discard a
 transfer the user actually approved). `scope` is entered only around the precondition and persist
 blocks, never across a `yield` or a network wait, because `run_in_executor` does not carry
-contextvars. `upgrade_guest` (`sci auth upgrade`), the CLI `/login` handler and the desktop
+contextvars. `upgrade_guest` (`sci auth upgrade`) and the desktop
 promotion poller are renderers over it; a surface that needs the cancel check and the save to be
 atomic passes `persist_guard`. The desktop's plain "connect another Nous account" device-code login
 is a separate path (`_nous_plain_poller`) and must stay one.
+
+The CLI `/login` is independent of this legacy flow: `cli_login.py` opens the normal
+`sci model` menu in a profile-scoped child with exclusive terminal ownership. It does
+not mutate the live model, prompt, toolset or history; saved defaults apply to new sessions.

@@ -196,6 +196,7 @@ Slash commands below run **inside Agent Scientist**.
 |---|---|
 | `/help` | Show available commands |
 | `/model` | Review model/provider choices |
+| `/model remove [provider]` | Review global removal and affected saved model routes |
 | `/capabilities` | Inspect the active profile's capabilities and setup state |
 | `/capabilities setup` | Review optional default MCP connections |
 | `/add_boltzmann` | Authorize Boltzmann for this profile |
@@ -218,6 +219,30 @@ Resuming displays retained user messages and agent replies in scrollback.
 **Ctrl+O / F8** opens the transcript viewer; select a tool entry and press Enter
 for details, then Escape to return. Nothing is rerun during restoration.
 Saved transcript visibility is separate from the model's compressed context.
+
+LLM providers added through `sci auth add` or `sci model` become available in
+main and every profile. Each profile keeps its own selected model. Removing a
+provider globally reviews saved defaults and auxiliary routes, including main;
+choose a replacement or leave a route explicitly unconfigured. Re-adding clears
+that provider's removal exclusions. Saved credentials are retained by removal.
+
+For Codex, `sci auth add openai-codex --type oauth` offers the current Codex login,
+SCI's saved login, or a fresh sign-in. SCI checks authentication before reporting
+success. Reusing a Codex file login stores its path and follows current tokens;
+Codex owns refresh. Open Codex to renew an expired shared token. Keyring, auto,
+and ephemeral Codex stores currently require a fresh SCI login or an explicitly
+configured Codex file login; SCI does not silently import a stale fallback file.
+Other running conversations pick up provider configuration changes in a new session.
+
+In the interactive CLI, `/login` opens the same provider/sign-in menu as `sci model`,
+not a vendor portal. It returns to your unchanged conversation; saved defaults apply
+to new sessions. Use `/model` for an explicit current-session model switch.
+
+## Release versions
+
+Releases follow `v1.M.m.p` (Major.Milestone.Minor.Patch), starting at
+`v1.0.0.0`. See [release versioning](RELEASE_VERSIONING.md) for bump rules
+and native-package compatibility.
 
 ## Data and safety
 

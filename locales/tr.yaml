@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Nous planınızı görüntüleyin ve tarayıcıda değiştirin"
   login:
-    description: "Nous hesabıyla giriş yap (bağlayıcılarınız korunur)"
+    description: "SCI model ayarlarını aç: giriş yap veya sağlayıcıları yönet"
   topup:
     description: "Nous bakiyenizi göster ve faturalandırmayı portalda yönet"
   platforms:

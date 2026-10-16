@@ -1662,7 +1662,7 @@ slash:
   subscription:
     description: "Ihren Nous-Plan ansehen und im Browser ändern"
   login:
-    description: "Mit einem Nous-Konto anmelden (behält Ihre Connectors)"
+    description: "SCI-Modelleinrichtung öffnen: anmelden oder Anbieter verwalten"
   topup:
     description: "Ihr Nous-Guthaben anzeigen und Abrechnung im Portal verwalten"
   platforms:

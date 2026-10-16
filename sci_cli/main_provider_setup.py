@@ -506,6 +506,9 @@ def _save_custom_provider(base_url, api_key="", model="", context_length=None, n
         if changed:
             cfg["custom_providers"] = providers
             save_config(cfg)
+        from sci_cli.shared_provider_lifecycle import publish
+        from sci_cli.providers import custom_provider_slug
+        publish(custom_provider_slug(entry.get("name", "")), base_url=base_url)
         return  # already saved, updated if needed
 
     name = name or _auto_provider_name(base_url)
@@ -524,6 +527,9 @@ def _save_custom_provider(base_url, api_key="", model="", context_length=None, n
     providers.append(entry)
     cfg["custom_providers"] = providers
     save_config(cfg)
+    from sci_cli.shared_provider_lifecycle import publish
+    from sci_cli.providers import custom_provider_slug
+    publish(custom_provider_slug(name), base_url=base_url)
     print(f'  💾 Saved to custom providers as "{name}" (edit in config.yaml)')
 
 
@@ -817,13 +823,15 @@ def _named_custom_provider_map(cfg) -> dict[str, dict[str, str]]:
     """Saved custom providers keyed by slug, with raw ``${ENV}`` refs preserved."""
     from sci_cli.config import get_compatible_custom_providers, read_raw_config
     from sci_cli.providers import custom_provider_slug
+    from sci_cli.shared_llm import provider_config
+    cfg = provider_config(cfg)
 
     # Raw (un-expanded) templates keyed by identity. ``get_compatible_custom_providers(
     # read_raw_config())`` is deliberately bypassed: its normalize step ``urlparse()``s
     # ``base_url`` and drops entries whose base_url is itself an env-ref template.
     raw_api_key_refs: dict[tuple, str] = {}
     raw_base_url_refs: dict[tuple, str] = {}
-    raw_cfg = read_raw_config()
+    raw_cfg = provider_config(read_raw_config(), expand=False)
 
     raw_entries: list[tuple[str, str, dict]] = []
     raw_list = raw_cfg.get("custom_providers")
@@ -888,6 +896,8 @@ def _build_provider_picker_rows(config: dict, active: str, provider_labels: dict
     rows have ``members == []``; saved custom providers and trailing actions stay flat. Honors
     ``model_catalog.excluded_providers`` (slug or alias, case-insensitive) like the gateway/TUI."""
     from sci_cli.models import CANONICAL_PROVIDERS, _PROVIDER_ALIASES
+    from sci_cli.shared_llm import provider_config
+    config = provider_config(config)
     from sci_cli.models_catalog_static import group_providers, provider_group_for_slug
     canonical_descs = {p.slug: p.tui_desc for p in CANONICAL_PROVIDERS}
     _cli_excluded = {
