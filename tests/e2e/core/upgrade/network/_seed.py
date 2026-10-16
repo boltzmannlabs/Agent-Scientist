@@ -8,7 +8,7 @@ own; each cell then publishes a NEW upstream commit (or a new release record), s
 a real fetch, checkout and rebuild, never the "already current" branch.
 
 After the seed the sandbox loses the ``insteadOf`` rewrite: the checkout's origin is the official
-``https://github.com/NousResearch/hermes-agent.git`` again, and inside the namespace the only way
+``https://github.com/boltzmannlabs/Agent-Scientist.git`` again, and inside the namespace the only way
 to reach it is the test's proxy, which routes ``github.com`` to a git smart-HTTP server over the
 same bare origin. The partial clone (``--filter=tree:0``) makes every lazy tree/blob fetch of the
 checkout cross that proxy too.
@@ -35,8 +35,8 @@ from tests.e2e.core.upgrade import _helpers as H
 from tests.e2e.core.upgrade import _install_helpers as I
 from tests.e2e.core.upgrade.network import _netedge as N
 
-ASSETS = "sci-assets.nousresearch.com"
-REPOSITORY = "NousResearch/hermes-agent"
+ASSETS = "sci-release-fixture.invalid"
+REPOSITORY = "boltzmannlabs/Agent-Scientist"
 # Hosts a correctly isolated update must never reach directly; with the proxy they appear in
 # the proxy log as "refused" (the proxy has no route for them).
 PUBLIC_INDEXES = ("pypi.org", "files.pythonhosted.org", "registry.npmjs.org")
@@ -185,9 +185,23 @@ class Installed:
         return self.sci("--version", edge=None, timeout=120)
 
 
+def channel_fixture_origin(origin: Path, scratch: Path) -> str:
+    """Configure a publisher only in the disposable origin, never in shipped code.
+
+    SCI has no promoted-channel publisher yet. These transport/protocol tests
+    need one, provided entirely by the namespace's controlled TLS proxy.
+    """
+    path = "sci_cli/source_releases.py"
+    source = I.git("show", f"main:{path}", cwd=origin)
+    configured, count = re.subn(r'^_PUBLIC_BASE = .*$', f'_PUBLIC_BASE = "https://{ASSETS}"', source, flags=re.M)
+    assert count == 1, "fixture could not configure the source-channel authority"
+    return I.publish_commit(origin, scratch, "e2e: controlled source-channel publisher", {path: configured + "\n"})
+
+
 def seed_install(root: Path) -> Installed:
     root.mkdir(parents=True, exist_ok=True)
     origin = I.make_origin(root, I.head_sha())
+    channel_fixture_origin(origin, root)
     I.git("config", "uploadpack.allowFilter", "true", cwd=origin)
     sb = I.new_sandbox(root / "sb", origin)
     # The host's SSL_CERT_FILE (allowlisted by _helpers) would replace the sandbox's trust store
@@ -200,8 +214,9 @@ def seed_install(root: Path) -> Installed:
     # From here on the checkout talks to the official URL, which only the proxy can serve.
     (sb.home / ".gitconfig").write_text("", encoding="utf-8")
     gitroot = root / "gitroot"
-    (gitroot / "NousResearch").mkdir(parents=True, exist_ok=True)
-    (gitroot / "NousResearch" / "sci-agent.git").symlink_to(origin)
+    target = gitroot / f"{REPOSITORY}.git"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.symlink_to(origin)
     ca = N.TestCA(root / "corporate-ca")
     inst = Installed(root, sb, origin, gitroot, ca, ca.os_trust_store(root / "corporate-ca" / "etc-ssl-certs"))
     assert_isolated(inst)
@@ -213,7 +228,7 @@ def assert_isolated(inst: Installed) -> None:
     probe = (
         "import socket,sys\n"
         "bad=[]\n"
-        "for host in ('github.com','pypi.org','sci-assets.nousresearch.com'):\n"
+        f"for host in ('github.com','pypi.org','{ASSETS}'):\n"
         "    try: socket.getaddrinfo(host,443); bad.append('dns:'+host)\n"
         "    except OSError: pass\n"
         "for ip in ('140.82.112.3','1.1.1.1'):\n"
@@ -231,7 +246,7 @@ def assert_isolated(inst: Installed) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Release-channel records (the R2 objects under https://hermes-assets.nousresearch.com/).
+# Release-channel records served exclusively by the controlled fixture publisher.
 # ---------------------------------------------------------------------------
 
 def canonical(value: object) -> bytes:
@@ -243,21 +258,23 @@ def _identity(name: str, token: str) -> dict:
     pascal = f"SciChannel{token}"
     return {"token": token, "displayName": f"Sci {name}", "appId": f"ai.sci.channel.h{token}",
             "appNamePascal": pascal, "artifactNamePascal": pascal, "cliName": f"sci-{name}",
-            "windowsExecutableName": pascal, "msixAppIdWithOrg": f"NousResearch.{pascal}"}
+            "windowsExecutableName": pascal, "msixAppIdWithOrg": f"BoltzmannLabs.{pascal}"}
 
 
-def stable_objects(commit: str, *, version: str = "2099.1.1", build_id: str = "c" * 32,
+def stable_objects(commit: str, *, version: str = "1.1.0.0", build_id: str = "c" * 32,
                    repository: str = REPOSITORY) -> dict[str, bytes]:
     """A published stable release pinned at ``commit``: the channel record and its build manifest."""
+    from scripts.releases.semver import package_version
+
     identity = _identity("stable", "5" * 16)
     prefix = f"releases/channel-builds/{build_id}/"
     request = {"schema": 1, "buildId": build_id, "channel": "stable", "sequence": 1,
                "repository": repository, "commit": commit, "sourceVersion": version, "version": version,
-               "windowsVersion": version + ".0", "releaseTag": "v" + version, "identity": identity,
+               "windowsVersion": version, "releaseTag": "v" + version, "identity": identity,
                "bundleEnv": {}, "publicBase": f"https://{ASSETS}"}
     manifest = {"schema": 1, "receiverProtocol": 1, "request": request, "packages": [
         {"platform": "darwin", "arch": "arm64", "variant": "bundled", "identity": identity["appId"],
-         "version": version, "teamId": "ABCDEFGHIJ",
+         "version": package_version(version), "teamId": "ABCDEFGHIJ",
          "artifact": {"key": prefix + "Sci.dmg", "sha256": "d" * 64, "size": 100},
          "feed": {"key": prefix + "stable-mac.yml", "channel": "stable"}}]}
     body = canonical(manifest)

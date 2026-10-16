@@ -1,9 +1,11 @@
 """Shallow and stale installs through the real ``sci update``.
 
-N-1's ``scripts/install.sh`` clones ``--depth 1 --single-branch``: that is the checkout every
-N-1 user has. Three installs run concurrently over smart HTTP:
+Seed legacy ``--depth 1 --single-branch`` checkouts explicitly, then let N-1's
+real installer adopt them. SCI's own releases already use treeless installs;
+the regression must not depend on which installer a historical tag contains.
+Three installs run concurrently over smart HTTP:
 
-* ``depth1``: N-1's own depth-1 install, updated to HEAD and then to one more release. The first
+* ``depth1``: a legacy depth-1 install, updated to HEAD and then to one more release. The first
   update must not download the whole project history to move one release (#123254: on a real
   network that transfer hits the 300 s fetch cap, so a stale shallow install can never update), and
   the second must succeed after the first one unshallowed the clone (#124272: the unshallow applied
@@ -32,7 +34,8 @@ ORPHAN = "orphan divergence"
 
 
 def _depth1(root) -> dict:
-    cm, w = G.start_world(root / "depth1", base=G.n1_base(), installer_ref=G.n1_tag())
+    cm, w = G.start_world(root / "depth1", base=G.n1_base(), installer_ref=G.n1_tag(),
+                          preclone=["--depth", "1", "--single-branch"])
     run = {"cm": cm, "w": w, "shape0": w.install_shape}
     w.set_main(I.head_sha())
     run["mark1"] = w.srv.mark()
@@ -46,7 +49,8 @@ def _depth1(root) -> dict:
 
 
 def _checked(root) -> dict:
-    cm, w = G.start_world(root / "checked", base=G.n1_base(), installer_ref=G.n1_tag())
+    cm, w = G.start_world(root / "checked", base=G.n1_base(), installer_ref=G.n1_tag(),
+                          preclone=["--depth", "1", "--single-branch"])
     run = {"cm": cm, "w": w, "shape0": w.install_shape, "checks": []}
     between = I.git("rev-list", "--first-parent", f"{G.n1_base()}..{I.head_sha()}", cwd=I.H.WORKTREE).split()
     for k in (len(between) * 3 // 4, len(between) // 2, len(between) // 4):
@@ -95,7 +99,7 @@ def test_stale_depth1_install_updates_without_fetching_the_whole_history(runs):
     run = _run(runs, "depth1")
     w: G.World = run["w"]
     cp1 = run["cp1"]
-    assert run["shape0"]["shallow"] == "true", f"N-1's installer did not make a shallow clone: {run['shape0']}"
+    assert run["shape0"]["shallow"] == "true", f"legacy depth-1 fixture is not shallow: {run['shape0']}"
     assert cp1.returncode == 0 and run["head1"] == I.head_sha(), f"N-1 -> HEAD update failed:\n{w.diag(cp1, run['mark1'])}"
     main_fetch = run["fetches1"][0].body_bytes if run["fetches1"] else 0
     bound = 2 * w.install_bytes
