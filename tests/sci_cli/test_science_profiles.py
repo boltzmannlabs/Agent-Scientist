@@ -86,7 +86,7 @@ def test_activation_preserves_parent_and_routing_plan_enforces_grants(homes, mon
     create(spec, homes)
     monkeypatch.setattr("sci_cli.science_profiles_sandbox.resolve_image", lambda _: IMAGE)
     ui = SimpleNamespace(show=Mock(), choose=Mock(side_effect=AssertionError("No setup on activation")))
-    agent = object()
+    agent = SimpleNamespace(_flush_messages_to_session_db=Mock())
     cli = SimpleNamespace(agent=agent, conversation_history=[{"role": "user", "content": "main"}],
                           _app=SimpleNamespace(is_running=True, loop=Mock(), exit=Mock()))
     for spelling in ("/Create_profile", "/CREATE_PROFILE", "/create_profile"):
@@ -94,6 +94,8 @@ def test_activation_preserves_parent_and_routing_plan_enforces_grants(homes, mon
     assert "/Create_profile" in COMMANDS
     activate(cli, '/activate "antibody" profile', ui)
     assert cli._pending_relaunch == ["--cli", "-p", "antibody"]
+    agent._flush_messages_to_session_db.assert_called_once_with(
+        cli.conversation_history, conversation_history=cli.conversation_history)
     ui.choose.assert_not_called()
     activate(cli, "/activate main", ui)
     assert cli.agent is agent

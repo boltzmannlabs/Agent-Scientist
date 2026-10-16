@@ -121,12 +121,13 @@ class TestExposeCli:
         assert _launchers.expose_cli(create=False) == {"ok": True, "written": []}
 
     @posix_only
-    def test_writes_all_three_wrappers_fresh(self, fake_install):
+    def test_writes_all_registered_wrappers_fresh(self, fake_install):
         home, root = fake_install
         result = _launchers.expose_cli()
         assert result["ok"] is True
-        assert sorted(result["written"]) == ["sci", "sci-acp", "sci-agent"]
-        for name in ("sci", "sci-agent", "sci-acp"):
+        commands = set(_launchers.ENTRY_POINTS) | {"sci-agent"}  # run_agent convenience alias
+        assert set(result["written"]) == commands
+        for name in commands:
             wrapper = home / ".local" / "bin" / name
             body = wrapper.read_text(encoding="utf-8-sig")
             assert str(root) in body
@@ -146,8 +147,8 @@ class TestExposeCli:
         result = _launchers.expose_cli()
         assert (wrapper_dir / "sci").read_text(encoding="utf-8-sig") == foreign
         assert "sci" not in result["written"]
-        # The other two had no file at all — those ARE written.
-        assert sorted(result["written"]) == ["sci-acp", "sci-agent"]
+        # Every remaining registered command had no file and must be written.
+        assert set(result["written"]) == (set(_launchers.ENTRY_POINTS) | {"sci-agent"}) - {"sci"}
 
     @posix_only
     def test_config_gate_disables(self, fake_install, monkeypatch):

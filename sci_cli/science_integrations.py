@@ -107,7 +107,7 @@ def disable_duplicate(home):
         backup = home / "backups"
         backup.mkdir(mode=0o700, exist_ok=True)
         fd, name = tempfile.mkstemp(prefix="boltzmann-mcp-", suffix=".json", dir=backup)
-        with os.fdopen(fd, "w") as handle:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump(entry, handle, indent=2)
         entry["enabled"] = False
         atomic_config_write(path, config)

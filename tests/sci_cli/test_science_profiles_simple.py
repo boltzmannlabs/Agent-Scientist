@@ -72,7 +72,7 @@ def test_simple_creation_saves_tools_and_sources_without_preparation_and_activat
         item = next(choices)
         return next(o for o in options if o == item or o.startswith(item + " —"))
     ui = SimpleNamespace(choose=choose, ask=lambda _: next(answers), show=Mock())
-    parent_agent = object()
+    parent_agent = SimpleNamespace(_flush_messages_to_session_db=Mock())
     cli = SimpleNamespace(agent=parent_agent, conversation_history=[{"role": "user", "content": "main history"}])
     create_wizard(cli, '/Create_profile "antibody-study"', ui)
     target = get_profile_dir("antibody-study")

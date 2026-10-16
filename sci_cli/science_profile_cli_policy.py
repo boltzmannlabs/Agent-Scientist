@@ -26,7 +26,7 @@ def prepare(cli):
         budget = getattr(cli, "run_budget_seconds", None)
         cli.run_budget_seconds = min(budget, spec.max_seconds) if budget is not None else spec.max_seconds
         if not getattr(cli, "_legacy_science_prompt_loaded", False):
-            prompt = (home / "SOUL.md").read_text()
+            prompt = (home / "SOUL.md").read_text(encoding="utf-8-sig")
             if spec.setup_pending:
                 prompt += ("\nLocal execution is NOT ready. Do not claim to run programs or read project files. "
                            "The saved isolated environment still needs setup; never fall back to host execution. "

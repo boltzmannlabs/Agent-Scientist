@@ -10,7 +10,7 @@ def routing_spec(home):
     if (home / MANIFEST).is_file():
         from sci_cli.science_profiles_sandbox import validate_runtime
         return validate_runtime(home)
-    data = json.loads((home / PROJECT).read_text()) if (home / PROJECT).is_file() else {}
+    data = json.loads((home / PROJECT).read_text(encoding="utf-8-sig")) if (home / PROJECT).is_file() else {}
     from sci_cli.config import read_user_config_raw
     terminal = read_user_config_raw(home / "config.yaml").get("terminal", {})
     return ProfileSpec(home.name, data.get("purpose") or f"Native profile {home.name}",

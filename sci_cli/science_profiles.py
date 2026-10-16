@@ -130,7 +130,7 @@ def copy_source(source: Path, destination: Path):
 
 
 def read_spec(home: Path) -> ProfileSpec:
-    payload = json.loads((home / MANIFEST).read_text())
+    payload = json.loads((home / MANIFEST).read_text(encoding="utf-8-sig"))
     payload["sources"] = [Source(**s) for s in payload.get("sources", [])]
     spec = ProfileSpec(**payload)
     validate(spec)
@@ -250,7 +250,7 @@ def create(spec: ProfileSpec, source_home: Path) -> Path:
         payload = asdict(spec)
         payload["sources"] = manifest_sources
         payload["config_digest"] = config_digest(config)
-        (staging / MANIFEST).write_text(json.dumps(payload, indent=2) + "\n")
+        (staging / MANIFEST).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     return create_profile(spec.name, no_alias=True, no_skills=True, description=spec.purpose,
                           prepare_staging=prepare)

@@ -11,7 +11,8 @@ def docker_command(*args):
     executable = find_docker()
     if not executable:
         raise ValueError("Docker is required. Install/start Docker and retry; local execution is not a fallback.")
-    result = subprocess.run([executable, *args], capture_output=True, text=True, timeout=15)
+    result = subprocess.run([executable, *args], capture_output=True,
+                            text=True, encoding="utf-8", errors="replace", timeout=15)
     if result.returncode:
         raise ValueError("Docker check failed. Start Docker and ensure the requested image is installed. No image was downloaded and no local fallback was used.")
     return result.stdout

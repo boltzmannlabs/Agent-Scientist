@@ -101,7 +101,7 @@ class ContractStore:
         self.limits = self._load("input-limits.v1.json")["tools"]
 
     def _load(self, name):
-        return json.loads((self.root / name).read_text(encoding="utf-8"))
+        return json.loads((self.root / name).read_text(encoding="utf-8-sig"))
 
     def tool(self, name):
         tool = self.tools.get(name)

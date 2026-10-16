@@ -72,6 +72,7 @@ def test_current_codex_login_wins_over_stale_sci_and_chat_titles_follow_rotation
     homes, external = env
     main, a, b = homes
     old, current, rotated = token("stale-sci"), token("current-codex"), token("rotated-codex")
+    (external / "config.toml").write_text('cli_auth_credentials_store = "file"\n', encoding="utf-8-sig")
     (main / "auth.json").write_text(json.dumps({"providers": {"openai-codex": {
         "tokens": {"access_token": old, "refresh_token": "stale-copy"}}}}))
     independent = token("independent", account="other-account")

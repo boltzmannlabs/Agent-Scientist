@@ -168,7 +168,7 @@ def test_doctor_reports_selected_import_tree_not_interpreter_prefix(tmp_path, mo
 
 @pytest.mark.platforms("posix")
 @pytest.mark.parametrize("method, remedy", [
-    ("git", "sci pm repair"), ("nix", "Nix"), ("docker", "docker pull"), ("apt", "pkg upgrade"),
+    ("git", "sci pm repair"), ("nix", "Nix"), ("docker", "approved SCI image"), ("apt", "pkg upgrade"),
 ])
 def test_remedies_and_launcher_repairs_respect_install_owner(tmp_path, monkeypatch, capsys, method, remedy):
     project, _home, command = _tree(tmp_path, monkeypatch)

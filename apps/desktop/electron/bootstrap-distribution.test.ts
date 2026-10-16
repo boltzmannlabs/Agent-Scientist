@@ -5,7 +5,7 @@ import path from 'node:path'
 
 import { expect, test, vi } from 'vitest'
 
-import { resolveInstallScript } from '../apps/desktop/electron/bootstrap-runner'
+import { resolveInstallScript } from './bootstrap-runner'
 
 test('unpublished packaged bootstrap refuses before writing an installer', async () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'sci-distribution-'))

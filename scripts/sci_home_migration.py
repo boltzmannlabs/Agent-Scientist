@@ -71,12 +71,11 @@ def _check_stopped(source: Path):
     marker = source / "gateway.pid"
     if marker.is_file():
         try:
-            pid = int(marker.read_text().strip())
+            pid = int(marker.read_text(encoding="utf-8-sig").strip())
         except ValueError as exc:
             raise ValueError("Unrecognized gateway PID marker; inspect running processes first") from exc
-        try:
-            os.kill(pid, 0)
-        except ProcessLookupError:
+        import psutil
+        if not psutil.pid_exists(pid):
             return
         raise RuntimeError("A gateway PID is still live; stop it before migrating")
 
@@ -126,12 +125,12 @@ def _reviewed_profile(home: Path, new_home: Path, source: Path, destination: Pat
         atomic_config_replace(new_home / "config.yaml", new)
         manifest = home / "science-profile.json"
         if manifest.is_file():
-            spec = json.loads(manifest.read_text())
+            spec = json.loads(manifest.read_text(encoding="utf-8-sig"))
             needs_review = bool(spec.get("config_digest")) and not hmac.compare_digest(spec["config_digest"], config_digest(old))
             spec = settings(spec, source, destination)
             if spec.get("config_digest") and not needs_review:
                 spec["config_digest"] = config_digest(new)
-            (new_home / manifest.name).write_text(json.dumps(spec, indent=2) + "\n")
+            (new_home / manifest.name).write_text(json.dumps(spec, indent=2) + "\n", encoding="utf-8")
 
     # Carry a grant ONLY when the previous receipt matches this profile and key.
     # A key alone never becomes authorization as a side effect of migration.
@@ -141,11 +140,11 @@ def _reviewed_profile(home: Path, new_home: Path, source: Path, destination: Pat
     receipt = Path("plugin-data") / _portable_skill_namespace("boltzmann") / "state.json"
     path = home / receipt
     if key and path.is_file():
-        state = json.loads(path.read_text())
+        state = json.loads(path.read_text(encoding="utf-8-sig"))
         fingerprint = lambda directory: hashlib.sha256(f"{directory.resolve()}\0{key}".encode()).hexdigest()
         if isinstance(state.get("authorization"), str) and hmac.compare_digest(state["authorization"], fingerprint(home)):
             state["authorization"] = fingerprint(new_home)
-            (new_home / receipt).write_text(json.dumps(state, indent=2) + "\n")
+            (new_home / receipt).write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
             (new_home / receipt).chmod(0o600)
     return needs_review
 
@@ -194,8 +193,8 @@ def migrate(source: Path, destination: Path) -> dict:
         elif stat.S_ISREG(mode):
             shutil.copy2(old, new)
             if old.name == ".env":
-                text = old.read_text()
-                new.write_text(re.sub(r"(?m)^(\s*(?:export\s+)?)HERMES_([A-Z0-9_]+)(\s*=)", r"\1SCI_\2\3", text))
+                text = old.read_text(encoding="utf-8-sig")
+                new.write_text(re.sub(r"(?m)^(\s*(?:export\s+)?)HERMES_([A-Z0-9_]+)(\s*=)", r"\1SCI_\2\3", text), encoding="utf-8")
                 new.chmod(0o600)
             elif old.stat().st_size < 10 * 1024**2:
                 data = old.read_bytes()
@@ -206,7 +205,7 @@ def migrate(source: Path, destination: Path) -> dict:
                         continue
                     updated = _code_text(text, relative, source, destination)
                     if updated != text:
-                        new.write_text(updated)
+                        new.write_text(updated, encoding="utf-8")
             count += 1
             if count % 10000 == 0:
                 print(f"Copied {count} files; original home unchanged.", flush=True)
@@ -221,7 +220,7 @@ def migrate(source: Path, destination: Path) -> dict:
     report = {"source": str(source), "destination": str(destination), "files": count,
               "original_modified": False, "runtime_rebuild_required": True,
               "existing_profiles_requiring_review": needs_review}
-    (destination / "sci-migration.json").write_text(json.dumps(report, indent=2) + "\n")
+    (destination / "sci-migration.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 

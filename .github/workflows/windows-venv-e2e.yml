@@ -38,8 +38,11 @@ concurrency:
 jobs:
   venv-holder-e2e:
     name: venv-holder live E2E (windows-latest)
-    runs-on: windows-latest-32-core
-    timeout-minutes: 25
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      # Each file starts real Windows process trees.
+      SCI_TEST_WORKERS: '1'
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

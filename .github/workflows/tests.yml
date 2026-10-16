@@ -14,15 +14,10 @@ concurrency:
 jobs:
   test:
     name: Run tests
-    # One 96-core runner for the whole suite. There is no slicing. Slicing
-    # existed to spread the suite over 4-core runners. It cost a matrix job, a
-    # duration cache, a per-slice artifact and a merge job to do it.
-    #
-    # 96 cores clear the floor that the slowest single test file sets (about
-    # 82s). A second slice divides work that is already at that floor, and
-    # adds a second setup.
-    runs-on: ubuntu-latest-96-core
-    timeout-minutes: 30
+    # Standard hosted runners need bounded workers and a longer suite budget,
+    # not an organization-specific larger-runner label that never schedules.
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -84,30 +79,10 @@ jobs:
         run: |
           scripts/run_tests.sh
         env:
-          # This is the maximum number of test FILES that run together.
-          # run_tests_parallel.py starts one pytest subprocess for each file
-          # from a single ThreadPoolExecutor, so this value IS the limit. The
-          # default is cpu_count*2, which is 192 here.
-          #
-          # Measured on this runner (96-core EPYC 7763, 377GB). Whole suite,
-          # two repetitions for each value. See run 32549672063:
-          #
-          #     workers   x cores   mean
-          #        48       0.5x    138s
-          #        96       1.0x    126s   <- fastest
-          #       144       1.5x    132s
-          #       192       2.0x    132s
-          #       240       2.5x    140s
-          #       288       3.0x    142s
-          #
-          # One worker for each core wins. The curve is shallow: 126s to 142s
-          # across a 6x range. The suite has sufficient concurrency at this
-          # size. The remaining time is the slowest files plus the setup.
-          # Workers above the core count only add contention.
-          SCI_TEST_WORKERS: 96
-          # A healthy 44-test compression file takes ~197s alone and can exceed
-          # the 300s default under 96-worker load before its duration is cached.
-          # Match the runner's 3x known-slow headroom on the first PR run too.
+          # Each file owns a fresh interpreter; keep their aggregate memory
+          # bounded on the standard four-vCPU public-repository runner.
+          SCI_TEST_WORKERS: 4
+          # Retain cold-cache headroom for known-slow compression files.
           SCI_TEST_FILE_TIMEOUT: 600
           # Ensure tests don't accidentally call real APIs
           OPENROUTER_API_KEY: ""
@@ -124,10 +99,10 @@ jobs:
           key: test-durations-${{ github.run_id }}
 
   e2e:
-    # The core suites spawn real serve / gateway / tui_gateway / MCP / SQLite
-    # writer processes per test; a 4-vCPU runner serialises them into timeouts.
-    runs-on: ubuntu-latest-32-core
-    timeout-minutes: 30
+    # Each file spawns real services; serialize files on the standard runner
+    # so their child processes can meet readiness deadlines.
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -185,13 +160,8 @@ jobs:
           mapfile -t files < <(find tests/e2e -name 'test_*.py' -not -path 'tests/e2e/core/upgrade/*' | sort)
           scripts/run_tests.sh --include-integration "${files[@]}"
         env:
-          # An e2e file is a process tree, not one CPU-bound pytest worker. With
-          # 32 files at once the hosted run starved live children before their
-          # ready frames (empty stderr, still alive) and hit 60–120s deadlines
-          # across unrelated SQLite, tenancy, provider and terminal suites.
-          # Bound the trees, not the child readiness/turn timeouts. At 4 the
-          # PTY turn and serve-SIGTERM deadlines still starved intermittently.
-          SCI_TEST_WORKERS: "3"
+          # Bound concurrent process trees, not child readiness deadlines.
+          SCI_TEST_WORKERS: "1"
           # Multi-process episodes (torture chamber, compaction kill -9,
           # gateway liveness, delivery exactly-once through a real gateway,
           # the cron virtual-clock soak) legitimately run past the 300 s default.
@@ -244,8 +214,8 @@ jobs:
     # runs ~5-15 min. Sharded by suite directory (see e2e-upgrade-plan).
     name: e2e-upgrade (${{ matrix.shard }})
     needs: e2e-upgrade-plan
-    runs-on: ubuntu-latest-32-core
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix:
@@ -351,10 +321,9 @@ jobs:
           scripts/run_tests.sh --include-integration "${files[@]}"
         env:
           SHARD: ${{ matrix.shard }}
-          # Each file drives real installs/updaters (process trees plus uv and
-          # git I/O); cpu_count of them at once starves their deadlines. A
-          # shard holds at most ~7 files, so this runs each shard in one wave.
-          SCI_TEST_WORKERS: "6"
+          # Each file drives installs/updaters with its own process tree.
+          # Reuse the existing shards but serialize files within each runner.
+          SCI_TEST_WORKERS: "1"
           SCI_TEST_FILE_TIMEOUT: "3000"
           OPENROUTER_API_KEY: ""
           OPENAI_API_KEY: ""

@@ -54,7 +54,7 @@ def render_module(module, catalog, files, limits):
 
 
 def generated_modules(root):
-    catalog, files, limits = (json.loads((root / name).read_text()) for name in
+    catalog, files, limits = (json.loads((root / name).read_text(encoding="utf-8-sig")) for name in
                              ("tool-contracts.v1.json", "file-input-contracts.v1.json", "input-limits.v1.json"))
     return {root / module["path"]: render_module(module, catalog, files, limits) for module in catalog["modules"]}
 
@@ -68,8 +68,8 @@ def main():
     stale = []
     for path, content in generated_modules(root).items():
         if args.write:
-            path.write_text(content)
-        elif not path.is_file() or path.read_text() != content:
+            path.write_text(content, encoding="utf-8")
+        elif not path.is_file() or path.read_text(encoding="utf-8-sig") != content:
             stale.append(path.name)
     if stale:
         parser.exit(1, "Stale generated modules: " + ", ".join(stale) + "\n")

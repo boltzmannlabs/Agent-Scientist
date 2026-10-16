@@ -16,7 +16,7 @@ def read_external(home):
 
     home = Path(home)
     try:
-        config = tomllib.loads((home / "config.toml").read_text()) if (home / "config.toml").exists() else {}
+        config = tomllib.loads((home / "config.toml").read_text(encoding="utf-8-sig")) if (home / "config.toml").exists() else {}
         mode = config.get("cli_auth_credentials_store", "file")
         if mode != "file":
             raise _codex_err(

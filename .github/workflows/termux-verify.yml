@@ -7,12 +7,24 @@ on:
       - 'scripts/termux/**'
       - 'pm/**'
       - 'tests/scripts/test_termux*'
+      - 'tests/scripts/test_stage_apt_repo.py'
+      - 'tests-js/**'
+      - 'ui-tui/**'
+      - 'locales/**'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/termux-verify.yml'
   pull_request:
     paths:
       - 'scripts/termux/**'
       - 'pm/**'
       - 'tests/scripts/test_termux*'
+      - 'tests/scripts/test_stage_apt_repo.py'
+      - 'tests-js/**'
+      - 'ui-tui/**'
+      - 'locales/**'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/termux-verify.yml'
   workflow_dispatch:
   workflow_call:

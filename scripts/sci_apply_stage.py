@@ -15,7 +15,7 @@ def apply_stage(root: Path, stage: Path, backup: Path):
     root, stage, backup = root.resolve(), stage.resolve(), backup.resolve()
     if not (backup / "source-before.tar").is_file():
         raise ValueError("Verified source backup is required before applying")
-    report = json.loads((stage / "sci-migration-report.json").read_text())
+    report = json.loads((stage / "sci-migration-report.json").read_text(encoding="utf-8-sig"))
     if Path(report["source"]).resolve() != root or Path(report["stage"]).resolve() != stage:
         raise ValueError("Stage does not belong to this checkout")
     for row in report["changes"]:
@@ -92,7 +92,7 @@ def apply_stage(root: Path, stage: Path, backup: Path):
                 leftovers.append(str(path.relative_to(root)))
     result = {"source": str(root), "backup": str(backup), "files_written": count,
               "leftovers_requiring_review": leftovers}
-    (backup / "source-cutover.json").write_text(json.dumps(result, indent=2) + "\n")
+    (backup / "source-cutover.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return result
 
 

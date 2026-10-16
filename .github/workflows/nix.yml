@@ -70,12 +70,10 @@ jobs:
     # Release runs force the lane: a stable candidate must build the flake
     # no matter what its diff touches.
     if: needs.detect.outputs.nix == 'true' || inputs.release == true
-    # The build compiles the package and its whole dependency closure, so this
-    # takes minutes and not seconds when the cache misses. `nix flake check`
-    # builds 21 checks, and --max-jobs defaults to the core count. It uses the
-    # wider runner with no more configuration.
-    runs-on: ubuntu-latest-32-core
-    timeout-minutes: 60
+    # Cold builds need more time on a standard runner. Bound Nix concurrency
+    # below so simultaneous dependency builds do not exhaust its memory.
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -92,6 +90,8 @@ jobs:
             # A store path that does not substitute is a cache miss and not a
             # build failure. Build it here instead.
             fallback = true
+            max-jobs = 1
+            cores = 2
             # Each source archive is fetched one time in a run, and not one
             # time for each evaluation.
             tarball-ttl = 3600

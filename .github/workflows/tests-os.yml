@@ -12,7 +12,7 @@ name: OS-specific tests
 # is where those markers actually execute:
 #
 #   macos    → ``-m platforms``    on macos-latest
-#   windows  → ``-m platforms``    on windows-latest-32-core and windows-latest-32-arm-core
+#   windows  → ``-m platforms``    on windows-latest and windows-11-arm
 #
 # (tests/conftest.py's ``pytest_collection_modifyitems`` hook skips
 # foreign-OS ``platforms(...)`` markers on each host, so one shared ``-m
@@ -62,12 +62,13 @@ jobs:
             runner: macos-latest
             marker: macos
           - name: Windows-only tests
-            runner: windows-latest-32-core
+            runner: windows-latest
             marker: windows
+            timeout: 90
           - name: Windows-only tests (arm64)
-            runner: windows-latest-32-arm-core
+            runner: windows-11-arm
             marker: windows
-            timeout: 60
+            timeout: 90
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -160,7 +161,7 @@ jobs:
         env:
           # These files spawn nested PowerShell trees. CPU-count parallelism
           # starves cold child startup before the fixture's idle deadline.
-          SCI_TEST_WORKERS: ${{ matrix.marker == 'windows' && (runner.arch == 'ARM64' && '2' || '8') || '' }}
+          SCI_TEST_WORKERS: ${{ matrix.marker == 'windows' && '1' || '' }}
           # Belt-and-suspenders with tests/conftest.py's env blanking: no
           # test may reach a real provider API.
           OPENROUTER_API_KEY: ''
@@ -189,11 +190,10 @@ jobs:
     # Windows race that passes on retry is still a race. Tracked Windows bugs are strict
     # xfails (per-file KNOWN tables), so a fix turns this job red until the entry goes.
     name: Windows E2E (real processes)
-    # 32-core like os-tests' Windows row: seven files run in parallel and each spawns
-    # process trees; on the 4-vCPU image the suite step took 153-171 s (job 4.7-5.6 min),
-    # here 124 s (job 3.1 min), with headroom against scheduling-starved timeouts.
-    runs-on: windows-latest-32-core
-    timeout-minutes: 25
+    # Serialize process-heavy files on the standard runner rather than
+    # competing for CPU while children wait for readiness.
+    runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -212,7 +212,7 @@ jobs:
           scripts/run_tests.sh tests/e2e/core/windows/ -- \
             -m "platforms and integration" -v --tb=short -rA
         env:
-          SCI_TEST_WORKERS: '6'
+          SCI_TEST_WORKERS: '1'
           SCI_TEST_FILE_TIMEOUT: '900'
           SCI_TEST_FILE_RETRIES: '0'
           OPENROUTER_API_KEY: ''

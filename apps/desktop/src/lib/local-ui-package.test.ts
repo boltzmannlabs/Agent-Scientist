@@ -1,3 +1,4 @@
+/** Desktop UI contracts run with the renderer's dependencies and compiler settings. */
 import { Button } from '@sci/ui/ui/components/button'
 import { stripWpStyles } from '@sci/ui/utils'
 import { createElement } from 'react'

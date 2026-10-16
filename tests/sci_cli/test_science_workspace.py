@@ -106,7 +106,7 @@ def test_catalog_grouping_filters_and_search_follow_installed_registry(tmp_path)
     data = {"modules": [{"id": "a", "domain": "Domain A", "title": "Module A"}], "tools": [
         {"display_name": "Example " + status, "module_id": "a", "status": status, "aliases": ["synonym"]}
         for status in ("active", "on_hold", "removed", "ignored")]}
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8-sig")
     rows = catalog_rows(path)
     assert {r["name"] for r in rows} == {"Example active", "Example on_hold"}
     assert all(r["module"] == "Module A" and r["domain"] == "Domain A" for r in rows)

@@ -37,7 +37,7 @@ def parse_fasta(path: Path) -> list[FastaRecord]:
             raise ValueError(f"FASTA record {record_id!r} contains embedded whitespace")
         records.append(FastaRecord(record_id, sequence))
 
-    for line_number, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+    for line_number, raw_line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
         line = raw_line.strip()
         if not line:
             continue
@@ -61,7 +61,7 @@ def parse_fasta(path: Path) -> list[FastaRecord]:
 
 
 def parse_p2smi_output(path: Path, records: list[FastaRecord]) -> list[str]:
-    lines = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    lines = [line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines() if line.strip()]
     if len(lines) != len(records):
         raise RuntimeError(
             f"p2smi converted {len(lines)} of {len(records)} records; refusing a partial mapping"

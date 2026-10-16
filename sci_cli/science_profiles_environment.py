@@ -22,7 +22,7 @@ def requirements(home: Path, skills: list[str]):
         root = (home / "skills" / name).resolve(strict=True)
         if not root.is_relative_to((home / "skills").resolve()):
             raise ValueError("Skill requirements must come from the selected profile's skills.")
-        metadata, _ = parse_frontmatter((root / "SKILL.md").read_text(encoding="utf-8"))
+        metadata, _ = parse_frontmatter((root / "SKILL.md").read_text(encoding="utf-8-sig"))
         prereqs = metadata.get("prerequisites") or {}
         prereqs = prereqs if isinstance(prereqs, dict) else {}
         declared = metadata.get("required_commands") or prereqs.get("commands") or []

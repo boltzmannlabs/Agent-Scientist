@@ -10,7 +10,7 @@ import sci_yaml as yaml
 @pytest.mark.platforms("posix")
 def test_external_validator_checkout_uses_requested_ref_and_preserves_caller(tmp_path):
     repo = Path(__file__).resolve().parents[2]
-    action = yaml.safe_load((repo / ".github/actions/plugin-validate/action.yml").read_text())
+    action = yaml.safe_load((repo / ".github/actions/plugin-validate/action.yml").read_text(encoding="utf-8-sig"))
     source_step = next(step for step in action["runs"]["steps"] if step.get("id") == "source")
     ref = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
     caller = tmp_path / "plugin"
@@ -24,8 +24,9 @@ def test_external_validator_checkout_uses_requested_ref_and_preserves_caller(tmp
     env_file = tmp_path / "env"
     env = {**os.environ, "RUNNER_TEMP": str(runner), "RUNNER_OS": "Linux",
            "GITHUB_OUTPUT": str(output), "GITHUB_ENV": str(env_file), "_SCI_REF": ref,
+           "_SCI_REPOSITORY": "fixture/sci-validator",
            "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": f"url.{repo.as_uri()}.insteadOf",
-           "GIT_CONFIG_VALUE_0": "https://github.com/NousResearch/hermes-agent.git"}
+           "GIT_CONFIG_VALUE_0": "https://github.com/fixture/sci-validator.git"}
     subprocess.run(["bash", "-c", source_step["run"]], cwd=caller, env=env, check=True,
                    capture_output=True, text=True, timeout=60)
     outputs = dict(line.split("=", 1) for line in output.read_text().splitlines())

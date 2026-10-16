@@ -13,13 +13,13 @@ def registry_path():
     refs = root / "skills/boltzmann-tools/references"
     canonical = refs / "tool-contracts.v1.json"
     # Older separately installed plugins have not necessarily been migrated yet.
-    if canonical.is_file() and json.loads(canonical.read_text()).get("status") == "canonical":
+    if canonical.is_file() and json.loads(canonical.read_text(encoding="utf-8-sig")).get("status") == "canonical":
         return canonical
     return refs / "module-registry.v1.json"
 
 
 def catalog_rows(path=None, *, domain="", query=""):
-    data = json.loads((path or registry_path()).read_text())
+    data = json.loads((path or registry_path()).read_text(encoding="utf-8-sig"))
     modules = {m["id"]: m for m in data["modules"]}
     rows = []
     tools = list(data["tools"].values()) if isinstance(data["tools"], dict) else data["tools"]

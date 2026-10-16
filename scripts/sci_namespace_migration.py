@@ -122,12 +122,12 @@ def prepare(root: Path, destination: Path) -> dict:
     launcher = destination / "agent-sci"
     shutil.copy2(destination / "sci", launcher)
     project = destination / "pyproject.toml"
-    text = project.read_text()
+    text = project.read_text(encoding="utf-8-sig")
     text = text.replace('[project.scripts]\n', '[project.scripts]\nagent-sci = "sci_cli.main:main"\n', 1)
-    project.write_text(text)
+    project.write_text(text, encoding="utf-8")
     report = {"source": str(root), "stage": str(destination), "files": len(names),
               "changed": len(rows), "changes": rows, "live_home_modified": False}
-    (destination / "sci-migration-report.json").write_text(json.dumps(report, indent=2) + "\n")
+    (destination / "sci-migration-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return {key: value for key, value in report.items() if key != "changes"}
 
 

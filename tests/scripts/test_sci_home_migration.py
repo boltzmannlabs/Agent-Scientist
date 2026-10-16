@@ -3,10 +3,31 @@ import hashlib
 import json
 from pathlib import Path
 import sqlite3
+import subprocess
+import sys
 
 import pytest
 
 from scripts.sci_home_migration import migrate
+
+
+def test_gateway_marker_check_is_read_only_for_live_and_stopped_processes(tmp_path):
+    from scripts.sci_home_migration import _check_stopped
+
+    marker = tmp_path / "gateway.pid"
+    with subprocess.Popen(
+        [sys.executable, "-c", "import sys; print('ready', flush=True); sys.stdin.read()"],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding="utf-8",
+    ) as child:
+        try:
+            assert child.stdout.readline().strip() == "ready"
+            marker.write_text(str(child.pid), encoding="utf-8-sig")
+            with pytest.raises(RuntimeError, match="still live"):
+                _check_stopped(tmp_path)
+            assert child.poll() is None
+        finally:
+            child.communicate(timeout=10)
+    _check_stopped(tmp_path)  # A stale marker is not a running gateway.
 
 
 def test_real_homes_keep_secrets_and_history_and_rebase_reviewed_settings(tmp_path, monkeypatch):
