@@ -65,6 +65,7 @@ let
     dirs = [
       "apps/desktop"
       "apps/shared"
+      "apps/ui"
       "scripts/build/desktop.mjs"
       "scripts/build/freshness.mjs"
       "scripts/build/frontend-common.mjs"

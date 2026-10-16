@@ -4,6 +4,7 @@ sciNpmLib.buildNpmPackage {
   dirs = [
     "web"
     "apps/shared"
+    "apps/ui"
     "scripts/build/web.mjs"
     "scripts/build/freshness.mjs"
     "scripts/build/frontend-common.mjs"
