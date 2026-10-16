@@ -49,7 +49,10 @@ def _build_agent_with_db(
     stub_compressor: bool = True,
 ):
     """Build an AIAgent that's wired to ``db`` and pinned to ``session_id``."""
-    with patch.dict(os.environ, {"OPENROUTER_API_KEY": "test-key"}):
+    # The synthetic model has no public metadata; these locking tests must not
+    # spend a network timeout resolving its context window for every agent.
+    with patch.dict(os.environ, {"OPENROUTER_API_KEY": "test-key"}), \
+            patch("agent.context_compressor.get_model_context_length", return_value=256_000):
         from run_agent import AIAgent
 
         agent = AIAgent(

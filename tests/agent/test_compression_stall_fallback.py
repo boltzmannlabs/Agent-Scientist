@@ -283,7 +283,8 @@ def test_same_turn_fallback_retry_is_not_gated_by_the_primary_stall_backoff(tmp_
             time.sleep(0.001)
         return real_route()
 
-    monkeypatch.setattr(cc, "resolve_context_compression_timeouts", lambda compression_cfg=None: (0.4, 4.0))
+    # Leave cold imports/lease setup outside the intentionally stalled summary window.
+    monkeypatch.setattr(cc, "resolve_context_compression_timeouts", lambda compression_cfg=None: (2.0, 10.0))
     monkeypatch.setattr(cc, "resolve_compression_fallback_route", route_after_primary_unwound)
     with _patch_chain([CHAIN_ENTRY]):
         out_msgs, _prompt = agent._compress_context(live, "sys", approx_tokens=50_000)

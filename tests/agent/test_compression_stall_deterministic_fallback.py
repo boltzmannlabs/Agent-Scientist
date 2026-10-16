@@ -80,7 +80,8 @@ def _summary_rows(messages):
 
 @pytest.fixture
 def fast_timeouts(monkeypatch):
-    monkeypatch.setattr(cc, "resolve_context_compression_timeouts", lambda compression_cfg=None: (0.4, 4.0))
+    # Exercise a stalled summary, not cold imports/lease setup on a busy runner.
+    monkeypatch.setattr(cc, "resolve_context_compression_timeouts", lambda compression_cfg=None: (2.0, 10.0))
 
 
 def test_second_consecutive_stall_commits_the_deterministic_fallback_summary(tmp_path, fast_timeouts):

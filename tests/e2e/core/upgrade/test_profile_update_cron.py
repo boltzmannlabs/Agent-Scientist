@@ -85,7 +85,7 @@ def world(tmp_path_factory) -> World:
     w.cli("profile", "create", "author", "--no-alias")
     w.cli("-p", "author", "cron", "create", "--name", "weekly-digest", "0 9 * * 1", "write the weekly digest v1")
     w.cli("-p", "author", "cron", "create", "--name", "retired-job", "0 8 * * *", "a job the author retires in v2")
-    author = w.sb.sci_home / "profiles" / "author"
+    author = w.sci_home / "profiles" / "author"
     assert set(_by_name(I.cron_jobs(author))) == {"weekly-digest", "retired-job"}
     w.src.mkdir()
     shutil.copytree(author / "cron", w.src / "cron", ignore=shutil.ignore_patterns("*.lock", "output", "*.db*"))

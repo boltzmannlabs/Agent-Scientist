@@ -36,7 +36,9 @@ from sci_state import SessionDB
 
 
 def _build_agent_with_db(db: SessionDB, session_id: str, platform: str = "telegram"):
-    with patch.dict(os.environ, {"OPENROUTER_API_KEY": "test-key"}):
+    # State migration uses a synthetic model, not a live provider catalog.
+    with patch.dict(os.environ, {"OPENROUTER_API_KEY": "test-key"}), \
+            patch("agent.context_compressor.get_model_context_length", return_value=256_000):
         from run_agent import AIAgent
 
         agent = AIAgent(
