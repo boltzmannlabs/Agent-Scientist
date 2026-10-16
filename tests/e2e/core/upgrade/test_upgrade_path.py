@@ -92,7 +92,7 @@ def _real_uv() -> str | None:
     return cand if cand and Path(cand).exists() else None
 
 
-OFFICIAL_URL = "https://github.com/NousResearch/hermes-agent.git"
+OFFICIAL_URL = "https://github.com/boltzmannlabs/Agent-Scientist.git"
 
 
 class _Refs(NamedTuple):
@@ -105,16 +105,14 @@ class _Refs(NamedTuple):
 def _refs() -> _Refs:
     """HEAD and release N-1, resolved on first use: collection (every CI shard) runs no git.
 
-    N-1 is the nearest CalVer release tag before HEAD; SCI_E2E_UPGRADE_BASE=<ref> starts from any
+    N-1 is the nearest SCI release tag before HEAD; SCI_E2E_UPGRADE_BASE=<ref> starts from any
     older ref instead (e.g. the pre-handoff v2026.9.14, or a patched base when proving a leg red
     against the N-1 side).
     """
     head = _git("rev-parse", "HEAD", cwd=H.WORKTREE)
     try:
-        tag = os.environ.get("SCI_E2E_UPGRADE_BASE") or _git(
-            "describe", "--tags", "--match", "v20[0-9][0-9].*", "--abbrev=0", "HEAD~1",
-            cwd=H.WORKTREE,
-        )
+        from tests.e2e.core.upgrade._install_helpers import previous_release_tag
+        tag = os.environ.get("SCI_E2E_UPGRADE_BASE") or previous_release_tag()
         return _Refs(head, tag, _git("rev-parse", f"{tag}^{{commit}}", cwd=H.WORKTREE))
     except AssertionError:  # shallow CI checkout without tags
         return _Refs(head, "", "")

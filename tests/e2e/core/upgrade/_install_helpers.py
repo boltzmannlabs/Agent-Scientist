@@ -50,6 +50,17 @@ def head_sha() -> str:
     return git("rev-parse", os.environ.get("SCI_E2E_INSTALL_REF") or "HEAD", cwd=H.WORKTREE)
 
 
+def previous_release_tag() -> str:
+    """Nearest released SCI ancestor; ignore prereleases and inherited CalVer tags."""
+    from sci_cli.update_channel import STABLE_TAG_RE
+
+    tags = git("tag", "--list", "--merged", "HEAD~1", cwd=H.WORKTREE).splitlines()
+    matches = [arg for tag in tags if STABLE_TAG_RE.fullmatch(tag) for arg in ("--match", tag)]
+    if not matches:
+        raise AssertionError("No released SCI ancestor is available for an upgrade test")
+    return git("describe", "--tags", "--abbrev=0", *matches, "HEAD~1", cwd=H.WORKTREE)
+
+
 def make_origin(root: Path, ref: str) -> Path:
     """Bare origin with ``main`` at ``ref``.
 

@@ -56,7 +56,7 @@ def reported_success(cp: subprocess.CompletedProcess) -> bool:
 
 def n1_tag() -> str:
     """N-1: the newest release tag strictly before HEAD."""
-    return I.git("describe", "--tags", "--abbrev=0", "--match", "v20[0-9][0-9].*", "HEAD~1", cwd=H.WORKTREE)
+    return I.previous_release_tag()
 
 
 def n1_base() -> str:
@@ -213,6 +213,7 @@ def world(root: Path, *, base: str, installer_ref: str | None = None,
     bare = serve_bare(srv_root, REPO, H.WORKTREE, base)
     with GitHTTPServer(srv_root) as srv:
         sb = I.new_sandbox(root / "sb")
+        sb.env["SCI_REPO_URL"] = I.OFFICIAL_HTTPS
         url = srv.url(REPO)
         (sb.home / ".gitconfig").write_text(
             f'[url "{url}"]\n  insteadOf = {I.OFFICIAL_HTTPS}\n  insteadOf = {I.OFFICIAL_SSH}\n'

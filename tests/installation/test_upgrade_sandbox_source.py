@@ -19,3 +19,22 @@ def test_installer_source_is_explicit_and_clone_stays_local(tmp_path):
     assert sandbox.checkout.is_dir()
     origin_config = (sandbox.checkout / ".git/config").read_text(encoding="utf-8-sig")
     assert f"url = {source}" in origin_config
+
+
+@pytest.mark.platforms("posix")
+def test_previous_release_uses_sci_tags_not_calver_or_prereleases(tmp_path, monkeypatch):
+    from tests.e2e.core.upgrade import _install_helpers as install
+
+    def git(*args):
+        return subprocess.run(
+            ["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", *args],
+            cwd=tmp_path, check=True, capture_output=True, text=True, encoding="utf-8",
+        )
+
+    git("init", "-q")
+    for tag in ("v1.0.0.0", "v1.1.0.0", "v2026.10.1", "v1.2.0.0-rc1"):
+        git("commit", "--allow-empty", "-qm", tag)
+        git("tag", tag)
+    git("commit", "--allow-empty", "-qm", "unreleased")
+    monkeypatch.setattr(install.H, "WORKTREE", tmp_path)
+    assert install.previous_release_tag() == "v1.1.0.0"
