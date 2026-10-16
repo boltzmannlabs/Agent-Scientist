@@ -25,8 +25,8 @@ from pathlib import Path
 
 from tests.e2e.core.upgrade import _helpers as H
 
-OFFICIAL_HTTPS = "https://github.com/NousResearch/hermes-agent.git"
-OFFICIAL_SSH = "git@github.com:NousResearch/hermes-agent.git"
+OFFICIAL_HTTPS = "https://github.com/boltzmannlabs/Agent-Scientist.git"
+OFFICIAL_SSH = "git@github.com:boltzmannlabs/Agent-Scientist.git"
 TRACEBACK = "Traceback (most recent call last)"
 FAKE_KEY = "sk-fake-e2e-install-update"
 
@@ -140,6 +140,7 @@ def new_sandbox(root: Path, origin: Path | None = None, *, pythonpath: Path | No
     env["SHELL"] = "/bin/bash"
     # A fresh machine: ~/.local/bin is NOT on PATH yet; the installer must wire it up.
     if origin is not None:
+        env["SCI_REPO_URL"] = OFFICIAL_HTTPS
         (home / ".gitconfig").write_text(
             f'[url "file://{origin}"]\n  insteadOf = {OFFICIAL_HTTPS}\n  insteadOf = {OFFICIAL_SSH}\n', encoding="utf-8")
     wrap.mkdir(exist_ok=True)

@@ -21,13 +21,13 @@ def test_user_installer_order_and_failure(tmp_path, failure):
         (source / name).touch()
     log = tmp_path / "calls"
     (source / "setup-sci.sh").write_text(
-        '#!/bin/bash\nset -e\nprintf "setup:%s\\n" "$*" >> "$CALL_LOG"\n'
+        '#!/usr/bin/env bash\nset -e\nprintf "setup:%s\\n" "$*" >> "$CALL_LOG"\n'
         'if [ "$SETUP_FAILURE" != 0 ]; then exit "$SETUP_FAILURE"; fi\n'
         'mkdir -p "$(dirname "$0")/.sci/bin"\n'
         'cp "$FIXTURE_CLI" "$(dirname "$0")/.sci/bin/sci"\n'
         'chmod +x "$(dirname "$0")/.sci/bin/sci"\n')
     cli = tmp_path / "fixture-cli"
-    cli.write_text('#!/bin/bash\nprintf "cli:%s\\n" "$*" >> "$CALL_LOG"\n')
+    cli.write_text('#!/usr/bin/env bash\nprintf "cli:%s\\n" "$*" >> "$CALL_LOG"\n')
     env = {**os.environ, "CALL_LOG": str(log), "FIXTURE_CLI": str(cli),
            "SETUP_FAILURE": str(failure), "HOME": str(tmp_path)}
     result = subprocess.run(["bash", str(source / "install-sci.sh"), "--non-interactive"],
